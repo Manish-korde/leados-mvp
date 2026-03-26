@@ -1,0 +1,170 @@
+{
+  "name": "Agent2_offer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent2-offer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d9fb14ed-6289-4dc7-9888-af2d6773f1b6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "a1544bed-fdb9-4a7e-85d2-6a298b2420fb"
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{\n  service: $json.body?.service || $json.service,\n  audience: $json.body?.audience || $json.audience,\n  problem: $json.body?.problem || $json.problem,\n  pain_intensity: $json.body?.pain_intensity || $json.pain_intensity,\n  willingness_to_pay: $json.body?.willingness_to_pay || $json.willingness_to_pay\n}];"
+      },
+      "id": "62b2526b-f282-4f5d-9285-d6ea2a530a65",
+      "name": "Format Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are an expert business consultant who creates high-converting service offers.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nDETAILED RULES:\\n\\n1. ICP:\\n- Must be specific\\n- Include company type, size, and decision-maker\\n- NOT generic like 'founders' or 'businesses'\\n\\n2. OFFER:\\n- Clearly describe what is being done (service scope)\\n- Mention execution type (done-for-you / consulting / system)\\n\\n3. PRICING:\\n- Convert willingness_to_pay into realistic pricing:\\n  - low → $100–$500\\n  - medium → $500–$2000\\n  - high → $2000–$5000+\\n- Output must be actual price, NOT 'high' or 'medium'\\n\\n4. PROMISE:\\n- Must be measurable\\n- Include numbers or timeframe\\n- Example: 'generate 20 qualified leads in 30 days'\\n\\n5. GUARANTEE:\\n- Must reduce risk\\n- Example: 'or we work for free until results'\\n- Avoid unrealistic claims\\n\\n6. OUTPUT:\\n- Must be clean JSON\\n- No extra text before or after\\n\\nINPUT:\\nService: {{$json.service}}\\nAudience: {{$json.audience}}\\nProblem: {{$json.problem}}\\nPain Intensity: {{$json.pain_intensity}}\\nWillingness To Pay: {{$json.willingness_to_pay}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "7ff8614b-235b-44e7-b228-35f12092532d",
+      "name": "Groq API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        400,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ output: $json.choices[0].message.content }];"
+      },
+      "id": "f4864104-9f86-4c33-9804-b926df92adfe",
+      "name": "Extract Output",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "try {\n  const cleaned = $json.output.replace(/```json|```/g, '').trim();\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  return match ? JSON.parse(match[0]) : { error: 'Invalid JSON', raw: cleaned };\n} catch (e) {\n  return { error: 'Parsing failed', raw: $json.output };\n}"
+      },
+      "id": "5addf5f9-4ba5-4c5b-87f1-ae2bd7f345d0",
+      "name": "Parse JSON",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6dd2294b-a547-4dc4-832b-5c61a239bc04",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Input": {
+      "main": [
+        [
+          {
+            "node": "Groq API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq API": {
+      "main": [
+        [
+          {
+            "node": "Extract Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Output": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "97f56449-2c45-4def-bce8-6e5c5a33f419",
+  "meta": {
+    "instanceId": "9e2b7222325b52503bfd3b4c9c180fa390e935bcffbf83a17ebb5a8d16bfa038"
+  },
+  "id": "CMYwSRJZvZMZabao",
+  "tags": []
+}
