@@ -1,0 +1,204 @@
+{
+  "name": "final_workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "378e8d91-f130-400e-8f13-c8c7961279d0",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c6fab7fd-0984-4e7e-8cfc-6daeeea3cd2c",
+      "name": "Webhook",
+      "webhookId": "378e8d91-f130-400e-8f13-c8c7961279d0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21047e0-f6df-4141-a2f7-c5093b959bfe",
+              "name": "output",
+              "value": "={{$json[\"choices\"][0][\"message\"][\"content\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d77a77d7-500c-42ce-86ab-e4e48af4f6bb",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json[\"parsed\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "89cfcc61-0330-452f-aa4b-e249e98eb2c9",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are given Reddit post titles:\\n\\n{{ $node[\\\"Reddit Fetch\\\"].json.data.children.map(item => item.data.title).join(\\\"\\\\n\\\") }}\\n\\nFind 3 business opportunities.\\n\\nReturn ONLY valid JSON:\\n{\\n  \\\"opportunities\\\": [\\n    {\\\"service\\\": \\\"\\\", \\\"audience\\\": \\\"\\\", \\\"problem\\\": \\\"\\\"}\\n  ]\\n}\\n\\nNO explanation. NO extra text.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        0
+      ],
+      "id": "fcd8ec1e-0281-4406-94b8-ee81bca9c635",
+      "name": "HTTP Request(groq AI)",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "R2ReDqCoeGTq7OFi",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/startups.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a4c08656-2a49-4c9f-9dcd-30093cfcbe06",
+      "name": "Reddit Fetch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "183a3aa9-b6e3-4654-b97a-d01add4f2509",
+              "name": "parsed",
+              "value": "={{ \nJSON.parse(\n  $json[\"output\"]\n    .replace(/```json|```/g, '')\n    .trim()\n    .match(/\\{[\\s\\S]*\\}/)[0]\n)\n}}",
+              "type": "string"
+            },
+            {
+              "id": "62107307-3279-412e-86c3-99c2038edadb",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        0
+      ],
+      "id": "fec0a4d3-3090-4b68-ae13-637bb3783de0",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Reddit Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request(groq AI)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reddit Fetch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request(groq AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5faf9be4-3b30-41c5-b696-367cd0489a59",
+  "meta": {
+    "instanceId": "9e2b7222325b52503bfd3b4c9c180fa390e935bcffbf83a17ebb5a8d16bfa038"
+  },
+  "id": "frtuIdQBQvWXosqP",
+  "tags": []
+}
