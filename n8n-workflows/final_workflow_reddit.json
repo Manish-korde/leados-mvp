@@ -1,0 +1,241 @@
+{
+  "name": "final_workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "378e8d91-f130-400e-8f13-c8c7961279d0",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c6fab7fd-0984-4e7e-8cfc-6daeeea3cd2c",
+      "name": "Webhook",
+      "webhookId": "378e8d91-f130-400e-8f13-c8c7961279d0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21047e0-f6df-4141-a2f7-c5093b959bfe",
+              "name": "output",
+              "value": "={{$json[\"choices\"][0][\"message\"][\"content\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d77a77d7-500c-42ce-86ab-e4e48af4f6bb",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json[\"parsed\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "89cfcc61-0330-452f-aa4b-e249e98eb2c9",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "183a3aa9-b6e3-4654-b97a-d01add4f2509",
+              "name": "parsed",
+              "value": "={{ \nJSON.parse(\n  $json[\"output\"]\n    .replace(/```json|```/g, '')\n    .trim()\n    .match(/\\{[\\s\\S]*\\}/)[0]\n)\n}}",
+              "type": "string"
+            },
+            {
+              "id": "62107307-3279-412e-86c3-99c2038edadb",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        0
+      ],
+      "id": "fec0a4d3-3090-4b68-ae13-637bb3783de0",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/startups.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        0
+      ],
+      "id": "60ffb428-dcb3-4029-ba83-5077123d422c",
+      "name": "reddit node"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"q\": \"startup problems OR business pain points\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        -160
+      ],
+      "id": "3a1435a7-96d3-4847-b329-1dcd03151d82",
+      "name": "serp API"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Based on these Reddit posts, find 3 business opportunities. Return JSON.\\n\\n{{$json}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        0
+      ],
+      "id": "7b7ef3e4-6c69-489d-96af-8c956678090f",
+      "name": "groq API",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "Cr8ca3J4pwxMkvOd",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        -160
+      ],
+      "id": "fd64ba2d-4f39-4ecb-aca0-1c8a470da400",
+      "name": "claude api"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "reddit node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "serp API": {
+      "main": [
+        [
+          {
+            "node": "claude api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reddit node": {
+      "main": [
+        [
+          {
+            "node": "groq API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "groq API": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8835750f-bdcf-493e-aae8-4d60f3d93163",
+  "meta": {
+    "instanceId": "9e2b7222325b52503bfd3b4c9c180fa390e935bcffbf83a17ebb5a8d16bfa038"
+  },
+  "id": "frtuIdQBQvWXosqP",
+  "tags": []
+}
