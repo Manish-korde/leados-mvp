@@ -1,52 +1,80 @@
-# LeadOS MVP 
-# 🚀 LeadOS MVP – Execution Prompt (for Antigravity / AI Agents)
+# 🚀 LeadOS MVP – Execution Guide
 
-This document explains how to run and interact with the LeadOS MVP system.
+This document explains how to run the full LeadOS system (Frontend + Backend).
 
 ---
 
 ## 🧠 Project Overview
 
-LeadOS is an AI-powered pipeline that extracts business opportunities from online signals (currently Reddit) using an automated workflow built in n8n.
+LeadOS is an AI-powered system that extracts business opportunities from online signals (currently Reddit).
 
-The system:
+It works by:
 
-* Collects raw user pain signals
-* Processes them using an LLM
-* Outputs structured business opportunities in JSON format
+* Collecting raw user pain signals
+* Processing them using an LLM
+* Returning structured business opportunities in JSON
 
 ---
 
 ## 🧱 System Components
 
-### 1. Frontend (Optional)
+### 1. Frontend (Operator Dashboard)
 
-* React + Vite Operator Dashboard
-* Currently not required to run the pipeline
+* Built with React + Vite
+* Displays agent outputs
+* Triggers backend workflows
 
 ### 2. Backend (Core System)
 
-* n8n (local workflow automation tool)
+* n8n (local workflow automation)
+* Handles data collection + AI processing
 
 ---
 
 ## ⚙️ How to Run the Project
 
-### Step 1: Install n8n
+---
+
+## 🔹 Step 1: Clone Repository
+
+```bash
+git clone <your-repo-url>
+cd leados-mvp
+```
+
+---
+
+## 🔹 Step 2: Setup Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open in browser:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔹 Step 3: Setup Backend (n8n)
+
+Install n8n:
 
 ```bash
 npm install -g n8n
 ```
 
----
-
-### Step 2: Start n8n
+Start n8n:
 
 ```bash
 npx n8n
 ```
 
-Open in browser:
+Open:
 
 ```
 http://localhost:5678
@@ -54,61 +82,67 @@ http://localhost:5678
 
 ---
 
-### Step 3: Import Workflow
+## 🔹 Step 4: Import Workflow
 
 * Go to n8n dashboard
 * Click **Import**
 * Upload:
 
 ```
-/n8n-workflows/final_workflow_reddit.json
+/n8n-workflows/reddit.json
 ```
 
 ---
 
-### Step 4: Set Up Credentials
+## 🔹 Step 5: Set Up Credentials
 
-#### 🔑 Groq API (for testing)
+### Groq API (Testing)
 
-* Create new credential → **HTTP Header Auth**
-* Add:
-
-  * Authorization: Bearer YOUR_GROQ_API_KEY
-  * Content-Type: application/json
+* Create credential → Bearer Auth
+* Add your API key
 
 ---
 
 ## 🔄 Workflow Execution
 
-### Pipeline Structure
+### Pipeline
 
-```
 Webhook
 ↓
-Reddit Fetch (GET https://www.reddit.com/r/startups.json)
+Reddit Fetch
 ↓
-Groq API (LLM processing)
+Groq API
 ↓
 Edit Node (extract response)
 ↓
 Edit Node (clean + parse JSON)
 ↓
 Respond to Webhook
-```
 
 ---
 
-### Step 5: Run the Workflow
+## 🔹 Step 6: Connect Frontend to Backend
 
-1. Open the workflow
-2. Click **Execute Workflow**
-3. Trigger Webhook (or use test URL)
+* Ensure webhook URL from n8n is active
+* Update frontend API call (if needed) in:
+
+```
+frontend/src/App.jsx
+```
+
+* Replace with your webhook URL
+
+---
+
+## 🔹 Step 7: Run the System
+
+1. Start n8n
+2. Start frontend
+3. Click **Run Agent** on dashboard
 
 ---
 
 ## 📤 Expected Output
-
-The system returns:
 
 ```json
 {
@@ -126,25 +160,84 @@ The system returns:
 
 ## ⚠️ Important Notes
 
-* Reddit is used as the primary signal source for testing (free and unlimited)
-* Groq is used as the LLM to avoid token costs during development
-* API keys are stored securely using n8n credentials (not inside workflow JSON)
+* `.env` is NOT pushed to GitHub
+* Use `.env.example` as reference
+* Add your own API keys locally
 
 ---
 
-## 🔧 Future Upgrade (Production Mode)
+## 🔧 Updating Frontend (Important)
 
-To switch to production:
+If modifying frontend:
 
-* Replace **Reddit Fetch** with **SerpAPI**
-* Replace **Groq API** with **Claude API**
+### 1. DO NOT break API contract
 
-Pre-created placeholder nodes:
+Frontend expects:
+
+```json
+{
+  "opportunities": [...]
+}
+```
+
+If backend changes → frontend WILL break
+
+---
+
+### 2. Keep logic minimal
+
+Frontend should:
+
+* trigger agent
+* display output
+
+NOT:
+
+* process AI data
+* clean JSON
+* apply logic
+
+---
+
+### 3. Always handle errors
+
+Add:
+
+* loading state
+* error fallback
+* empty response handling
+
+---
+
+### 4. Avoid hardcoding URLs
+
+Use:
+
+```js
+const API_URL = "your-webhook-url";
+```
+
+Later move this to `.env`
+
+---
+
+### 5. Test after every change
+
+* Click Run Agent
+* Check console for errors
+* Validate JSON rendering
+
+---
+
+## 🔧 Future Upgrade (Production)
+
+* Replace Reddit → SerpAPI
+* Replace Groq → Claude
+
+Nodes already exist:
 
 * `SerpAPI (PROD)`
 * `Claude (PROD)`
-
-Connect these nodes and update credentials to activate production mode.
 
 ---
 
@@ -152,22 +245,20 @@ Connect these nodes and update credentials to activate production mode.
 
 Input:
 
-* Raw signal data (Reddit posts)
+* Raw Reddit posts
 
 Processing:
 
-* LLM extracts patterns and pain points
+* Pattern extraction via LLM
 
 Output:
 
-* Structured, machine-readable business opportunities
+* Structured business opportunities
 
 ---
 
 ## ✅ Status
 
-* End-to-end pipeline functional
-* Ready for testing and iteration
-* Easily extensible to other signal sources
-
----
+* End-to-end system working
+* Frontend + backend connected
+* Ready for iteration
