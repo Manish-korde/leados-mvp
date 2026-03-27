@@ -13,6 +13,10 @@ export default defineConfig({
       '/webhook-test': {
         target: 'http://localhost:5678',
         changeOrigin: true,
+      },
+      '/webhook': {
+        target: 'http://localhost:5678',
+        changeOrigin: true,
       }
     }
   }

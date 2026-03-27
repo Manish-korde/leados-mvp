@@ -8,15 +8,14 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "a2b2c1d3-e4f5-4g6h-7i8j-k9l0m1n2o3p4",
-      "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
+      "typeVersion": 2.1,
       "position": [
         0,
         0
       ],
-      "webhookId": "b1a2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6"
+      "id": "a2b2c1d3-e4f5-4g6h-7i8j-k9l0m1n2o3p4",
+      "name": "Webhook"
     },
     {
       "parameters": {
@@ -26,50 +25,61 @@
         "nodeCredentialType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.1,\n  \"response_format\": {\n    \"type\": \"json_object\"\n  },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a cold, analytical decision engine. EVALUATE the inputs and return ONLY valid JSON. You MUST use EXACTLY the same 'id' string from the input in your output. RETURN NO TEXT OTHER THAN THE JSON OBJECT.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"EVALUATE AND RETURN EXACT JSON:\\n{\\n  \\\"evaluations\\\": [ { \\\"id\\\": \\\"EXACT_INPUT_ID\\\", \\\"score\\\": 0.0, \\\"reason\\\": \\\"\\\" } ],\\n  \\\"rejected\\\": [],\\n  \\\"ranked\\\": [],\\n  \\\"winner\\\": null\\n}\\n\\nINPUT:\\n{{ JSON.stringify($json.body.opportunities) }}\"\n    }\n  ]\n}",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.1,\n  \"response_format\": {\n    \"type\": \"json_object\"\n  },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a cold, analytical decision engine. EVALUATE the inputs and return ONLY valid JSON. You MUST use EXACTLY the same 'id' string from the input in your output. RETURN NO TEXT OTHER THAN THE JSON OBJECT.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"EVALUATE AND PICK THE ABSOLUTE BEST WINNER. You MUST return EXACT JSON:\\n{\\n  \\\"evaluations\\\": [ { \\\"id\\\": \\\"EXACT_INPUT_ID\\\", \\\"score\\\": 0.0, \\\"reason\\\": \\\"\\\" } ],\\n  \\\"rejected\\\": [],\\n  \\\"ranked\\\": [],\\n  \\\"winner\\\": { \\\"id\\\": \\\"EXACT_INPUT_ID\\\", \\\"reason\\\": \\\"\\\" }\\n}\\n\\nCRITICAL: One opportunity MUST be the winner. Use the exact 'id' from the input.\\n\\nINPUT:\\n\" + JSON.stringify($json.body.opportunities)\n    }\n  ]\n} }}",
         "options": {}
       },
-      "id": "b1c2d3e4-f5g6-h7i8-j9k0-l1m2n3o4p5q6",
-      "name": "Groq Selection",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
+      "typeVersion": 4.1,
       "position": [
         250,
         0
       ],
+      "id": "b1c2d3e4-f5g6-h7i8-j9k0-l1m2n3o4p5q6",
+      "name": "Groq Selection",
       "credentials": {
         "httpHeaderAuth": {
           "id": "UXgmT5ea2qmzvhCy",
           "name": "Header Auth account"
         }
-      },
-      "continueOnFail": true
+      }
     },
     {
       "parameters": {
-        "functionCode": "let content = '';\ntry {\n  if ($json.choices && $json.choices.length > 0) {\n    content = $json.choices[0].message.content;\n  } else {\n    const errInfo = $json.error ? $json.error.message : JSON.stringify($json);\n    return { error: 'Groq API Error: ' + errInfo, raw: JSON.stringify($json) };\n  }\n} catch (e) {\n  return { error: 'Failed to access Groq Node data: ' + e.message, raw: JSON.stringify($json) };\n}\n\ntry {\n  const start = content.indexOf('{');\n  if (start === -1) return { error: 'No JSON object found', raw: content };\n  \n  let count = 0;\n  let end = -1;\n  for (let i = start; i < content.length; i++) {\n    if (content[i] === '{') count++;\n    if (content[i] === '}') count--;\n    if (count === 0) {\n      end = i;\n      break;\n    }\n  }\n  \n  if (end === -1) end = content.lastIndexOf('}');\n  const jsonStr = content.substring(start, end + 1);\n  \n  return JSON.parse(jsonStr);\n} catch (e) {\n  return { error: 'Parsing failed: ' + e.message, raw: content };\n}"
+        "assignments": {
+          "assignments": [
+            {
+              "id": "parse-content",
+              "name": "parsed",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "id": "c1d2e3f4-g5h6-i7j8-k9l0-m1n2o3p4q5r6",
-      "name": "Parse Result",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
         500,
         0
-      ]
+      ],
+      "id": "c1d2e3f4-g5h6-i7j8-k9l0-m1n2o3p4q5r6",
+      "name": "Parser"
     },
     {
       "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.parsed }}",
         "options": {}
       },
-      "id": "d1e2f3g4-h5i6-j7k8-l9m0-n1o2p3q4r5s6",
-      "name": "Respond",
       "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1,
+      "typeVersion": 1.1,
       "position": [
         750,
         0
-      ]
+      ],
+      "id": "d1e2f3g4-h5i6-j7k8-l9m0-n1o2p3q4r5s6",
+      "name": "Respond"
     }
   ],
   "connections": {
@@ -88,14 +98,14 @@
       "main": [
         [
           {
-            "node": "Parse Result",
+            "node": "Parser",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Parse Result": {
+    "Parser": {
       "main": [
         [
           {
@@ -109,8 +119,5 @@
   },
   "active": true,
   "settings": {},
-  "versionId": "v11-agent3-selection",
-  "meta": {
-    "instanceId": "9e2b7222325b52503bfd3b4c9c180fa390e935bcffbf83a17ebb5a8d16bfa038"
-  }
+  "versionId": "v12-agent3-selection"
 }

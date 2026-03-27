@@ -13,21 +13,21 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        0,
+        -160,
         0
       ],
       "webhookId": "a1544bed-fdb9-4a7e-85d2-6a298b2420fb"
     },
     {
       "parameters": {
-        "functionCode": "return [{\n  service: $json.body?.service || $json.service,\n  audience: $json.body?.audience || $json.audience,\n  problem: $json.body?.problem || $json.problem,\n  pain_intensity: $json.body?.pain_intensity || $json.pain_intensity,\n  willingness_to_pay: $json.body?.willingness_to_pay || $json.willingness_to_pay\n}];"
+        "functionCode": "return [{\n  solution: $json.body?.solution || $json.solution,\n  solution_type: $json.body?.solution_type || $json.solution_type,\n  audience: $json.body?.audience || $json.audience,\n  problem: $json.body?.problem || $json.problem,\n  pain_intensity: $json.body?.pain_intensity || $json.pain_intensity,\n  willingness_to_pay: $json.body?.willingness_to_pay || $json.willingness_to_pay,\n  angle: $json.body?.angle || \"original\"\n}];"
       },
       "id": "62b2526b-f282-4f5d-9285-d6ea2a530a65",
       "name": "Format Input",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        208,
+        32,
         0
       ]
     },
@@ -39,7 +39,7 @@
         "nodeCredentialType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are an expert business consultant who creates high-converting service offers.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nDETAILED RULES:\\n\\n1. ICP:\\n- Must be specific\\n- Include company type, size, and decision-maker\\n- NOT generic like 'founders' or 'businesses'\\n\\n2. OFFER:\\n- Clearly describe what is being done (service scope)\\n- Mention execution type (done-for-you / consulting / system)\\n\\n3. PRICING:\\n- Convert willingness_to_pay into realistic pricing:\\n  - low → $100–$500\\n  - medium → $500–$2000\\n  - high → $2000–$5000+\\n- Output must be actual price, NOT 'high' or 'medium'\\n\\n4. PROMISE:\\n- Must be measurable\\n- Include numbers or timeframe\\n- Example: 'generate 20 qualified leads in 30 days'\\n\\n5. GUARANTEE:\\n- Must reduce risk\\n- Example: 'or we work for free until results'\\n- Avoid unrealistic claims\\n\\n6. OUTPUT:\\n- Must be clean JSON\\n- No extra text before or after\\n\\nINPUT:\\nService: {{$json.service}}\\nAudience: {{$json.audience}}\\nProblem: {{$json.problem}}\\nPain Intensity: {{$json.pain_intensity}}\\nWillingness To Pay: {{$json.willingness_to_pay}}\"\n    }\n  ]\n}",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.7,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an elite, first-principles business engineer. You solve each problem as a UNIQUE, independent entity. You NEVER reuse ideas or delivery models from previous tasks unless they are the ONLY logical solution to the CURRENT specific problem.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a business offer that is 100% GROUNDED in the specific PROBLEM below.\\n\\nCRITICAL CONSTRAINTS:\\n- Your offer MUST solve the specific mechanism of the PROBLEM — ignore all other domains or common patterns.\\n- If the problem is unrelated to ads, marketing, or e-commerce, your offer MUST NOT mention them.\\n- Every output must be structurally independent — do NOT follow a default 'AI tool' or 'SaaS' pattern unless specifically required by the problem.\\n\\nNEGATIVE CONSTRAINTS (DO NOT DO):\\n- DO NOT default to: 'AI-powered', 'optimization tool', 'growth system', 'Shopify' or 'SaaS'.\\n- DO NOT provide a marketing solution for a technical or operational problem.\\n- DO NOT use buzzwords or vague mechanisms.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nFIELD RULES:\\n1. ICP: Specific industry + Size + job title (Must be the direct buyer of the solution).\\n2. OFFER: Describe the EXACT mechanic of the solution. No vague language.\\n3. PRICING: Provide a realistic dollar amount range based on the pain intensity: low ($100-$500) | medium ($1k-$3k) | high ($5k-$20k). Format: 'label ($range)'.\\n4. PROMISE: Measurable outcome + Timeframe (Must be the direct result of the offer).\\n5. GUARANTEE: Tangible risk reversal.\\n\\nINPUT DATA:\\nProblem: \" + $json.problem + \"\\nMechanism Required: \" + $json.solution + \"\\nExecution Type: \" + $json.solution_type + \"\\nTarget Audience: \" + $json.audience + \"\\nPain Intensity: \" + $json.pain_intensity + \"\\nWillingness To Pay: \" + $json.willingness_to_pay + \"\\nAngle: \" + $json.angle\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "7ff8614b-235b-44e7-b228-35f12092532d",
@@ -47,7 +47,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
-        400,
+        224,
         0
       ],
       "credentials": {
@@ -66,7 +66,7 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        608,
+        432,
         0
       ]
     },
@@ -79,7 +79,7 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        800,
+        624,
         0
       ]
     },
@@ -92,9 +92,106 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1008,
-        0
+        1344,
+        16
       ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const offer = ($json.offer || \"\").toLowerCase();\nconst promise = ($json.promise || \"\").toLowerCase();\nconst pricing = ($json.pricing || \"\").toLowerCase();\nconst solution = ($json.solution || \"\").toLowerCase();\nconst problem = ($json.problem || \"\").toLowerCase();\n\nconst bannedPatterns = [\n  \"ai-powered\",\n  \"optimization tool\",\n  \"growth solution\",\n  \"end-to-end\",\n  \"scalable system\",\n  \"streamline\",\n  \"leverage\",\n  \"cutting-edge\"\n];\n\nlet score = 5;\n\n// 1. Check for buzzword density\nbannedPatterns.forEach(p => {\n  if (offer.includes(p)) score -= 2;\n});\n\n// 2. Check for Problem-Offer Grounding (Basic keyword sanity)\n// If the problem mentions 'ads' but offer doesn't mention 'ads', 'marketing', or 'campaigns' -> Penalize\nconst problemKeywords = problem.split(/\\s+/).filter(w => w.length > 4);\nconst hasOverlap = problemKeywords.some(w => offer.includes(w));\nif (!hasOverlap) score -= 3;\n\n// 3. Reward specificity & numbers\nif (offer.length > 150) score += 1;\nif (offer.length < 60) score -= 2; // Too short is probably generic\n\nif (promise.match(/\\d+/)) score += 1; // Presence of numbers/timeframes\nif (pricing.includes(\"$\")) score += 1;\n\n// 4. Retry handling\nconst retries = $json.retries || 0;\nconst forced_accept = retries >= 3;\n\nreturn [{\n  ...$json,\n  retries,\n  score,\n  is_valid: (score >= 4 && retries < 3) || forced_accept,\n  forced_accept\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "f1df43f1-f217-4559-ac25-c914a28b8d47",
+      "name": "validate offer"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "894e8645-269e-4123-b6ee-1b8ec918caf4",
+              "leftValue": "is_valid",
+              "rightValue": "false",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        0
+      ],
+      "id": "f69a9b0f-f700-46c3-8415-fb98ddcc98c1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.8,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a first-principles business engineer. Your previous output was REJECTED for being too generic or irrelevant. You must now generate a fundamentally different, SPECIFIC solution grounded ONLY in the current problem.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"RE-ENGINEER this offer. The previous version was too generic.\\n\\nHARD REQUIREMENTS:\\n- DO NOT reuse any words, structures, or ideas from the 'Previous Output' below.\\n- The offer MUST directly solve the mechanical 'Problem' listed.\\n- If the problem is not about marketing, DO NOT suggest marketing/ads.\\n- NO buzzwords (AI-powered, scalable, growth, etc).\\n\\nFORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nINPUT:\\nProblem: \" + $json.problem + \"\\nSolution Requirement: \" + $json.solution + \"\\nPrevious Output (DO NOT REUSE): \" + $json.offer + \"\\n\\nTarget Audience: \" + $json.audience + \"\\nExecution Type: \" + $json.solution_type\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "1585947e-a355-4456-b8bf-fce9aeb03ac6",
+      "name": "retry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1328,
+        -288
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d7c90de0-e10e-4e49-8f29-aca5a01ccec3",
+              "name": "=retries",
+              "value": "={{ ($json.retries || 0) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        -288
+      ],
+      "id": "4cbd30ed-0665-4fb0-a96f-d5abc81f548b",
+      "name": "retry counter set"
     }
   ],
   "pinData": {},
@@ -147,7 +244,58 @@
       "main": [
         [
           {
+            "node": "validate offer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validate offer": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "retry counter set",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retry": {
+      "main": [
+        [
+          {
+            "node": "Extract Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retry counter set": {
+      "main": [
+        [
+          {
+            "node": "retry",
             "type": "main",
             "index": 0
           }
@@ -155,13 +303,13 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "97f56449-2c45-4def-bce8-6e5c5a33f419",
+  "versionId": "bff7683d-53f9-4b02-a174-d6037a4e81e3",
   "meta": {
     "instanceId": "9e2b7222325b52503bfd3b4c9c180fa390e935bcffbf83a17ebb5a8d16bfa038"
   },
