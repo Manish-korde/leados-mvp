@@ -24,8 +24,7 @@ const getScoreColor = (s) => {
 const STAGES = {
   DETECTED: "DETECTED",
   GENERATED: "GENERATED",
-  SELECTED: "SELECTED",
-  REJECTED: "REJECTED"
+  VALIDATED: "VALIDATED"
 };
 
 const getSolutionTypeBadge = (type) => {
@@ -140,64 +139,172 @@ function OfferPanel({ offerData, isWinner }) {
   );
 }
 
+// ─── Funnel Panel ──────────────────────────────────────────────────────────────
+function FunnelPanel({ funnel }) {
+  if (!funnel) return null;
+
+  return (
+    <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="border-l-4 border-amber-500 pl-6 py-1">
+        <h2 className="text-3xl font-black text-white tracking-tighter italic">Acquisition Funnel</h2>
+        <p className="text-slate-600 text-[9px] font-black mt-1 uppercase tracking-widest">Translation: Opportunity → Execution System</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Strategy */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 relative overflow-hidden group">
+             <div className="absolute top-0 right-0 w-[300px] h-full bg-amber-500/5 blur-[60px] -rotate-12 translate-x-20"></div>
+             <div className="relative z-10">
+               <div className="flex items-center gap-3 mb-6">
+                 <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shadow-inner">🪝</div>
+                 <div>
+                   <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-widest leading-none">The Hook</h4>
+                   <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Pattern Interrupt Angle</p>
+                 </div>
+               </div>
+               <p className="text-2xl font-black text-white leading-tight tracking-tight italic">"{funnel.hook}"</p>
+             </div>
+          </div>
+
+          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-xl shadow-inner">📄</div>
+              <div>
+                <h4 className="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none">Landing Page Copy</h4>
+                <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Conversion Optimized</p>
+              </div>
+            </div>
+            
+            <div className="space-y-6 pl-4 border-l-2 border-slate-800">
+              <div>
+                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Headline</p>
+                <p className="text-xl font-black text-white leading-tight">{funnel.landing_page.headline}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Subheadline</p>
+                <p className="text-sm text-slate-400 font-bold leading-relaxed">{funnel.landing_page.subheadline}</p>
+              </div>
+              <div className="pt-2">
+                <button className="bg-white text-slate-950 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-white/5 active:scale-95 transition-all">
+                  {funnel.landing_page.cta}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 px-1">Lead Magnet</h4>
+              <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex items-center gap-4 group hover:border-amber-500/30 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">🎁</div>
+                <p className="text-xs font-black text-slate-200 leading-snug">{funnel.lead_magnet}</p>
+              </div>
+            </div>
+            <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 px-1">Acquisition Channels</h4>
+              <div className="flex flex-wrap gap-2">
+                {funnel.acquisition_channels.map((chan, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[10px] font-black text-blue-400 uppercase tracking-wider">{chan}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Roadmap */}
+        <div className="space-y-6">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 h-full">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner">⚡</div>
+              <div>
+                <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">First 7-Day Launch</h4>
+                <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Immediate Execution</p>
+              </div>
+            </div>
+
+            <div className="space-y-6 relative border-l border-slate-800/80 ml-5 pr-2">
+              {funnel.first_7_day_execution.map((step, i) => (
+                <div key={i} className="relative pl-10">
+                  <div className="absolute left-[-17px] top-0 w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[10px] font-black text-white group hover:border-emerald-500/50 transition-colors">
+                    {i + 1}
+                  </div>
+                  <p className="text-xs font-bold text-slate-300 leading-relaxed mt-1 group-hover:text-white transition-colors">
+                    {step}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-2xl group hover:bg-emerald-500/20 transition-all cursor-pointer">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Next Phase</span>
+                <span className="text-xs">→</span>
+              </div>
+              <p className="text-[11px] font-black text-white uppercase tracking-tight">Lock Implementation Plan</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Opportunity Card ──────────────────────────────────────────────────────────
-function OpportunityCard({ opp, index, onAction, isSelectionFinalized }) {
-  const status = opp.status;
-  const isSelected = status === "GO";
-  const isRejected = status === "NO-GO";
+function OpportunityCard({ opp, index }) {
   const isRevising = opp.isRevising;
   const typeBadge = getSolutionTypeBadge(opp.solution_type);
 
-  // Agent 3 Selection UI
-  const selectionInfo = opp.selectionInfo; 
-  const isWinner = selectionInfo?.isWinner;
-  const rank = selectionInfo?.rank;
-  const selectionScore = selectionInfo?.score;
-  const isPostSelectionRejected = isSelectionFinalized && !isWinner;
+  // Validation Info
+  const validationInfo = opp.validationInfo;
+  const isValidated = !!validationInfo;
+  const isSelected = validationInfo?.isSelected;
+  const isNoGo = validationInfo?.decision === "NO-GO";
+  const validationScore = validationInfo?.score;
+  const validationReason = validationInfo?.reason;
 
-  const cardBg = isWinner
+  const cardBg = isSelected
     ? "border-emerald-500/80 bg-emerald-500/[0.08] shadow-[0_0_50px_rgba(16,185,129,0.2)] ring-2 ring-emerald-500/30 scale-[1.02]"
-    : isPostSelectionRejected
-    ? "border-slate-800 opacity-30 grayscale saturate-0 pointer-events-none"
-    : isSelected
+    : isNoGo
+    ? "border-rose-500/20 opacity-40 grayscale saturate-0"
+    : isValidated
+    ? "border-slate-800 opacity-60"
+    : opp.offerData
     ? "border-blue-500/50 bg-blue-500/5 shadow-[0_0_30px_rgba(59,130,246,0.1)]"
-    : isRejected
-    ? "border-rose-500/20 opacity-40 grayscale pointer-events-none"
     : isRevising
     ? "border-amber-500/40 bg-amber-500/5 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
     : "border-slate-800/80 bg-slate-900/40 hover:bg-slate-900/70 hover:border-slate-700 active:scale-[0.98]";
 
   // Pipeline Stage Determination
   let currentStage = STAGES.DETECTED;
-  if (isWinner) currentStage = STAGES.SELECTED;
-  else if (isPostSelectionRejected) currentStage = STAGES.REJECTED;
-  else if (isSelected || opp.offerData) currentStage = STAGES.GENERATED;
-  else if (isRejected) currentStage = STAGES.REJECTED;
+  if (isValidated) currentStage = STAGES.VALIDATED;
+  else if (opp.offerData) currentStage = STAGES.GENERATED;
 
   return (
     <div className={`group rounded-2xl border p-6 flex flex-col transition-all duration-500 shadow-xl backdrop-blur-sm relative ${cardBg}`}>
 
-      {/* Winner Ribbon */}
-      {isWinner && (
+      {/* Selected Ribbon */}
+      {isSelected && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 font-black px-6 py-2 rounded-full text-[11px] uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(16,185,129,0.5)] z-20 whitespace-nowrap border-2 border-emerald-400">
-          🏆 FINAL SELECTED WINNER
+          🏆 VALIDATED WINNER
         </div>
       )}
 
       {/* Status Banner */}
       <div className="flex items-center justify-between gap-2 mb-6">
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-black text-[9px] uppercase tracking-widest ${
-          currentStage === STAGES.SELECTED ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" :
+          isSelected ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" :
+          isValidated && !isNoGo ? "bg-slate-800/40 text-slate-400 border-slate-700" :
+          isNoGo ? "bg-rose-500/20 text-rose-400 border-rose-500/30" :
           currentStage === STAGES.GENERATED ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
-          currentStage === STAGES.REJECTED ? "bg-rose-500/20 text-rose-400 border-rose-500/30" :
           "bg-slate-800/40 text-slate-500 border-slate-700/50"
         }`}>
           <div className={`w-1.5 h-1.5 rounded-full ${
-            currentStage === STAGES.SELECTED ? "bg-emerald-400 animate-pulse" :
-            currentStage === STAGES.GENERATED ? "bg-blue-400" :
-            currentStage === STAGES.REJECTED ? "bg-rose-400" : "bg-slate-600"
+            isSelected ? "bg-emerald-400 animate-pulse" :
+            isNoGo ? "bg-rose-400" :
+            currentStage === STAGES.GENERATED ? "bg-blue-400" : "bg-slate-600"
           }`}></div>
-          STAGE: {currentStage}
+          STATUS: {isSelected ? "SELECTED" : isNoGo ? "NO-GO" : currentStage}
         </div>
         
         {isRevising && (
@@ -224,10 +331,9 @@ function OpportunityCard({ opp, index, onAction, isSelectionFinalized }) {
           </div>
         </div>
         <div className="flex flex-col gap-1 items-end shrink-0">
-          {selectionScore && (
-            <div className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase mb-1 flex items-center gap-1 ${getScoreColor(selectionScore)}`}>
-              {rank && <span className="text-slate-500 mr-1">Rank #{rank}</span>}
-              Score: {selectionScore}
+          {isValidated && (
+            <div className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase mb-1 flex items-center gap-1 ${getScoreColor(validationScore)}`}>
+              Validation: {validationScore}/10
             </div>
           )}
           <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${getIntensityColor(opp.pain_intensity)}`}>
@@ -277,79 +383,30 @@ function OpportunityCard({ opp, index, onAction, isSelectionFinalized }) {
         <div className="pt-2">
           <div className="flex justify-between items-center mb-2">
             <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              {isWinner ? "Selection Confidence (Agent 3)" : "Model Alignment (Agent 2)"}
+              {isValidated ? "Validation Outcome" : "Model Alignment (Agent 2)"}
             </h4>
-            <span className={`text-xs font-black ${isWinner ? 'text-emerald-500' : 'text-blue-500'}`}>{opp.confidence_score}%</span>
+            <span className={`text-xs font-black ${isSelected ? 'text-emerald-500' : 'text-blue-500'}`}>{isValidated ? (isSelected ? '100' : '0') : opp.confidence_score}%</span>
           </div>
           <div className="w-full bg-slate-800/40 rounded-full h-1.5 overflow-hidden ring-1 ring-slate-800/10">
             <div
-              className={`h-full transition-all duration-1000 ease-out shadow-lg ${isWinner ? 'bg-gradient-to-r from-emerald-600 to-green-400' : 'bg-gradient-to-r from-blue-600 to-sky-400'}`}
-              style={{ width: `${opp.confidence_score}%` }}
+              className={`h-full transition-all duration-1000 ease-out shadow-lg ${isSelected ? 'bg-gradient-to-r from-emerald-600 to-green-400' : 'bg-gradient-to-r from-blue-600 to-sky-400'}`}
+              style={{ width: `${isValidated ? (isSelected ? 100 : 0) : opp.confidence_score}%` }}
             />
           </div>
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="grid grid-cols-3 gap-2 mt-6 h-9">
-        <button
-          id={`btn-go-${index}`}
-          disabled={isSelectionFinalized || isSelected || opp.isLoadingOffer || opp.isRevising}
-          onClick={() => onAction(index, "GO", opp)}
-          className={`py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all duration-300 flex items-center justify-center gap-2 ${
-            isWinner
-              ? "bg-emerald-500 text-slate-950 border-emerald-400 col-span-3 shadow-md shadow-emerald-500/10"
-              : isSelectionFinalized
-              ? "bg-slate-900 text-slate-700 border-slate-800 cursor-not-allowed col-span-3 opacity-40"
-              : isSelected
-              ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-500/10 col-span-1"
-              : opp.isLoadingOffer || opp.isRevising
-              ? "opacity-40 cursor-not-allowed bg-slate-800/50 text-slate-500 border-transparent col-span-3"
-              : "bg-slate-800 text-slate-400 border-slate-700 hover:bg-white hover:text-slate-950 hover:border-white col-span-3 shadow-sm"
-          }`}
-        >
-          {opp.isLoadingOffer || opp.isRevising ? (
-            <>
-              <div className="w-3 h-3 border-2 border-slate-700 border-t-blue-400 rounded-full animate-spin"></div>
-              {opp.isRevising ? "Revising..." : "Engineering..."}
-            </>
-          ) : isWinner ? (
-            "🏆 FINAL SELECTION: EXECUTING"
-          ) : isPostSelectionRejected ? (
-            "NOT SELECTED"
-          ) : isSelected ? (
-            "SELECTED"
-          ) : (
-            "GO"
-          )}
-        </button>
-
-        {/* Post-Generation Options */}
-        {!isSelectionFinalized && (isSelected || isRejected || opp.offerData) && !opp.isLoadingOffer && !opp.isRevising && (
-          <>
-            <button
-              id={`btn-nogo-${index}`}
-              disabled={isRejected}
-              onClick={() => onAction(index, "NO-GO", opp)}
-              className={`py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all duration-300 ${
-                isRejected
-                  ? "bg-rose-500 text-white border-rose-400 shadow-sm"
-                  : "bg-slate-900 text-slate-500 border-slate-800 hover:bg-rose-600 hover:text-white hover:border-rose-400"
-              }`}
-            >
-              NO-GO
-            </button>
-
-            <button
-              id={`btn-revise-${index}`}
-              onClick={() => onAction(index, "REVISE", opp)}
-              className="bg-slate-900 text-slate-500 border-slate-800 hover:bg-amber-500 hover:text-white hover:border-amber-400 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all duration-300 shadow-sm"
-            >
-              REVISE
-            </button>
-          </>
+        {validationReason && (
+          <div className="pt-4 border-t border-slate-800/30">
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`w-1.5 h-1.5 rounded-full ${isNoGo ? 'bg-rose-500' : 'bg-emerald-500'}`}></div>
+              <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Validation Reasoning</h4>
+            </div>
+            <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{validationReason}</p>
+          </div>
         )}
       </div>
+
+      {/* No individual actions anymore as per requirements */}
 
       {/* Loading */}
       {opp.isLoadingOffer && (
@@ -360,12 +417,12 @@ function OpportunityCard({ opp, index, onAction, isSelectionFinalized }) {
       )}
 
       {opp.offerError && (
-        <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-bold">
+        <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-bold animate-shake">
           {opp.offerError}
         </div>
       )}
 
-      {opp.offerData && !opp.isLoadingOffer && <OfferPanel offerData={opp.offerData} isWinner={isWinner} />}
+      {opp.offerData && !opp.isLoadingOffer && <OfferPanel offerData={opp.offerData} isWinner={isSelected} />}
     </div>
   );
 }
@@ -378,15 +435,70 @@ export default function App() {
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("idle");
+  const [funnelData, setFunnelData] = useState(null);
+  const [isGeneratingFunnel, setIsGeneratingFunnel] = useState(false);
 
-  const runAgent3 = async () => {
-    // Collect candidates AND their original indices to map everything correctly upon return
-    const candidatesWithIndices = opportunities
-      .map((o, idx) => ({ o, idx }))
-      .filter(({ o }) => o.status === "GO" && o.offerData);
+  const runFunnelAgent = async () => {
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) {
+      setError("No selected offer found to build a funnel.");
+      return;
+    }
 
-    if (candidatesWithIndices.length === 0) {
-      setError("Generate at least one offer before running selection.");
+    setIsGeneratingFunnel(true);
+    setError(null);
+    setFunnelData(null);
+
+    try {
+      const payload = {
+        selected_offer: {
+          ICP: winner.offerData?.ICP || winner.offerData?.icp,
+          offer: winner.offerData?.offer,
+          pricing: winner.offerData?.pricing,
+          promise: winner.offerData?.promise,
+          guarantee: winner.offerData?.guarantee
+        },
+        validation_context: {
+          score: winner.validationInfo?.score,
+          reason: winner.validationInfo?.reason
+        }
+      };
+
+      const res = await fetch("/webhook/agent4-funnel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Funnel Agent raw error:", text);
+        throw new Error("Funnel Agent Failed: " + text.substring(0, 100));
+      }
+      
+      const result = await res.json();
+      console.log("Funnel Agent Result:", result);
+      
+      if (result.error) throw new Error(result.error);
+      setFunnelData(result.funnel);
+      
+      // Scroll to funnel
+      setTimeout(() => {
+        document.getElementById('funnel-output')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+
+    } catch (err) {
+      setError("Funnel Engineering Failure: " + err.message);
+    } finally {
+      setIsGeneratingFunnel(false);
+    }
+  };
+
+  const runValidationAgent = async () => {
+    const candidates = opportunities.filter(o => o.offerData);
+
+    if (candidates.length === 0) {
+      setError("Generate offers before running validation.");
       return;
     }
 
@@ -395,17 +507,16 @@ export default function App() {
 
     try {
       const payload = {
-        opportunities: candidatesWithIndices.map(({ o, idx }) => ({
-          id: String(idx), // Stable ID refers to original index
-          solution: (o.solution || "").slice(0, 100),
-          problem: (o.problem || "").slice(0, 300),
-          audience: o.audience,
-          ...o.offerData,
-          // Truncate offer text to avoid breaking LLM context
-          offer: (o.offerData?.offer || "").slice(0, 300),
-          promise: (o.offerData?.promise || "").slice(0, 200),
-          icp: (o.offerData?.icp || o.offerData?.ICP || "").slice(0, 150)
-        }))
+        opportunities: candidates.map((o) => {
+          // Find original index to maintain stable IDs
+          const originalIdx = opportunities.findIndex(orig => orig === o);
+          return {
+            id: String(originalIdx),
+            solution: o.solution,
+            problem: o.problem,
+            ...o.offerData
+          };
+        })
       };
 
       const res = await fetch("/webhook/agent3-selection", {
@@ -414,50 +525,53 @@ export default function App() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Agent 3 Selection Failed");
+      if (!res.ok) throw new Error("Validation Agent Failed");
 
       const result = await res.json();
-      console.log("Agent 3 Response Raw:", result);
+      console.log("Validation Result:", result);
       
-      // Explicit error check for n8n function results
       if (result.error) throw new Error(result.error);
       
-      // Map results back to the FULL opportunities array using the original index (id)
-      setOpportunities(prev => {
-        const next = prev.map((opp, idx) => {
-          const idStr = String(idx);
-          const evalItem = result.evaluations?.find(e => String(e.id) === idStr);
-          const rankItem = result.ranked?.find(r => String(r.id) === idStr);
-          const rejectedItem = result.rejected?.find(rej => String(rej.id) === idStr);
-          
-          // Handle winner as object { id: "0" } or directly "0"
-          const winnerId = result.winner?.id ?? result.winner;
-          const isWinner = winnerId !== null && winnerId !== undefined && String(winnerId) === idStr;
+      setOpportunities(prev => prev.map((opp, idx) => {
+        const idStr = String(idx);
+        const evalItem = result.evaluations?.find(e => String(e.id) === idStr);
+        const isSelected = result.selected_offer === idStr;
 
-          if (evalItem || rankItem || rejectedItem) {
-            console.log(`Matched ID ${idStr}:`, { evalItem, isWinner });
-            return {
-              ...opp,
-              selectionInfo: {
-                score: evalItem?.score,
-                rank: rankItem?.rank,
-                isWinner,
-                reason: evalItem?.reason || rejectedItem?.reason || result.reason
-              }
-            };
-          } else {
-            console.warn(`No selection data found for ID ${idStr}`, result);
-          }
-          return opp;
-        });
-        return next;
-      });
+        if (evalItem) {
+          return {
+            ...opp,
+            validationInfo: {
+              ...evalItem,
+              isSelected,
+              summary: result.summary,
+              final_decision: result.final_decision
+            }
+          };
+        }
+        return opp;
+      }));
 
-    } catch (err) {
-      setError("Selection Engine Failure: " + err.message);
     } finally {
       setIsSelecting(false);
     }
+  };
+
+  const callAgent2 = async (opp, instructions = "") => {
+    const res = await fetch("/webhook/agent2-offer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        solution: opp.solution,
+        problem: opp.problem,
+        audience: opp.audience,
+        solution_type: opp.solution_type,
+        pain_intensity: opp.pain_intensity,
+        willingness_to_pay: opp.willingness_to_pay,
+        instructions
+      }),
+    });
+    if (!res.ok) throw new Error("Offer Engineering Failed");
+    return res.json();
   };
 
   const setOpp = (index, patch) => {
@@ -482,10 +596,14 @@ export default function App() {
       });
       const responseText = await response.text();
 
-      if (!response.ok)
+      if (!response.ok) {
+        console.error("Agent 1 HTTP Error:", response.status, responseText);
         throw new Error(`Webhook Error (${response.status}): ${responseText.substring(0, 120)}`);
-      if (!responseText || responseText.trim() === "" || responseText === "null") 
-        throw new Error("Empty or invalid response from Agent 1.");
+      }
+      if (!responseText || responseText.trim() === "" || responseText === "null") {
+        console.error("Agent 1 Empty Response:", responseText);
+        throw new Error("Empty or invalid response from Agent 1. Check n8n logs.");
+      }
 
       let data;
       try { data = JSON.parse(responseText); }
@@ -521,43 +639,36 @@ export default function App() {
       }));
 
       setOpportunities(normalized);
+
+      // AUTOMATIC PROGRESSION: Call Agent 2 for all normalized results immediately
+      for (let i = 0; i < normalized.length; i++) {
+        const opp = normalized[i];
+        setOpportunities(prev => {
+          const next = [...prev];
+          next[i] = { ...next[i], isLoadingOffer: true };
+          return next;
+        });
+
+        try {
+          const offerData = await callAgent2(opp);
+          setOpportunities(prev => {
+            const next = [...prev];
+            next[i] = { ...next[i], offerData, isLoadingOffer: false };
+            return next;
+          });
+        } catch (err) {
+          setOpportunities(prev => {
+            const next = [...prev];
+            next[i] = { ...next[i], offerError: err.message, isLoadingOffer: false };
+            return next;
+          });
+        }
+      }
+
     } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // ── Card Action Handler ───────────────────────────────────────────────────
-  const handleCardAction = async (index, action, opp) => {
-    if (action === "GO") {
-      // Mark selected + call Agent 2
-      setOpp(index, { status: "GO", isLoadingOffer: true, offerError: null });
-
-      try {
-        const offerData = await callAgent2(opp);
-        setOpp(index, { offerData, isLoadingOffer: false });
-      } catch (err) {
-        setOpp(index, { offerError: err.message, isLoadingOffer: false });
-      }
-
-      // Log selection
-      fireWebhook("/webhook/select-opportunity", { opportunity: opp });
-
-    } else if (action === "NO-GO") {
-      setOpp(index, { status: "NO-GO" });
-      fireWebhook("/webhook/reject-opportunity", { opportunity: opp });
-
-    } else if (action === "REVISE") {
-      // Regenerate this card with a different angle (does NOT lock the card)
-      setOpp(index, { isRevising: true, offerData: null, offerError: null });
-
-      try {
-        const offerData = await callAgent2(opp, "generate a completely different approach, avoid previous output");
-        setOpp(index, { offerData, isRevising: false });
-      } catch (err) {
-        setOpp(index, { offerError: err.message, isRevising: false });
-      }
     }
   };
 
@@ -573,10 +684,11 @@ export default function App() {
         solution_type: o.solution_type,
         audience: o.audience,
         problem: o.problem,
-        status: o.status,
+        validated: !!o.validationInfo,
+        isSelected: o.validationInfo?.isSelected
       })),
-      selected: opportunities.filter((o) => o.status === "GO").map((o) => o.solution),
-      rejected: opportunities.filter((o) => o.status === "NO-GO").map((o) => o.solution),
+      selected: opportunities.filter((o) => o.validationInfo?.isSelected).map((o) => o.solution),
+      rejected: opportunities.filter((o) => o.validationInfo?.decision === "NO-GO").map((o) => o.solution),
     };
 
     try {
@@ -594,9 +706,9 @@ export default function App() {
     }
   };
 
-  const isSelectionFinalized = opportunities.some(o => o.selectionInfo);
-  const selectedCount = opportunities.filter((o) => o.status === "GO").length;
-  const rejectedCount = opportunities.filter((o) => o.status === "NO-GO" || (isSelectionFinalized && !o.selectionInfo?.isWinner)).length;
+  const isValidated = opportunities.some(o => o.validationInfo);
+  const selectedCount = opportunities.filter((o) => o.validationInfo?.isSelected).length;
+  const rejectedCount = opportunities.filter((o) => o.validationInfo?.decision === "NO-GO").length;
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -631,10 +743,10 @@ export default function App() {
                 </div>
                 <span className="text-[8px] font-bold opacity-50">AGENT 2</span>
               </div>
-              <div className={`flex items-center justify-between p-3 rounded-xl border transition-all ${selectedCount > 0 ? "bg-emerald-600/10 text-emerald-400 border-emerald-500/20" : "text-slate-700 opacity-40 border-transparent shadow-inner"}`}>
+              <div className={`flex items-center justify-between p-3 rounded-xl border transition-all ${opportunities.some(o => o.validationInfo) ? "bg-emerald-600/10 text-emerald-400 border-emerald-500/20" : "text-slate-700 opacity-40 border-transparent shadow-inner"}`}>
                 <div className="flex items-center gap-2.5">
-                  <div className={`w-2 h-2 rounded-full ${selectedCount > 0 ? "bg-emerald-500 animate-pulse" : "bg-slate-700"}`}></div>
-                  <span className="text-[10px] font-black uppercase tracking-wider">Selection Node</span>
+                  <div className={`w-2 h-2 rounded-full ${opportunities.some(o => o.validationInfo) ? "bg-emerald-500 animate-pulse" : "bg-slate-700"}`}></div>
+                  <span className="text-[10px] font-black uppercase tracking-wider">Validation Node</span>
                 </div>
                 <span className="text-[8px] font-bold opacity-50">AGENT 3</span>
               </div>
@@ -674,35 +786,44 @@ export default function App() {
             </div>
           </div>
 
-          {/* Decision Engine Trigger */}
+          {/* Validation Engine Trigger */}
           <div className="space-y-4 pt-4 mt-2 border-t border-slate-800/50">
-            <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 px-1">Operator Decision</h3>
+            <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 px-1">Batch Validation</h3>
             <button
-              id="btn-trigger-agent3"
-              onClick={runAgent3}
-              disabled={isSelecting || selectedCount === 0}
+              id="btn-trigger-validation"
+              onClick={runValidationAgent}
+              disabled={isSelecting || opportunities.length === 0 || !opportunities.every(o => o.offerData)}
               className={`w-full py-4 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 flex items-center justify-center gap-3 relative ${
                 isSelecting
                   ? "bg-slate-800 text-slate-600 border-transparent animate-pulse"
-                  : selectedCount > 0
-                  ? "bg-emerald-600/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-600 hover:text-white hover:border-emerald-400 shadow-lg shadow-emerald-500/20 active:scale-95"
+                  : opportunities.length > 0 && opportunities.every(o => o.offerData)
+                  ? "bg-blue-600/10 text-blue-400 border-blue-500/20 hover:bg-blue-600 hover:text-white hover:border-blue-400 shadow-lg shadow-blue-500/20 active:scale-95"
                   : "bg-slate-900/50 text-slate-700 border-slate-800/50 cursor-not-allowed"
               }`}
             >
               {isSelecting ? (
                 <>
-                  <div className="w-3 h-3 border-2 border-slate-600 border-t-emerald-500 rounded-full animate-spin"></div>
-                  Comparing Offers...
+                  <div className="w-3 h-3 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
+                  Validating Batch...
                 </>
               ) : (
-                "Trigger Selection Engine"
+                "GO (APPROVE BATCH)"
               )}
             </button>
-            {selectedCount === 0 && (
-              <p className="text-[8px] font-bold text-slate-700 uppercase tracking-tight text-center px-2">
-                Evaluate at least 1 signal to start
-              </p>
-            )}
+            <div className="grid grid-cols-2 gap-2">
+              <button 
+                onClick={() => setOpportunities([])}
+                className="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 text-[8px] font-black uppercase hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+              >
+                NO-GO
+              </button>
+              <button 
+                onClick={runAgent1}
+                className="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 text-[8px] font-black uppercase hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+              >
+                REVISE
+              </button>
+            </div>
           </div>
         </div>
         {/* Operator Profile */}
@@ -777,17 +898,56 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Decision Engine Label */}
-              {isSelectionFinalized && (
-                <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-3xl flex items-center justify-between shadow-2xl shadow-emerald-500/5 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-[400px] h-full bg-emerald-500/5 blur-[80px] -rotate-12 translate-x-20"></div>
-                  <div className="relative">
-                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] mb-2 drop-shadow-sm">Decision Engine Output</p>
-                    <h2 className="text-3xl font-black text-white tracking-tighter italic">Single Winning Opportunity Identified</h2>
-                    <p className="text-sm text-slate-500 font-bold mt-2 uppercase tracking-wide">All other candidates automatically de-prioritized for efficiency</p>
+              {/* Validation Result Header */}
+              {opportunities.some(o => o.validationInfo) && (
+                <div className={`${opportunities.some(o => o.validationInfo?.isSelected) ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'} p-6 rounded-3xl flex items-center justify-between shadow-2xl relative overflow-hidden group mb-8`}>
+                  <div className="relative z-10">
+                    <p className={`text-[10px] font-black ${opportunities.some(o => o.validationInfo?.isSelected) ? 'text-emerald-500' : 'text-rose-500'} uppercase tracking-[0.4em] mb-2 drop-shadow-sm`}>Decision Gate Finalized</p>
+                    <h2 className="text-3xl font-black text-white tracking-tighter italic">
+                      {opportunities.some(o => o.validationInfo?.isSelected) ? "Strong Viable Offer Identified" : "No Viable Opportunity Found"}
+                    </h2>
+                    <p className="text-sm text-slate-500 font-bold mt-2 uppercase tracking-wide">
+                      {opportunities[0]?.validationInfo?.summary || "Batch verification successfully completed."}
+                    </p>
+                    
+                    <div className="flex items-center gap-4 mt-6">
+                      <button 
+                         id="btn-trigger-agent4"
+                         onClick={runFunnelAgent}
+                         disabled={!opportunities.some(o => o.validationInfo?.isSelected) || isGeneratingFunnel}
+                         className={`h-11 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                           isGeneratingFunnel 
+                             ? "bg-slate-800 text-slate-500 animate-pulse"
+                             : opportunities.some(o => o.validationInfo?.isSelected)
+                             ? "bg-emerald-500 text-slate-950 hover:bg-white shadow-xl shadow-emerald-500/20"
+                             : "bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed"
+                         }`}
+                      >
+                        {isGeneratingFunnel ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-slate-600 border-t-emerald-500 rounded-full animate-spin"></div>
+                            Engineering Funnel...
+                          </>
+                        ) : (
+                          "Move to Funnel Agent"
+                        )}
+                      </button>
+                      <button 
+                         onClick={() => setOpportunities([])}
+                         className="h-11 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800 transition-all font-bold"
+                      >
+                        Go Back
+                      </button>
+                      <button 
+                         onClick={runValidationAgent}
+                         className="h-11 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-900 text-amber-500 border border-amber-500/30 hover:bg-amber-500/10 transition-all font-bold"
+                      >
+                        Rerun Validation
+                      </button>
+                    </div>
                   </div>
-                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform duration-500">
-                    ✅
+                  <div className={`w-20 h-20 rounded-2xl ${opportunities.some(o => o.validationInfo?.isSelected) ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30'} border flex items-center justify-center text-4xl shadow-inner group-hover:rotate-12 transition-transform duration-500`}>
+                    {opportunities.some(o => o.validationInfo?.isSelected) ? '🚀' : '❌'}
                   </div>
                 </div>
               )}
@@ -795,8 +955,13 @@ export default function App() {
               {/* Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {opportunities.map((opp, idx) => (
-                  <OpportunityCard key={idx} opp={opp} index={idx} onAction={handleCardAction} isSelectionFinalized={isSelectionFinalized} />
+                  <OpportunityCard key={idx} opp={opp} index={idx} />
                 ))}
+              </div>
+
+              {/* Agent 4: Funnel Output */}
+              <div id="funnel-output">
+                <FunnelPanel funnel={funnelData} />
               </div>
 
               {/* Feedback */}
