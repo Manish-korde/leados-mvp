@@ -479,6 +479,97 @@ export default function App() {
   const [feedbackStatus, setFeedbackStatus] = useState("idle");
   const [funnelData, setFunnelData] = useState(null);
   const [isGeneratingFunnel, setIsGeneratingFunnel] = useState(false);
+  const [trafficData, setTrafficData] = useState(null);
+  const [isGeneratingTraffic, setIsGeneratingTraffic] = useState(false);
+  const [outboundData, setOutboundData] = useState(null);
+  const [isGeneratingOutbound, setIsGeneratingOutbound] = useState(false);
+
+  const runOutboundAgent = async () => {
+    if (!trafficData || !narrativeData || !funnelData) return;
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) return;
+
+    setIsGeneratingOutbound(true);
+    setError(null);
+    setOutboundData(null);
+
+    const payload = {
+      selected_offer: {
+        ICP: winner.offerData?.ICP || winner.offerData?.icp || winner.audience,
+        offer: winner.offerData?.offer || winner.solution,
+        pricing: winner.offerData?.pricing,
+        promise: winner.offerData?.promise,
+        guarantee: winner.offerData?.guarantee,
+      },
+      funnel: funnelData,
+      narrative: narrativeData,
+    };
+
+    try {
+      const res = await fetch("/webhook/agent7-outbound", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error("Outbound Agent Failed: " + text.substring(0, 100));
+      if (!text || text.trim() === "" || text.trim() === "null") {
+        throw new Error("Empty response from Outbound Agent. Check n8n is active and try again.");
+      }
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error("Outbound Agent returned malformed data. Retry.");
+      }
+      if (result.error) throw new Error(result.error);
+      setOutboundData(result);
+      setTimeout(() => {
+        document.getElementById('outbound-output')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    } catch (err) {
+      setError("Outbound Simulation Failure: " + err.message);
+    } finally {
+      setIsGeneratingOutbound(false);
+    }
+  };
+
+  const runTrafficAgent = async () => {
+    if (!narrativeData || !funnelData) return;
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) return;
+
+    setIsGeneratingTraffic(true);
+    setError(null);
+    setTrafficData(null);
+
+    const payload = {
+      ICP: winner.offerData?.ICP || winner.offerData?.icp || winner.audience,
+      offer: winner.offerData?.offer || winner.solution,
+      funnel: funnelData,
+      narrative: narrativeData,
+    };
+
+    try {
+      const res = await fetch("/webhook/agent6-paid-traffic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error("Traffic Agent Failed: " + text.substring(0, 100));
+      const result = JSON.parse(text);
+      if (result.error) throw new Error(result.error);
+      setTrafficData(result);
+      setTimeout(() => {
+        document.getElementById('traffic-output')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    } catch (err) {
+      setError("Paid Traffic Engine Failure: " + err.message);
+    } finally {
+      setIsGeneratingTraffic(false);
+    }
+  };
 
   const runFunnelAgent = async () => {
     const winner = opportunities.find(o => o.validationInfo?.isSelected);
@@ -698,8 +789,10 @@ export default function App() {
     setIsLoading(true);
     setError(null);
     setOpportunities([]);
-    setFunnelData(null); 
-    setNarrativeData(null); // RESET ALL PIPELINE STATE
+    setFunnelData(null);
+    setNarrativeData(null);
+    setTrafficData(null);
+    setOutboundData(null); // RESET ALL PIPELINE STATE
     setFeedbackStatus("idle");
 
     try {
@@ -1208,47 +1301,323 @@ export default function App() {
 
             <Connector />
 
-            {/* ── Step 6: Execution Layer ── */}
-            <section id="step-6" className="bg-slate-900/10 border border-slate-800/30 rounded-[40px] p-10 backdrop-blur-sm opacity-40">
-              <StepHeader 
-                num="06" 
-                title="Autonomous Execution" 
-                subtitle="Campaign Launch & Lead Handling"
-                status="In Progress"
+            {/* ── Step 6: Paid Traffic Layer ── */}
+            <section id="step-6" className={`${trafficData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader
+                num="06"
+                title="Paid Traffic Layer"
+                subtitle="Channel Strategy & Budget Intelligence"
+                status={trafficData ? "Live" : (narrativeData ? "Awaiting Activation" : "Dormant")}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-2 border-dashed border-slate-900 rounded-[32px] p-10">
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Autonomous Outreach Pipeline</p>
-                    <div className="bg-slate-950/80 p-6 rounded-2xl border border-slate-800/50 text-[10px] font-black text-slate-500 text-center uppercase tracking-widest leading-relaxed py-12">
-                      Agent 6-10 Integration Points<br/>
-                      Awaiting API Orchestration Layer
+
+              {!trafficData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button
+                    onClick={runTrafficAgent}
+                    disabled={isGeneratingTraffic || !narrativeData}
+                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      isGeneratingTraffic
+                        ? "bg-slate-800 text-slate-500 animate-pulse"
+                        : narrativeData
+                          ? "bg-violet-600 text-white hover:bg-violet-500 shadow-xl shadow-violet-600/30 scale-105"
+                          : "bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed"
+                    }`}
+                  >
+                    {isGeneratingTraffic ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-500 border-t-violet-400 rounded-full animate-spin"></div>
+                        Calculating Traffic Plan...
+                      </>
+                    ) : (
+                      "GENERATE PAID TRAFFIC PLAN"
+                    )}
+                  </button>
+                  {!narrativeData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 5 Narrative to unlock traffic layer.</p>}
+                </div>
+              ) : (
+                <div id="traffic-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+
+                  {/* Summary Bar */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2 bg-gradient-to-br from-violet-600/10 to-purple-500/5 border border-violet-500/20 rounded-3xl p-8">
+                      <p className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-2">Blended Performance Estimate</p>
+                      <div className="flex items-end gap-4">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Daily Budget</p>
+                          <p className="text-4xl font-black text-white">${trafficData.total_budget}<span className="text-lg text-slate-500">/day</span></p>
+                        </div>
+                        <div className="ml-8">
+                          <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Blended CPL</p>
+                          <p className="text-4xl font-black text-violet-400">${trafficData.blended_cpl}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 flex flex-col justify-center">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">AI Reasoning</p>
+                      <p className="text-[12px] text-slate-400 font-bold leading-relaxed italic">"{trafficData.reasoning}"</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    {['Email Engine', 'X (Twitter) DM', 'LinkedIn Outreach'].map(chan => (
-                      <span key={chan} className="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-[9px] font-black text-slate-700 uppercase">{chan}</span>
-                    ))}
+
+                  {/* Channel Cards */}
+                  <div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Channel Breakdown</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {(trafficData.channels || []).map((ch, i) => (
+                        <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-3xl p-7 space-y-6 hover:border-violet-500/30 transition-all">
+
+                          {/* Channel Header */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-lg">
+                                {ch.channel?.toLowerCase().includes('linkedin') ? '💼' :
+                                 ch.channel?.toLowerCase().includes('google') ? '🔍' :
+                                 ch.channel?.toLowerCase().includes('meta') || ch.channel?.toLowerCase().includes('facebook') ? '📘' :
+                                 ch.channel?.toLowerCase().includes('tiktok') ? '🎵' : '📣'}
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-black text-white">{ch.channel}</h4>
+                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">{ch.objective}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[9px] font-black text-slate-600 uppercase">Allocation</p>
+                              <p className="text-xl font-black text-violet-400">{ch.budget?.allocation_percent}%</p>
+                            </div>
+                          </div>
+
+                          {/* Performance Metrics */}
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { label: 'CPC', value: `$${ch.performance_estimate?.cpc}` },
+                              { label: 'CTR', value: `${ch.performance_estimate?.ctr}%` },
+                              { label: 'CVR', value: `${ch.performance_estimate?.conversion_rate}%` },
+                              { label: 'CPL', value: `$${ch.performance_estimate?.cpl}` },
+                            ].map(m => (
+                              <div key={m.label} className="bg-slate-950/80 rounded-xl p-3 text-center border border-slate-800/60">
+                                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">{m.label}</p>
+                                <p className="text-sm font-black text-white">{m.value}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Expected Leads */}
+                          <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
+                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">Expected Leads / Day</p>
+                            <p className="text-2xl font-black text-white">{ch.performance_estimate?.expected_leads_per_day}</p>
+                          </div>
+
+                          {/* Budget */}
+                          <div className="flex items-center justify-between">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Daily Budget</p>
+                            <p className="text-sm font-black text-white">${ch.budget?.daily_budget}/day</p>
+                          </div>
+
+                          {/* Targeting */}
+                          <div className="space-y-2 pt-4 border-t border-slate-800/50">
+                            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3">Targeting</p>
+                            <div className="flex flex-wrap gap-2">
+                              {[ch.targeting?.persona, ch.targeting?.geo, ch.targeting?.age_range].filter(Boolean).map((t, j) => (
+                                <span key={j} className="px-3 py-1 bg-slate-800/60 border border-slate-700/50 rounded-lg text-[10px] font-black text-slate-400 uppercase tracking-wider">{t}</span>
+                              ))}
+                            </div>
+                            {ch.targeting?.interests?.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {ch.targeting.interests.map((int, j) => (
+                                  <span key={j} className="px-2 py-0.5 rounded text-[9px] font-black text-violet-400 bg-violet-500/10 border border-violet-500/20">{int}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Creatives */}
+                          {ch.creatives?.length > 0 && (
+                            <div className="space-y-2 pt-4 border-t border-slate-800/50">
+                              <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3">Ad Creatives</p>
+                              {ch.creatives.map((cr, j) => (
+                                <div key={j} className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="px-2 py-0.5 rounded text-[8px] font-black text-amber-400 bg-amber-500/10 border border-amber-500/20 uppercase">{cr.type}</span>
+                                    <span className="text-[9px] font-black text-slate-600 uppercase">{cr.angle}</span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-400 font-bold italic leading-relaxed">"{cr.hook}"</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col justify-center">
-                   <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse"></div>
-                        <div className="h-2 bg-slate-900 rounded w-full"></div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse delay-75"></div>
-                        <div className="h-2 bg-slate-900 rounded w-5/6"></div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse delay-150"></div>
-                        <div className="h-2 bg-slate-900 rounded w-2/3"></div>
-                      </div>
-                      <p className="text-[9px] font-black text-slate-800 uppercase tracking-widest mt-8 text-center italic">Future extension point for Auto-Pilot</p>
-                   </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* ── Step 7: Outbound Outreach Simulation ── */}
+            <section id="step-7" className={`${outboundData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader
+                num="07"
+                title="Outbound Simulation"
+                subtitle="ICP Targeting, Prospect Mapping & Outreach Sequencing"
+                status={outboundData ? "Simulated" : (trafficData ? "Awaiting Activation" : "Dormant")}
+              />
+
+              {!outboundData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button
+                    onClick={runOutboundAgent}
+                    disabled={isGeneratingOutbound || !trafficData}
+                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      isGeneratingOutbound
+                        ? "bg-slate-800 text-slate-500 animate-pulse"
+                        : trafficData
+                          ? "bg-rose-600 text-white hover:bg-rose-500 shadow-xl shadow-rose-600/30 scale-105"
+                          : "bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed"
+                    }`}
+                  >
+                    {isGeneratingOutbound ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-500 border-t-rose-400 rounded-full animate-spin"></div>
+                        Simulating Outbound Strategy...
+                      </>
+                    ) : (
+                      "SIMULATE OUTBOUND OUTREACH"
+                    )}
+                  </button>
+                  {!trafficData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 6 Paid Traffic to unlock outbound layer.</p>}
                 </div>
-              </div>
+              ) : (
+                <div id="outbound-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+
+                  {/* Targeting + Volume Summary */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2 bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-5">
+                      <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest">ICP Targeting Profile</p>
+                      <p className="text-xl font-black text-white">{outboundData.targeting?.persona}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Industry</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(outboundData.targeting?.company_criteria?.industry || []).map((ind, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] font-black text-slate-400 uppercase">{ind}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Company Size</p>
+                          <p className="text-xs font-black text-slate-300">{outboundData.targeting?.company_criteria?.company_size}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Geography</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(outboundData.targeting?.company_criteria?.geography || []).map((geo, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-sky-500/10 border border-sky-500/20 rounded text-[9px] font-black text-sky-400 uppercase">{geo}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Platforms</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(outboundData.targeting?.platforms || []).map((p, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded text-[9px] font-black text-rose-400 uppercase">{p}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      {outboundData.targeting?.company_criteria?.signals?.length > 0 && (
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Trigger Signals</p>
+                          <div className="flex flex-wrap gap-2">
+                            {outboundData.targeting.company_criteria.signals.map((sig, i) => (
+                              <span key={i} className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-black text-amber-400">⚡ {sig}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Volume Plan */}
+                    <div className="bg-gradient-to-br from-rose-600/10 to-pink-500/5 border border-rose-500/20 rounded-3xl p-8 flex flex-col justify-between">
+                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-6">Volume Plan</p>
+                      <div className="space-y-5">
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Daily Outreach</p>
+                          <p className="text-4xl font-black text-white">{outboundData.volume_plan?.daily_outreach}<span className="text-slate-500 text-sm"> contacts</span></p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Response Rate</p>
+                          <p className="text-2xl font-black text-rose-400">{outboundData.volume_plan?.expected_response_rate}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Meetings / Week</p>
+                          <p className="text-2xl font-black text-emerald-400">{outboundData.volume_plan?.expected_meetings_per_week}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prospect Simulation */}
+                  <div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">Simulated Prospects</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {(outboundData.prospect_simulation || []).map((p, i) => (
+                        <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 hover:border-rose-500/30 transition-all">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm">
+                              {p.name?.charAt(0) || '?'}
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-white leading-tight">{p.name}</p>
+                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{p.role}</p>
+                            </div>
+                          </div>
+                          <p className="text-[10px] font-black text-rose-400 mb-2">{p.company}</p>
+                          <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{p.reason_fit}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Outreach Sequence + Message Variants */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Sequence */}
+                    <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Outreach Sequence</p>
+                      <div className="space-y-5 relative border-l border-slate-800/80 ml-4">
+                        {(outboundData.outreach_strategy?.sequence || []).map((step, i) => (
+                          <div key={i} className="relative pl-10">
+                            <div className="absolute left-[-17px] top-0 w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[10px] font-black text-rose-400">
+                              {step.step}
+                            </div>
+                            <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded text-[8px] font-black text-rose-400 uppercase">{step.channel}</span>
+                                <span className="text-[9px] font-black text-slate-600 uppercase">{step.timing}</span>
+                              </div>
+                              <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{step.goal}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Message Variants */}
+                    <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Message Variants</p>
+                      <div className="space-y-4">
+                        {(outboundData.message_variants || []).map((msg, i) => (
+                          <div key={i} className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/60">
+                            <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[8px] font-black text-slate-400 uppercase mb-3 inline-block">{msg.channel}</span>
+                            <p className="text-[12px] text-slate-300 font-bold whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
             </section>
 
             {/* Feedback Footer */}

@@ -1,0 +1,143 @@
+{
+  "name": "Agent 7 – Outbound Outreach Simulation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent7-outbound",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "prompt-construction",
+              "name": "prompt_input",
+              "value": "={{ \"Selected Offer: \" + JSON.stringify($json.body.selected_offer) + \"\\nFunnel Data: \" + JSON.stringify($json.body.funnel) + \"\\nMessaging Assets: \" + JSON.stringify($json.body.narrative) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-input",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.5,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 7 in the LeadOS system.\\n\\nYour role is to simulate outbound lead generation based on a validated offer and defined ICP.\\n\\nYou DO NOT execute real outreach.\\nYou DO simulate targeting logic, prospect generation, and messaging strategy.\\n\\nCORE OBJECTIVE\\nTranslate a validated offer into a realistic outbound outreach plan including:\\n* who to target\\n* where to find them\\n* how to reach them\\n* what to say\\n* sample prospects\\n\\nSTRICT RULES\\n* No generic outputs\\n* No vague targeting (e.g. 'startup founders')\\n* Everything must map to ICP\\n* Messages must align with the offer and pain point\\n* Output MUST be structured JSON\\n* Think like a B2B outbound operator, not a marketer\\n\\nANTI-GENERIC ENFORCEMENT\\nAvoid:\\n* 'Hope you are doing well'\\n* 'We help companies grow'\\n* 'AI-powered solution'\\nMessages must feel specific, relevant, and slightly personalized.\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"targeting\\\": {\\n    \\\"persona\\\": \\\"\\\",\\n    \\\"company_criteria\\\": {\\n      \\\"industry\\\": [],\\n      \\\"company_size\\\": \\\"\\\",\\n      \\\"geography\\\": [],\\n      \\\"signals\\\": []\\n    },\\n    \\\"platforms\\\": []\\n  },\\n  \\\"prospect_simulation\\\": [\\n    {\\n      \\\"name\\\": \\\"\\\",\\n      \\\"role\\\": \\\"\\\",\\n      \\\"company\\\": \\\"\\\",\\n      \\\"reason_fit\\\": \\\"\\\"\\n    }\\n  ],\\n  \\\"outreach_strategy\\\": {\\n    \\\"channels\\\": [],\\n    \\\"sequence\\\": [\\n      {\\n        \\\"step\\\": 1,\\n        \\\"channel\\\": \\\"\\\",\\n        \\\"timing\\\": \\\"\\\",\\n        \\\"goal\\\": \\\"\\\"\\n      }\\n    ]\\n  },\\n  \\\"message_variants\\\": [\\n    {\\n      \\\"channel\\\": \\\"\\\",\\n      \\\"message\\\": \\\"\\\"\\n    }\\n  ],\\n  \\\"volume_plan\\\": {\\n    \\\"daily_outreach\\\": 0,\\n    \\\"expected_response_rate\\\": \\\"\\\",\\n    \\\"expected_meetings_per_week\\\": 0\\n  }\\n}\\n\\nDECISION LOGIC\\nBefore generating output verify:\\n* Does targeting clearly match ICP?\\n* Are prospects believable?\\n* Does messaging reflect the actual problem?\\n* Is outreach sequence realistic?\\n* Are numbers reasonable?\\nIf ANY answer is NO regenerate internally.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate an outbound outreach simulation plan for the following pipeline data:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "groq-outbound-node",
+      "name": "Outbound Engine (Groq)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [500, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-json",
+              "name": "outbound_plan",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-json-node",
+      "name": "Extract JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.outbound_plan }}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt": {
+      "main": [
+        [
+          {
+            "node": "Outbound Engine (Groq)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outbound Engine (Groq)": {
+      "main": [
+        [
+          {
+            "node": "Extract JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
