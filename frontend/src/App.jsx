@@ -251,7 +251,7 @@ function FunnelPanel({ funnel }) {
 }
 
 // ─── Opportunity Card ──────────────────────────────────────────────────────────
-function OpportunityCard({ opp, index }) {
+function OpportunityCard({ opp, index, onRetry }) {
   const isRevising = opp.isRevising;
   const typeBadge = getSolutionTypeBadge(opp.solution_type);
 
@@ -417,8 +417,17 @@ function OpportunityCard({ opp, index }) {
       )}
 
       {opp.offerError && (
-        <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-bold animate-shake">
-          {opp.offerError}
+        <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl animate-shake">
+          <div className="flex items-start gap-3 text-rose-400 mb-4">
+             <div className="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-[10px] shrink-0">!</div>
+             <p className="text-[11px] font-bold leading-tight">{opp.offerError}</p>
+          </div>
+          <button 
+            onClick={() => onRetry(index)}
+            className="w-full py-2 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20"
+          >
+            Retry Alpha Engine
+          </button>
         </div>
       )}
 
@@ -428,11 +437,44 @@ function OpportunityCard({ opp, index }) {
 }
 
 // ─── App ───────────────────────────────────────────────────────────────────────
+function Connector() {
+  return (
+    <div className="flex flex-col items-center py-6">
+      <div className="w-px h-16 bg-gradient-to-b from-blue-500 to-transparent"></div>
+    </div>
+  );
+}
+
+function StepHeader({ num, title, subtitle, status }) {
+  return (
+    <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center gap-5">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center font-black text-xl text-white shadow-xl shadow-blue-500/20 ring-4 ring-slate-950">
+          {num}
+        </div>
+        <div>
+          <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase">{title}</h2>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{subtitle}</p>
+        </div>
+      </div>
+      {status && (
+        <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${
+          status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-900 text-slate-500 border-slate-800'
+        }`}>
+          {status}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [opportunities, setOpportunities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [error, setError] = useState(null);
+  const [narrativeData, setNarrativeData] = useState(null);
+  const [isGeneratingNarrative, setIsGeneratingNarrative] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("idle");
   const [funnelData, setFunnelData] = useState(null);
@@ -491,6 +533,38 @@ export default function App() {
       setError("Funnel Engineering Failure: " + err.message);
     } finally {
       setIsGeneratingFunnel(false);
+    }
+  };
+
+  const runNarrativeAgent = async () => {
+    if (!funnelData || !opportunities.some(o => o.validationInfo?.isSelected)) return;
+    
+    setIsGeneratingNarrative(true);
+    setError(null);
+
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    
+    const payload = {
+      ICP: winner.audience,
+      offer: winner.solution,
+      problem: winner.problem,
+      hook: funnelData.hook || funnelData.funnel?.hook,
+      landing_page: funnelData.landing_page || funnelData.funnel?.landing_page
+    };
+
+    try {
+      const response = await fetch("/webhook/agent5-narrative", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      setNarrativeData(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsGeneratingNarrative(false);
     }
   };
 
@@ -570,8 +644,22 @@ export default function App() {
         instructions
       }),
     });
-    if (!res.ok) throw new Error("Offer Engineering Failed");
-    return res.json();
+    
+    const responseText = await res.text();
+    
+    if (!res.ok) {
+        throw new Error(responseText.substring(0, 50) || "Webhook rejection");
+    }
+
+    if (!responseText || responseText.trim() === "") {
+        throw new Error("Empty response from AI engine. Try retrying.");
+    }
+
+    try {
+        return JSON.parse(responseText);
+    } catch {
+        throw new Error("AI returned malformed data. Try retrying.");
+    }
   };
 
   const setOpp = (index, patch) => {
@@ -582,11 +670,37 @@ export default function App() {
     });
   };
 
+  const handleRetryOffer = async (index) => {
+    setOpportunities(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], isLoadingOffer: true, offerError: null };
+      return next;
+    });
+
+    try {
+      const offerData = await callAgent2(opportunities[index]);
+      setOpportunities(prev => {
+        const next = [...prev];
+        next[index] = { ...next[index], offerData, isLoadingOffer: false };
+        return next;
+      });
+    } catch (err) {
+      setOpportunities(prev => {
+        const next = [...prev];
+        next[index] = { ...next[index], offerError: err.message, isLoadingOffer: false };
+        return next;
+      });
+    }
+  };
+
   // ── Agent 1: Scan + immediately call Agent 2 for all results ───────────────
   const runAgent1 = async () => {
     setIsLoading(true);
     setError(null);
     setOpportunities([]);
+    setFunnelData(null); 
+    setNarrativeData(null); // RESET ALL PIPELINE STATE
+    setFeedbackStatus("idle");
 
     try {
       const response = await fetch("/webhook/agent1", {
@@ -706,326 +820,504 @@ export default function App() {
     }
   };
 
-  const isValidated = opportunities.some(o => o.validationInfo);
   const selectedCount = opportunities.filter((o) => o.validationInfo?.isSelected).length;
   const rejectedCount = opportunities.filter((o) => o.validationInfo?.decision === "NO-GO").length;
 
-  // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30 overflow-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30 overflow-x-hidden">
+      
+      {/* Background Orbs */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-sky-600/4 blur-[100px] rounded-full"></div>
+      </div>
 
-      {/* ── Sidebar ── */}
-      <aside className="w-68 min-w-[260px] bg-slate-900 border-r border-slate-800/50 p-7 flex flex-col h-full shadow-2xl z-20 shrink-0">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-sky-400 rounded-xl flex items-center justify-center font-black text-xl text-white shadow-lg shadow-blue-500/20">L</div>
-          <div>
-            <h2 className="text-lg font-black tracking-tight text-white leading-none">LeadOS</h2>
-            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-0.5">v2.0 · Decision System</p>
+      <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
+        
+        {/* ── Hero Section ── */}
+        <header className="text-center mb-24">
+          <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 bg-slate-900/50 border border-slate-800 rounded-2xl">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-sky-400 rounded-xl flex items-center justify-center font-black text-lg text-white shadow-lg shadow-blue-500/20">L</div>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">LeadOS v2.0 · Decision Layer</span>
           </div>
-        </div>
-
-        <div className="space-y-7 flex-1 overflow-y-auto">
-          {/* Pipeline */}
-          <div>
-            <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 px-1">Active Pipeline</h3>
-            <nav className="space-y-1.5">
-              <div className="flex items-center justify-between p-3 bg-blue-600/10 text-blue-400 rounded-xl border border-blue-500/20">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                  <span className="text-[10px] font-black uppercase tracking-wider">Research Node</span>
-                </div>
-                <span className="text-[8px] font-bold opacity-50">AGENT 1</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-emerald-600/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  <span className="text-[10px] font-black uppercase tracking-wider">Offer Node</span>
-                </div>
-                <span className="text-[8px] font-bold opacity-50">AGENT 2</span>
-              </div>
-              <div className={`flex items-center justify-between p-3 rounded-xl border transition-all ${opportunities.some(o => o.validationInfo) ? "bg-emerald-600/10 text-emerald-400 border-emerald-500/20" : "text-slate-700 opacity-40 border-transparent shadow-inner"}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-2 h-2 rounded-full ${opportunities.some(o => o.validationInfo) ? "bg-emerald-500 animate-pulse" : "bg-slate-700"}`}></div>
-                  <span className="text-[10px] font-black uppercase tracking-wider">Validation Node</span>
-                </div>
-                <span className="text-[8px] font-bold opacity-50">AGENT 3</span>
-              </div>
-            </nav>
-          </div>          {/* Session Stats */}
-          {opportunities.length > 0 && (
-            <div>
-              <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 px-1">Session</h3>
-              <div className="space-y-1.5">
-                {[
-                  { label: "Signals", val: opportunities.length, cls: "text-white" },
-                  { label: "Selected", val: selectedCount, cls: "text-emerald-400" },
-                  { label: "Rejected", val: rejectedCount, cls: "text-rose-400" },
-                ].map(({ label, val, cls }) => (
-                  <div key={label} className="flex justify-between items-center p-2.5 bg-slate-950/50 rounded-lg border border-slate-800/50">
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{label}</span>
-                    <span className={`text-sm font-black ${cls}`}>{val}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Solution Type Legend */}
-          <div>
-            <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 px-1">Type Key</h3>
-            <div className="space-y-1.5">
-              {[
-                { type: "SaaS", cls: "bg-violet-500/10 text-violet-400 border-violet-500/30" },
-                { type: "Service", cls: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
-                { type: "Platform", cls: "bg-sky-500/10 text-sky-400 border-sky-500/30" },
-              ].map(({ type, cls }) => (
-                <div key={type} className={`px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${cls}`}>
-                  {type}
-                </div>
-              ))}
-            </div>
+          
+          <div className="flex justify-center gap-4 mb-4">
+             <a 
+               href="http://localhost:5678" 
+               target="_blank" 
+               rel="noreferrer"
+               className="px-4 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-[9px] font-black text-slate-500 uppercase tracking-widest hover:border-blue-500/40 hover:text-blue-400 transition-all flex items-center gap-2"
+             >
+               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+               Open n8n Workflows
+             </a>
           </div>
+          
+          <h1 className="text-6xl md:text-7xl font-black text-white tracking-tighter mb-6 italic leading-[0.9]">
+            From Market Signals to<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Scalable Revenue Systems</span>
+          </h1>
+          
+          <p className="text-lg text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
+            LeadOS discovers opportunities, generates offers, validates them, and builds go-to-market funnels — with autonomous execution automation in progress.
+          </p>
 
-          {/* Validation Engine Trigger */}
-          <div className="space-y-4 pt-4 mt-2 border-t border-slate-800/50">
-            <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 px-1">Batch Validation</h3>
+          <div className="mt-12 flex flex-col items-center gap-4">
             <button
-              id="btn-trigger-validation"
-              onClick={runValidationAgent}
-              disabled={isSelecting || opportunities.length === 0 || !opportunities.every(o => o.offerData)}
-              className={`w-full py-4 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all duration-300 flex items-center justify-center gap-3 relative ${
-                isSelecting
-                  ? "bg-slate-800 text-slate-600 border-transparent animate-pulse"
-                  : opportunities.length > 0 && opportunities.every(o => o.offerData)
-                  ? "bg-blue-600/10 text-blue-400 border-blue-500/20 hover:bg-blue-600 hover:text-white hover:border-blue-400 shadow-lg shadow-blue-500/20 active:scale-95"
-                  : "bg-slate-900/50 text-slate-700 border-slate-800/50 cursor-not-allowed"
+              id="btn-trigger-agent1"
+              onClick={runAgent1}
+              disabled={isLoading}
+              className={`h-16 px-12 rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-4 ${
+                isLoading
+                  ? "bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed"
+                  : "bg-white text-slate-950 hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
               }`}
             >
-              {isSelecting ? (
+              {isLoading ? (
                 <>
-                  <div className="w-3 h-3 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
-                  Validating Batch...
+                  <div className="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
+                  Searching for Signals...
                 </>
               ) : (
-                "GO (APPROVE BATCH)"
+                "Trigger Intelligence Scout"
               )}
             </button>
-            <div className="grid grid-cols-2 gap-2">
-              <button 
-                onClick={() => setOpportunities([])}
-                className="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 text-[8px] font-black uppercase hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
-              >
-                NO-GO
-              </button>
-              <button 
-                onClick={runAgent1}
-                className="py-2 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 text-[8px] font-black uppercase hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
-              >
-                REVISE
-              </button>
-            </div>
+            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Connects to Reddit, Groq & Agentic Decision Layer</p>
           </div>
-        </div>
-        {/* Operator Profile */}
-        <div className="pt-6 mt-auto border-t border-slate-800/50">
-          <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800/50 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-black text-slate-400">MK</div>
-            <div className="flex-1">
-              <p className="text-[10px] font-black text-white leading-none">Manish Korde</p>
-              <p className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter mt-0.5">Operator</p>
-            </div>
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></div>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Main ── */}
-      <div className="flex-1 flex flex-col h-full bg-slate-950 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-sky-600/4 blur-[80px] rounded-full pointer-events-none"></div>
-
-        {/* Header */}
-        <header className="h-18 min-h-[72px] border-b border-slate-800/40 flex items-center justify-between px-10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] italic">Dashboard</h1>
-            <div className="w-1 h-1 rounded-full bg-slate-700 mx-2"></div>
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Decision System</span>
-          </div>
-
-          <button
-            id="btn-trigger-agent1"
-            onClick={runAgent1}
-            disabled={isLoading}
-            className={`h-10 px-7 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2.5 ${
-              isLoading
-                ? "bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed"
-                : "bg-white text-slate-950 hover:scale-[1.02] active:scale-95 shadow-lg"
-            }`}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-3 h-3 border-2 border-slate-600 border-t-blue-400 rounded-full animate-spin"></div>
-                Scanning Signals...
-              </>
-            ) : (
-              "Trigger Signal Scout"
-            )}
-          </button>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto p-8 space-y-8">
-
-          {/* Error */}
-          {error && (
-            <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl flex items-center gap-4 text-rose-400">
-              <div className="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center font-black text-base border border-rose-500/20 shrink-0">!</div>
-              <div className="flex-1">
-                <p className="text-[9px] font-black uppercase tracking-widest mb-1">Signal Disruption Detected</p>
-                <p className="text-xs font-bold opacity-80">{error}</p>
-              </div>
-              <button onClick={() => setError(null)} className="text-xs font-black opacity-40 hover:opacity-100 uppercase tracking-widest shrink-0">Dismiss</button>
+        {error && (
+          <div className="mb-12 bg-rose-500/10 border border-rose-500/20 p-6 rounded-3xl flex items-center gap-4 text-rose-400 animate-in fade-in slide-in-from-top-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center font-black text-xl border border-rose-500/20 shrink-0">!</div>
+            <div className="flex-1">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1">Signal Disruption Detected</p>
+              <p className="text-sm font-bold opacity-80">{error}</p>
             </div>
-          )}
+            <button onClick={() => setError(null)} className="text-[10px] font-black opacity-40 hover:opacity-100 uppercase tracking-widest shrink-0 px-4 py-2 hover:bg-rose-500/10 rounded-xl transition-all">Dismiss</button>
+          </div>
+        )}
 
-          {opportunities.length > 0 ? (
-            <>
-              {/* Report Header */}
-              <div className="border-l-4 border-blue-500 pl-6 py-1">
-                <h2 className="text-3xl font-black text-white tracking-tighter italic">Intelligence Report</h2>
-                <p className="text-slate-600 text-[9px] font-black mt-1 uppercase tracking-widest">
-                  {opportunities.length} signals detected · {selectedCount} selected · {rejectedCount} rejected
-                </p>
+        {opportunities.length > 0 ? (
+          <div className="space-y-4 animate-in fade-in duration-1000">
+            
+            {/* ── Step 1: Signals ── */}
+            <section id="step-1" className="bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm">
+              <StepHeader 
+                num="01" 
+                title="Market Intelligence" 
+                subtitle="Lead Signal Extraction Engine"
+                status="Active"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 bg-slate-950/50 rounded-3xl border border-slate-800/50 p-8">
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Signal Cluster Analysis</p>
+                  <div className="flex items-end gap-2 mb-6">
+                    <span className="text-5xl font-black text-white">{opportunities.length}</span>
+                    <span className="text-sm font-black text-slate-500 uppercase pb-2">Verified Pain Points Captured</span>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {Array.from(new Set(opportunities.map(o => o.solution_type))).map(type => (
+                      <div key={type} className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                        {type}: {opportunities.filter(o => o.solution_type === type).length}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-blue-600/10 to-sky-500/5 rounded-3xl border border-blue-500/20 p-8 flex flex-col justify-center">
+                  <p className="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2">Internal Status</p>
+                  <p className="text-xl font-black text-white leading-tight">Agent 1 successfully mapped clusters.</p>
+                </div>
               </div>
+            </section>
 
-              {/* Validation Result Header */}
-              {opportunities.some(o => o.validationInfo) && (
-                <div className={`${opportunities.some(o => o.validationInfo?.isSelected) ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'} p-6 rounded-3xl flex items-center justify-between shadow-2xl relative overflow-hidden group mb-8`}>
-                  <div className="relative z-10">
-                    <p className={`text-[10px] font-black ${opportunities.some(o => o.validationInfo?.isSelected) ? 'text-emerald-500' : 'text-rose-500'} uppercase tracking-[0.4em] mb-2 drop-shadow-sm`}>Decision Gate Finalized</p>
-                    <h2 className="text-3xl font-black text-white tracking-tighter italic">
-                      {opportunities.some(o => o.validationInfo?.isSelected) ? "Strong Viable Offer Identified" : "No Viable Opportunity Found"}
-                    </h2>
-                    <p className="text-sm text-slate-500 font-bold mt-2 uppercase tracking-wide">
-                      {opportunities[0]?.validationInfo?.summary || "Batch verification successfully completed."}
-                    </p>
-                    
-                    <div className="flex items-center gap-4 mt-6">
-                      <button 
-                         id="btn-trigger-agent4"
-                         onClick={runFunnelAgent}
-                         disabled={!opportunities.some(o => o.validationInfo?.isSelected) || isGeneratingFunnel}
-                         className={`h-11 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
-                           isGeneratingFunnel 
-                             ? "bg-slate-800 text-slate-500 animate-pulse"
-                             : opportunities.some(o => o.validationInfo?.isSelected)
-                             ? "bg-emerald-500 text-slate-950 hover:bg-white shadow-xl shadow-emerald-500/20"
+            <Connector />
+
+            {/* ── Step 2: Offers ── */}
+            <section id="step-2" className="bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm">
+              <StepHeader 
+                num="02" 
+                title="Opportunity Engineering" 
+                subtitle="Bespoke Value Proposition Generation"
+                status={opportunities.every(o => o.offerData) ? "Completed" : "Processing"}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {opportunities.map((opp, idx) => (
+                  <OpportunityCard key={idx} opp={opp} index={idx} onRetry={handleRetryOffer} />
+                ))}
+              </div>
+            </section>
+
+            {/* ── Step 3: Decision (ONLY SHOW WHEN STEP 2 FINISHED) ── */}
+            {!opportunities.some(o => o.isLoadingOffer) && (
+              <>
+                <Connector />
+                <section id="step-3" className="bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+                   {/* Decorative Gradient */}
+                   <div className="absolute top-0 right-0 w-[500px] h-full bg-emerald-500/[0.03] blur-[100px] pointer-events-none"></div>
+
+                   <StepHeader 
+                     num="03" 
+                     title="Systematic Decision Node" 
+                     subtitle="Stress Test & Winner Selection"
+                     status={opportunities.some(o => o.validationInfo) ? "Finalized" : "Pending Approval"}
+                   />
+
+                   {!opportunities.some(o => o.validationInfo) ? (
+                     <div className="flex flex-col items-center py-12 text-center bg-slate-950/50 rounded-3xl border border-slate-800/50 border-dashed">
+                       <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-3xl mb-6">⚖️</div>
+                       <h3 className="text-2xl font-black text-white italic mb-2">Gate Awaiting Batch Approval</h3>
+                       <p className="text-slate-500 text-sm max-w-md mx-auto mb-10 leading-relaxed font-medium capitalize">
+                         The system has engineered {opportunities.length} potential vectors. Click approve to run comparative validation and pick the alpha opportunity.
+                       </p>
+                       <button
+                         id="btn-trigger-validation"
+                         onClick={runValidationAgent}
+                         disabled={isSelecting || !opportunities.every(o => o.offerData)}
+                         className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                           isSelecting
+                             ? "bg-slate-800 text-slate-500 cursor-not-allowed"
+                             : opportunities.every(o => o.offerData)
+                             ? "bg-blue-600 text-white hover:bg-blue-500 shadow-xl shadow-blue-600/20 scale-105"
                              : "bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed"
                          }`}
-                      >
-                        {isGeneratingFunnel ? (
-                          <>
-                            <div className="w-3 h-3 border-2 border-slate-600 border-t-emerald-500 rounded-full animate-spin"></div>
-                            Engineering Funnel...
-                          </>
-                        ) : (
-                          "Move to Funnel Agent"
-                        )}
-                      </button>
-                      <button 
-                         onClick={() => setOpportunities([])}
-                         className="h-11 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800 transition-all font-bold"
-                      >
-                        Go Back
-                      </button>
-                      <button 
-                         onClick={runValidationAgent}
-                         className="h-11 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-900 text-amber-500 border border-amber-500/30 hover:bg-amber-500/10 transition-all font-bold"
-                      >
-                        Rerun Validation
-                      </button>
-                    </div>
+                       >
+                         {isSelecting ? (
+                           <>
+                             <div className="w-4 h-4 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div>
+                             Executing Stress Test...
+                           </>
+                         ) : (
+                           "APPROVE BATCH (SECURE DECISION)"
+                         )}
+                       </button>
+                     </div>
+                   ) : (
+                     <div className="space-y-12">
+                       {/* Decision Summary */}
+                       <div className="bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-3xl flex items-center justify-between">
+                         <div>
+                           <div className="flex items-center gap-2 mb-2">
+                             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                             <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Alpha Outcome Locked</p>
+                           </div>
+                           <h3 className="text-3xl font-black text-white italic tracking-tighter">
+                             {opportunities.some(o => o.validationInfo?.isSelected) ? "Winning Opportunity Identified" : "No Market Fit Found"}
+                           </h3>
+                           <p className="text-slate-400 text-sm mt-3 font-medium max-w-xl">
+                             {opportunities.find(o => o.validationInfo?.isSelected)?.validationInfo?.summary || "System has evaluated all vectors against market friction and willingness to pay."}
+                           </p>
+                           
+                           <div className="flex items-center gap-4 mt-6">
+                             <button 
+                               onClick={runAgent1}
+                               className="px-4 py-2 bg-slate-950/80 border border-amber-500/30 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500/10 transition-all"
+                             >
+                               🔄 Revise Batch
+                             </button>
+                             <button 
+                               onClick={() => setOpportunities([])}
+                               className="px-4 py-2 bg-slate-950/80 border border-rose-500/30 text-rose-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-500/10 transition-all"
+                             >
+                               ✖ Restart Pipeline
+                             </button>
+                           </div>
+                         </div>
+                         <div className="hidden md:flex flex-col items-center gap-2 px-8 py-6 bg-slate-950/50 rounded-2xl border border-slate-800">
+                            <span className="text-[9px] font-black text-slate-600 uppercase">Evaluated</span>
+                            <span className="text-3xl font-black text-white">{opportunities.length}</span>
+                         </div>
+                       </div>
+
+                       {/* Split Winner vs Others */}
+                       <div className="space-y-8">
+                          {opportunities.filter(o => o.validationInfo?.isSelected).map((opp, idx) => (
+                            <div key={idx} className="relative">
+                              <div className="absolute -top-10 left-6 text-[11px] font-black text-emerald-500 uppercase tracking-[0.4em]">SYSTEM SELECTION:</div>
+                              <OpportunityCard opp={opp} index={opportunities.indexOf(opp)} onRetry={handleRetryOffer} />
+                            </div>
+                          ))}
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 opacity-60 grayscale scale-95 origin-top">
+                            {opportunities.filter(o => !o.validationInfo?.isSelected).map((opp, idx) => (
+                              <div key={idx} className="relative">
+                                <div className="absolute -top-6 left-6 text-[9px] font-black text-rose-500/60 uppercase tracking-widest">REJECTED BY SYSTEM</div>
+                                <OpportunityCard opp={opp} index={opportunities.indexOf(opp)} onRetry={handleRetryOffer} />
+                              </div>
+                            ))}
+                          </div>
+                       </div>
+
+                       {/* Next Phase Action */}
+                       {opportunities.some(o => o.validationInfo?.isSelected) && (
+                         <div className="flex justify-center pt-8">
+                           <button
+                             id="btn-trigger-agent4"
+                             onClick={runFunnelAgent}
+                             disabled={isGeneratingFunnel}
+                             className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                               isGeneratingFunnel
+                                 ? "bg-slate-800 text-slate-500 animate-pulse"
+                                 : "bg-emerald-500 text-slate-950 hover:bg-white shadow-xl shadow-emerald-500/20 scale-110"
+                             }`}
+                           >
+                             {isGeneratingFunnel ? (
+                               <>
+                                 <div className="w-4 h-4 border-2 border-slate-600 border-t-emerald-500 rounded-full animate-spin"></div>
+                                 Engineering Go-to-Market Blueprint...
+                               </>
+                             ) : (
+                               "GENERATE GO-TO-MARKET PLAN"
+                             )}
+                           </button>
+                         </div>
+                       )}
+
+                       {/* Quick Reset for when finalized */}
+                       {!opportunities.some(o => o.validationInfo?.isSelected) && (
+                         <div className="flex justify-center pt-10 gap-4">
+                           <button 
+                             onClick={runAgent1}
+                             className="h-12 px-8 bg-slate-950/80 border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-amber-500/10 transition-all"
+                           >
+                             🔄 Revise Batch
+                           </button>
+                           <button 
+                             onClick={() => setOpportunities([])}
+                             className="h-12 px-8 bg-slate-950/80 border border-slate-800 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all"
+                           >
+                             ✖ Restart
+                           </button>
+                         </div>
+                       )}
+                     </div>
+                   )}
+                </section>
+              </>
+            )}
+
+
+            <Connector />
+
+            {/* ── Step 4: Funnel ── */}
+            <section id="step-4" className={`${funnelData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader 
+                num="04" 
+                title="GTM Blueprint" 
+                subtitle="Full Acquisition Funnel Asset Generation"
+                status={funnelData ? "Ready" : "Awaiting Decision"}
+              />
+              <div id="funnel-output">
+                {funnelData ? (
+                  <FunnelPanel funnel={funnelData} />
+                ) : (
+                  <div className="py-20 flex flex-col items-center border-2 border-dashed border-slate-800 rounded-[32px]">
+                    <div className="text-4xl mb-4 grayscale opacity-30">🕸️</div>
+                    <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Output node dormant. Complete Step 3 to activate.</p>
                   </div>
-                  <div className={`w-20 h-20 rounded-2xl ${opportunities.some(o => o.validationInfo?.isSelected) ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30'} border flex items-center justify-center text-4xl shadow-inner group-hover:rotate-12 transition-transform duration-500`}>
-                    {opportunities.some(o => o.validationInfo?.isSelected) ? '🚀' : '❌'}
+                )}
+              </div>
+            </section>
+
+             <Connector />
+
+            {/* ── Step 5: Messaging Architecture ── */}
+            <section id="step-5" className={`${narrativeData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader 
+                num="05" 
+                title="Narrative Builder" 
+                subtitle="Positioning & Multi-Channel Outreach Assets"
+                status={narrativeData ? "Finalized" : (funnelData ? "Awaiting Activation" : "Dormant")}
+              />
+              
+              {!narrativeData ? (
+                 <div className="py-20 flex flex-col items-center">
+                    <button
+                      onClick={runNarrativeAgent}
+                      disabled={isGeneratingNarrative || !funnelData}
+                      className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                        isGeneratingNarrative
+                          ? "bg-slate-800 text-slate-500 animate-pulse"
+                          : (funnelData 
+                              ? "bg-white text-slate-950 hover:bg-blue-400 active:scale-95 shadow-xl shadow-white/10" 
+                              : "bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed")
+                      }`}
+                    >
+                      {isGeneratingNarrative ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-slate-500 border-t-blue-500 rounded-full animate-spin"></div>
+                          Architecting Messaging Narrative...
+                        </>
+                      ) : (
+                        "BUILD OUTREACH NARRATIVE"
+                      )}
+                    </button>
+                    {!funnelData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 4 GTM blueprint to unlock narrative layer.</p>}
+                 </div>
+              ) : (
+                <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700">
+                  {/* Core Position */}
+                  <div className="bg-slate-950/80 p-8 rounded-3xl border border-slate-800/50 relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[40px] rounded-full"></div>
+                     <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-4">Core Market Positioning</p>
+                     <p className="text-3xl font-black text-white italic tracking-tighter leading-tight italic">"{narrativeData.core_message}"</p>
+                  </div>
+
+                  {/* Messaging Angles */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {narrativeData.angles.map((angle, idx) => (
+                      <div key={idx} className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                           <div className={`w-1.5 h-1.5 rounded-full ${angle.type === 'pain' ? 'bg-rose-500' : angle.type === 'outcome' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                           Angle: {angle.type}
+                        </p>
+                        <p className="text-[13px] text-slate-400 font-bold leading-relaxed">{angle.message}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Operational Assets */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                     <div className="space-y-6">
+                        <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                           <header className="flex justify-between items-center mb-6">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">LinkedIn / Social Angle</span>
+                              <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-[8px] font-black uppercase rounded">Ready</span>
+                           </header>
+                           <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{narrativeData.assets.linkedin_post}</p>
+                        </div>
+                        <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                           <header className="flex justify-between items-center mb-6">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cold DM / Direct Angle</span>
+                              <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase rounded">Ready</span>
+                           </header>
+                           <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{narrativeData.assets.cold_dm}</p>
+                        </div>
+                     </div>
+                     <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 flex flex-col">
+                        <header className="flex justify-between items-center mb-6">
+                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Sequence Asset</span>
+                           <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[8px] font-black uppercase rounded">Ready</span>
+                        </header>
+                        <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed flex-1">{narrativeData.assets.email}</p>
+                     </div>
                   </div>
                 </div>
               )}
+            </section>
 
-              {/* Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {opportunities.map((opp, idx) => (
-                  <OpportunityCard key={idx} opp={opp} index={idx} />
-                ))}
+            <Connector />
+
+            {/* ── Step 6: Execution Layer ── */}
+            <section id="step-6" className="bg-slate-900/10 border border-slate-800/30 rounded-[40px] p-10 backdrop-blur-sm opacity-40">
+              <StepHeader 
+                num="06" 
+                title="Autonomous Execution" 
+                subtitle="Campaign Launch & Lead Handling"
+                status="In Progress"
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-2 border-dashed border-slate-900 rounded-[32px] p-10">
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Autonomous Outreach Pipeline</p>
+                    <div className="bg-slate-950/80 p-6 rounded-2xl border border-slate-800/50 text-[10px] font-black text-slate-500 text-center uppercase tracking-widest leading-relaxed py-12">
+                      Agent 6-10 Integration Points<br/>
+                      Awaiting API Orchestration Layer
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {['Email Engine', 'X (Twitter) DM', 'LinkedIn Outreach'].map(chan => (
+                      <span key={chan} className="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-[9px] font-black text-slate-700 uppercase">{chan}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center">
+                   <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse"></div>
+                        <div className="h-2 bg-slate-900 rounded w-full"></div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse delay-75"></div>
+                        <div className="h-2 bg-slate-900 rounded w-5/6"></div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse delay-150"></div>
+                        <div className="h-2 bg-slate-900 rounded w-2/3"></div>
+                      </div>
+                      <p className="text-[9px] font-black text-slate-800 uppercase tracking-widest mt-8 text-center italic">Future extension point for Auto-Pilot</p>
+                   </div>
+                </div>
               </div>
+            </section>
 
-              {/* Agent 4: Funnel Output */}
-              <div id="funnel-output">
-                <FunnelPanel funnel={funnelData} />
-              </div>
-
-              {/* Feedback */}
-              <div className="bg-slate-900/40 p-7 rounded-2xl border border-slate-800 backdrop-blur-sm relative overflow-hidden">
+            {/* Feedback Footer */}
+            <footer className="mt-20 pt-20 border-t border-slate-900">
+               <div className="bg-slate-900/40 p-10 rounded-[40px] border border-slate-800 backdrop-blur-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-600 to-transparent"></div>
                 <div className="relative">
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-1 italic">Feedback Loop</p>
-                  <h4 className="text-lg font-black text-white mb-1 tracking-tight">Refine Global Intelligence</h4>
-                  <p className="text-xs text-slate-600 mb-5 leading-relaxed max-w-xl">
-                    Your feedback is sent with all opportunity states (selected / rejected). Agent 1 uses this to bias future signal discovery and reduce repetition.
+                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2 italic">Intelligence Feedback Loop</p>
+                  <h4 className="text-2xl font-black text-white mb-2 tracking-tight">Bias the Global Knowledge Base</h4>
+                  <p className="text-sm text-slate-500 mb-8 leading-relaxed max-w-2xl font-medium">
+                    Your feedback is processed by Agent 1 to refine future discovery parameters. All selected and rejected states are used as training signals.
                   </p>
-                  <div className="flex flex-col md:flex-row gap-3 items-end">
+                  <div className="flex flex-col md:flex-row gap-4">
                     <textarea
                       id="feedback-input"
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
-                      placeholder="e.g. Focus on B2B SaaS tools only, avoid generic services. Prioritize niches with >$500 willingness to pay…"
-                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none h-20 text-slate-300 placeholder:text-slate-700"
+                      placeholder="e.g. Focus on technical founders with specific DevOps friction, avoid marketing agencies…"
+                      className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl p-6 text-sm font-medium focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all resize-none h-24 text-slate-300 placeholder:text-slate-700"
                     />
                     <button
                       id="btn-pass-feedback"
                       onClick={handlePassFeedback}
                       disabled={!feedback.trim() || feedbackStatus === "sending"}
-                      className={`h-10 px-5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shrink-0 flex items-center gap-2 ${
+                      className={`h-24 px-10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shrink-0 flex items-center justify-center gap-3 ${
                         feedbackStatus === "sent"
                           ? "bg-emerald-600 text-white"
                           : feedbackStatus === "error"
                           ? "bg-rose-600 text-white"
                           : feedbackStatus === "sending" || !feedback.trim()
                           ? "bg-slate-800 text-slate-600 cursor-not-allowed"
-                          : "bg-blue-600 hover:bg-blue-500 text-white"
+                          : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20"
                       }`}
                     >
-                      {feedbackStatus === "sending" && <div className="w-3 h-3 border-2 border-slate-500 border-t-blue-300 rounded-full animate-spin"></div>}
-                      {feedbackStatus === "sent" ? "✓ Sent" : feedbackStatus === "error" ? "✗ Failed" : "Pass to Agent 1"}
+                      {feedbackStatus === "sending" && <div className="w-3 h-3 border-2 border-slate-500 border-t-white rounded-full animate-spin"></div>}
+                      {feedbackStatus === "sent" ? "✓ Successfully Synced" : feedbackStatus === "error" ? "✗ Sync Failed" : "Update Global Parameters"}
                     </button>
                   </div>
                 </div>
               </div>
-            </>
-          ) : (
-            /* Idle */
-            <div className="h-full flex flex-col items-center justify-center text-center py-20">
-              <div className="relative mb-8">
-                <div className="absolute -inset-8 bg-blue-600/10 blur-[40px] rounded-full"></div>
-                <div className="w-20 h-20 bg-slate-900 rounded-[28px] flex items-center justify-center relative border border-slate-800">
-                  <div className="w-7 h-7 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin"></div>
-                </div>
+              <div className="text-center mt-12 mb-8">
+                <p className="text-[9px] font-black text-slate-800 uppercase tracking-[0.5em]">LeadOS · Autonomous Revenue Pipeline · 2026</p>
               </div>
-              <h2 className="text-3xl font-black text-white mb-3 tracking-tighter italic">Engine Status: Idle</h2>
-              <p className="text-slate-600 text-sm max-w-xs font-medium leading-relaxed uppercase tracking-widest px-4">
-                Click Trigger Signal Scout to start the decision pipeline.
-              </p>
-              <div className="mt-10 flex gap-3">
-                {["Pipeline Online", "LLM Connected"].map((label) => (
-                  <div key={label} className="px-4 py-2 bg-slate-900/50 border border-slate-800 rounded-lg flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{label}</span>
-                  </div>
-                ))}
+            </footer>
+          </div>
+        ) : (
+          /* Idle State */
+          <div className="py-32 flex flex-col items-center text-center">
+            <div className="relative mb-12">
+              <div className="absolute -inset-20 bg-blue-600/10 blur-[80px] rounded-full animate-pulse"></div>
+              <div className="w-24 h-24 bg-slate-900 rounded-[32px] flex items-center justify-center relative border border-slate-800 shadow-2xl overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-500/10 to-transparent"></div>
+                <div className="w-8 h-8 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin"></div>
               </div>
             </div>
-          )}
-        </main>
+            <h2 className="text-4xl font-black text-white mb-4 tracking-tighter italic">Pipeline Status: Standby</h2>
+            <p className="text-slate-500 text-sm max-w-sm font-medium leading-relaxed uppercase tracking-widest mb-12">
+              The engine is ready to scout the market. Click the trigger button to begin.
+            </p>
+            <div className="flex gap-4">
+              {["System Online", "Decision Node Ready", "LLM Synchronized"].map((label) => (
+                <div key={label} className="px-5 py-2.5 bg-slate-900/50 border border-slate-800 rounded-xl flex items-center gap-2.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
