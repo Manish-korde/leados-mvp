@@ -12,10 +12,7 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [
-        0,
-        0
-      ]
+      "position": [0, 0]
     },
     {
       "parameters": {
@@ -32,10 +29,7 @@
       "name": "Funnel Engineer (Groq)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        250,
-        0
-      ],
+      "position": [250, 0],
       "credentials": {
         "httpHeaderAuth": {
           "id": "UXgmT5ea2qmzvhCy",
@@ -61,64 +55,52 @@
       "name": "Parser",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [
-        500,
-        0
-      ]
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const f = $json.funnel_data.funnel || $json.funnel_data; const body = 'LeadOS Funnel Design\\n\\nHook: ' + (f.hook || 'N/A') + '\\nHeadline: ' + (f.landing_page?.headline || 'N/A') + '\\nCTA: ' + (f.landing_page?.cta || 'N/A') + '\\nLead Magnet: ' + (f.lead_magnet || 'N/A') + '\\nChannels: ' + (f.acquisition_channels || []).join(', '); return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
+        "options": {
+          "continueOnFail": true
+        }
+      },
+      "id": "hubspot-note",
+      "name": "HubSpot Save Funnel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [750, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HUBSPOT_KEY",
+          "name": "HubSpot API Key"
+        }
+      }
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ $json.funnel_data }}",
+        "responseBody": "={{ $('Parser').first().json.funnel_data }}",
         "options": {}
       },
       "id": "webhook-response",
       "name": "Respond",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [
-        750,
-        0
-      ]
+      "position": [1000, 0]
     }
   ],
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Funnel Engineer (Groq)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Funnel Engineer (Groq)": {
-      "main": [
-        [
-          {
-            "node": "Parser",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Parser": {
-      "main": [
-        [
-          {
-            "node": "Respond",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
+    "Webhook": { "main": [[{ "node": "Funnel Engineer (Groq)", "type": "main", "index": 0 }]] },
+    "Funnel Engineer (Groq)": { "main": [[{ "node": "Parser", "type": "main", "index": 0 }]] },
+    "Parser": { "main": [[{ "node": "HubSpot Save Funnel", "type": "main", "index": 0 }]] },
+    "HubSpot Save Funnel": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,
-  "settings": {
-    "executionOrder": "v1"
-  }
+  "settings": { "executionOrder": "v1" }
 }
