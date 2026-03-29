@@ -34,16 +34,25 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "url": "https://api.anthropic.com/v1/messages",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.7,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an elite, first-principles business engineer. You solve each problem as a UNIQUE, independent entity. You NEVER reuse ideas or delivery models from previous tasks unless they are the ONLY logical solution to the CURRENT specific problem.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a business offer that is 100% GROUNDED in the specific PROBLEM below.\\n\\nCRITICAL CONSTRAINTS:\\n- Your offer MUST solve the specific mechanism of the PROBLEM — ignore all other domains or common patterns.\\n- If the problem is unrelated to ads, marketing, or e-commerce, your offer MUST NOT mention them.\\n- Every output must be structurally independent — do NOT follow a default 'AI tool' or 'SaaS' pattern unless specifically required by the problem.\\n\\nNEGATIVE CONSTRAINTS (DO NOT DO):\\n- DO NOT default to: 'AI-powered', 'optimization tool', 'growth system', 'Shopify' or 'SaaS'.\\n- DO NOT provide a marketing solution for a technical or operational problem.\\n- DO NOT use buzzwords or vague mechanisms.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nFIELD RULES:\\n1. ICP: Specific industry + Size + job title (Must be the direct buyer of the solution).\\n2. OFFER: Describe the EXACT mechanic of the solution. No vague language.\\n3. PRICING: Provide a realistic dollar amount range based on the pain intensity: low ($100-$500) | medium ($1k-$3k) | high ($5k-$20k). Format: 'label ($range)'.\\n4. PROMISE: Measurable outcome + Timeframe (Must be the direct result of the offer).\\n5. GUARANTEE: Tangible risk reversal.\\n\\nINPUT DATA:\\nProblem: \" + $json.problem + \"\\nMechanism Required: \" + $json.solution + \"\\nExecution Type: \" + $json.solution_type + \"\\nTarget Audience: \" + $json.audience + \"\\nPain Intensity: \" + $json.pain_intensity + \"\\nWillingness To Pay: \" + $json.willingness_to_pay + \"\\nAngle: \" + $json.angle\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are an elite, first-principles business engineer. You solve each problem as a UNIQUE, independent entity. You NEVER reuse ideas or delivery models from previous tasks unless they are the ONLY logical solution to the CURRENT specific problem.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a business offer that is 100% GROUNDED in the specific PROBLEM below.\\n\\nCRITICAL CONSTRAINTS:\\n- Your offer MUST solve the specific mechanism of the PROBLEM — ignore all other domains or common patterns.\\n- If the problem is unrelated to ads, marketing, or e-commerce, your offer MUST NOT mention them.\\n- Every output must be structurally independent — do NOT follow a default 'AI tool' or 'SaaS' pattern unless specifically required by the problem.\\n\\nNEGATIVE CONSTRAINTS (DO NOT DO):\\n- DO NOT default to: 'AI-powered', 'optimization tool', 'growth system', 'Shopify' or 'SaaS'.\\n- DO NOT provide a marketing solution for a technical or operational problem.\\n- DO NOT use buzzwords or vague mechanisms.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nFIELD RULES:\\n1. ICP: Specific industry + Size + job title (Must be the direct buyer of the solution).\\n2. OFFER: Describe the EXACT mechanic of the solution. No vague language.\\n3. PRICING: Provide a realistic dollar amount range based on the pain intensity: low ($100-$500) | medium ($1k-$3k) | high ($5k-$20k). Format: 'label ($range)'.\\n4. PROMISE: Measurable outcome + Timeframe (Must be the direct result of the offer).\\n5. GUARANTEE: Tangible risk reversal.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nINPUT DATA:\\nProblem: \" + $json.problem + \"\\nMechanism Required: \" + $json.solution + \"\\nExecution Type: \" + $json.solution_type + \"\\nTarget Audience: \" + $json.audience + \"\\nPain Intensity: \" + $json.pain_intensity + \"\\nWillingness To Pay: \" + $json.willingness_to_pay + \"\\nAngle: \" + $json.angle\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "7ff8614b-235b-44e7-b228-35f12092532d",
-      "name": "Groq API",
+      "name": "Claude API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
@@ -52,14 +61,14 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "UXgmT5ea2qmzvhCy",
-          "name": "Header Auth account"
+          "id": "ANTHROPIC_KEY",
+          "name": "Anthropic API Key"
         }
       }
     },
     {
       "parameters": {
-        "functionCode": "return [{ output: $json.choices[0].message.content }];"
+        "functionCode": "return [{ output: $json.content[0].text }];"
       },
       "id": "f4864104-9f86-4c33-9804-b926df92adfe",
       "name": "Extract Output",
@@ -146,12 +155,21 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "url": "https://api.anthropic.com/v1/messages",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.8,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a first-principles business engineer. Your previous output was REJECTED for being too generic or irrelevant. You must now generate a fundamentally different, SPECIFIC solution grounded ONLY in the current problem.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"RE-ENGINEER this offer. The previous version was too generic.\\n\\nHARD REQUIREMENTS:\\n- DO NOT reuse any words, structures, or ideas from the 'Previous Output' below.\\n- The offer MUST directly solve the mechanical 'Problem' listed.\\n- If the problem is not about marketing, DO NOT suggest marketing/ads.\\n- NO buzzwords (AI-powered, scalable, growth, etc).\\n\\nFORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nINPUT:\\nProblem: \" + $json.problem + \"\\nSolution Requirement: \" + $json.solution + \"\\nPrevious Output (DO NOT REUSE): \" + $json.offer + \"\\n\\nTarget Audience: \" + $json.audience + \"\\nExecution Type: \" + $json.solution_type\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are a first-principles business engineer. Your previous output was REJECTED for being too generic or irrelevant. You must now generate a fundamentally different, SPECIFIC solution grounded ONLY in the current problem.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"RE-ENGINEER this offer. The previous version was too generic.\\n\\nHARD REQUIREMENTS:\\n- DO NOT reuse any words, structures, or ideas from the 'Previous Output' below.\\n- The offer MUST directly solve the mechanical 'Problem' listed.\\n- If the problem is not about marketing, DO NOT suggest marketing/ads.\\n- NO buzzwords (AI-powered, scalable, growth, etc).\\n\\nFORMAT:\\n{\\n  \\\"ICP\\\": \\\"\\\",\\n  \\\"offer\\\": \\\"\\\",\\n  \\\"pricing\\\": \\\"\\\",\\n  \\\"promise\\\": \\\"\\\",\\n  \\\"guarantee\\\": \\\"\\\"\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nINPUT:\\nProblem: \" + $json.problem + \"\\nSolution Requirement: \" + $json.solution + \"\\nPrevious Output (DO NOT REUSE): \" + $json.offer + \"\\n\\nTarget Audience: \" + $json.audience + \"\\nExecution Type: \" + $json.solution_type\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "1585947e-a355-4456-b8bf-fce9aeb03ac6",
@@ -164,8 +182,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "UXgmT5ea2qmzvhCy",
-          "name": "Header Auth account"
+          "id": "ANTHROPIC_KEY",
+          "name": "Anthropic API Key"
         }
       }
     },
@@ -211,14 +229,14 @@
       "main": [
         [
           {
-            "node": "Groq API",
+            "node": "Claude API",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Groq API": {
+    "Claude API": {
       "main": [
         [
           {
