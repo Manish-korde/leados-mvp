@@ -37,32 +37,23 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are Agent 9 – AI Qualification Simulator in the LeadOS pipeline.\\n\\nPURPOSE: Simulate AI-based lead qualification calls using BANT framework. You are NOT making real calls. You are simulating what an AI would discover in a qualification conversation.\\n\\nINPUT NORMALIZATION (do this FIRST for every lead):\\n- intent_level may come as 'intent' field → normalize to intent_level\\n- ICP_match may come as 'ICP' field → normalize to ICP_match\\n- lead_score may come as 'score' field → normalize to lead_score (number)\\n- If pain_level missing: hot→high, warm→medium, cold→low\\n- If budget_level missing: score≥8→high, score 5-7→medium, score<5→low\\n\\nPROCESSING RULES:\\n\\nSTEP 1 – CALL SCRIPT: Write a short natural intro script (2-3 sentences) personalized to the lead's name, company, and how they engaged. Do NOT sound robotic. No 'Dear Sir/Madam'.\\n\\nSTEP 2 – SIMULATE RESPONSES based on lead attributes:\\n- High intent + high pain → enthusiastic, specific answers\\n- Warm intent → positive but cautious answers\\n- Cold intent → vague or uncommitted answers\\n- Low ICP_match → confused, not relevant answers\\n- Responses must differ across leads. No copy-paste answers.\\n\\nSTEP 3 – CLASSIFY each BANT dimension: positive / neutral / negative\\n\\nSTEP 4 – BANT SCORING (must be consistent with responses):\\n- Budget: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- Authority: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- Need: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- Timeline: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- total = sum of all 4\\n\\nSTEP 5 – STATUS:\\n- total ≥ 80 → HOT\\n- 60-79 → WARM\\n- 40-59 → MEDIUM\\n- < 40 → COLD\\n\\nSTEP 6 – ROUTING:\\n- HOT → checkout\\n- WARM → sales_call\\n- MEDIUM → nurture\\n- COLD → disqualify\\n\\nANTI-FAKE RULES:\\n- Do NOT give identical responses to different leads\\n- Lead scores must be consistent with their intent/pain/ICP attributes\\n- High-intent leads should generally score higher but not always\\n- Include at least 1 lead that scores unexpectedly low despite initial metrics\\n\\nIMPORTANT: Process ALL leads from the input. Do not skip any.\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"qualified_leads\\\": [\\n    {\\n      \\\"lead_id\\\": \\\"\\\",\\n      \\\"name\\\": \\\"\\\",\\n      \\\"company\\\": \\\"\\\",\\n      \\\"call_script\\\": \\\"\\\",\\n      \\\"responses\\\": {\\n        \\\"budget\\\": \\\"\\\",\\n        \\\"authority\\\": \\\"\\\",\\n        \\\"need\\\": \\\"\\\",\\n        \\\"timeline\\\": \\\"\\\"\\n      },\\n      \\\"classification\\\": {\\n        \\\"budget\\\": \\\"\\\",\\n        \\\"authority\\\": \\\"\\\",\\n        \\\"need\\\": \\\"\\\",\\n        \\\"timeline\\\": \\\"\\\"\\n      },\\n      \\\"bant_score\\\": {\\n        \\\"budget\\\": 0,\\n        \\\"authority\\\": 0,\\n        \\\"need\\\": 0,\\n        \\\"timeline\\\": 0,\\n        \\\"total\\\": 0\\n      },\\n      \\\"final_status\\\": \\\"\\\",\\n      \\\"routing\\\": \\\"\\\"\\n    }\\n  ],\\n  \\\"summary\\\": {\\n    \\\"total_leads\\\": 0,\\n    \\\"hot\\\": 0,\\n    \\\"warm\\\": 0,\\n    \\\"medium\\\": 0,\\n    \\\"cold\\\": 0\\n  }\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Simulate BANT qualification calls for the following leads. Process every lead:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.5,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 9 – AI Qualification Simulator in the LeadOS pipeline.\\n\\nPURPOSE: Simulate AI-based lead qualification calls using BANT framework. You are NOT making real calls. You are simulating what an AI would discover in a qualification conversation.\\n\\nINPUT NORMALIZATION (do this FIRST for every lead):\\n- intent_level may come as 'intent' field → normalize to intent_level\\n- ICP_match may come as 'ICP' field → normalize to ICP_match\\n- lead_score may come as 'score' field → normalize to lead_score (number)\\n- If pain_level missing: hot→high, warm→medium, cold→low\\n- If budget_level missing: score≥8→high, score 5-7→medium, score<5→low\\n\\nPROCESSING RULES:\\n\\nSTEP 1 – CALL SCRIPT: Write a short natural intro script (2-3 sentences) personalized to the lead's name, company, and how they engaged. Do NOT sound robotic. No 'Dear Sir/Madam'.\\n\\nSTEP 2 – SIMULATE RESPONSES based on lead attributes:\\n- High intent + high pain → enthusiastic, specific answers\\n- Warm intent → positive but cautious answers\\n- Cold intent → vague or uncommitted answers\\n- Low ICP_match → confused, not relevant answers\\n- Responses must differ across leads. No copy-paste answers.\\n\\nSTEP 3 – CLASSIFY each BANT dimension: positive / neutral / negative\\n\\nSTEP 4 – BANT SCORING (must be consistent with responses):\\n- Budget: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- Authority: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- Need: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- Timeline: 0-25 (positive=20-25, neutral=10-15, negative=0-5)\\n- total = sum of all 4\\n\\nSTEP 5 – STATUS:\\n- total ≥ 80 → HOT\\n- 60-79 → WARM\\n- 40-59 → MEDIUM\\n- < 40 → COLD\\n\\nSTEP 6 – ROUTING:\\n- HOT → checkout\\n- WARM → sales_call\\n- MEDIUM → nurture\\n- COLD → disqualify\\n\\nANTI-FAKE RULES:\\n- Do NOT give identical responses to different leads\\n- Lead scores must be consistent with their intent/pain/ICP attributes\\n- High-intent leads should generally score higher but not always\\n- Include at least 1 lead that scores unexpectedly low despite initial metrics\\n\\nIMPORTANT: Process ALL leads from the input. Do not skip any.\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"qualified_leads\\\": [\\n    {\\n      \\\"lead_id\\\": \\\"\\\",\\n      \\\"name\\\": \\\"\\\",\\n      \\\"company\\\": \\\"\\\",\\n      \\\"call_script\\\": \\\"\\\",\\n      \\\"responses\\\": {\\n        \\\"budget\\\": \\\"\\\",\\n        \\\"authority\\\": \\\"\\\",\\n        \\\"need\\\": \\\"\\\",\\n        \\\"timeline\\\": \\\"\\\"\\n      },\\n      \\\"classification\\\": {\\n        \\\"budget\\\": \\\"\\\",\\n        \\\"authority\\\": \\\"\\\",\\n        \\\"need\\\": \\\"\\\",\\n        \\\"timeline\\\": \\\"\\\"\\n      },\\n      \\\"bant_score\\\": {\\n        \\\"budget\\\": 0,\\n        \\\"authority\\\": 0,\\n        \\\"need\\\": 0,\\n        \\\"timeline\\\": 0,\\n        \\\"total\\\": 0\\n      },\\n      \\\"final_status\\\": \\\"\\\",\\n      \\\"routing\\\": \\\"\\\"\\n    }\\n  ],\\n  \\\"summary\\\": {\\n    \\\"total_leads\\\": 0,\\n    \\\"hot\\\": 0,\\n    \\\"warm\\\": 0,\\n    \\\"medium\\\": 0,\\n    \\\"cold\\\": 0\\n  }\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Simulate BANT qualification calls for the following leads. Process every lead:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "groq-qualification-node",
-      "name": "Qualification Engine (Claude)",
+      "name": "Qualification Engine (Groq)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [500, 0],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ANTHROPIC_KEY",
-          "name": "Anthropic API Key"
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
         }
       }
     },
@@ -73,7 +64,7 @@
             {
               "id": "extract-json",
               "name": "qualification_data",
-              "value": "={{ \n(() => {\n  const content = $json.content?.[0]?.text;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format from AI', raw: content.substring(0, 200) };\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI', raw: content.substring(0, 200) };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI', raw: content.substring(0, 200) };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -101,8 +92,8 @@
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
-    "Prepare Prompt": { "main": [[{ "node": "Qualification Engine (Claude)", "type": "main", "index": 0 }]] },
-    "Qualification Engine (Claude)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
+    "Prepare Prompt": { "main": [[{ "node": "Qualification Engine (Groq)", "type": "main", "index": 0 }]] },
+    "Qualification Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
     "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,

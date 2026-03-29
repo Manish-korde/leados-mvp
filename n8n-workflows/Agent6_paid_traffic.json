@@ -37,32 +37,23 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are Agent 6 – Paid Traffic Agent in the LeadOS system.\\n\\nPURPOSE: Simulate a paid acquisition strategy with realistic, numerically consistent performance metrics.\\n\\nCORE LOGIC (MANDATORY – ALL NUMBERS MUST BE DERIVED):\\n* expected_clicks = daily_budget / cpc\\n* expected_leads = expected_clicks * (conversion_rate / 100)\\n* total_clicks = sum of all channel expected_clicks\\n* total_leads = sum of all channel expected_leads\\n* blended_cpl = total_daily_budget / total_leads\\n* daily_budget = total_daily_budget * (allocation_percentage / 100)\\n\\nCHANNEL CONSTRAINTS:\\n* CPC: LinkedIn $8-15, Google $4-8, Facebook/Meta $1-4\\n* CTR: 0.5%-2% (informational only, not used in calculation)\\n* Conversion rate: 2%-5%\\n* Choose 2-3 channels only, justified by ICP\\n* B2B ICP → LinkedIn + Google Search\\n* B2C ICP → Meta + Google\\n\\nIMPORTANT: These numbers flow directly into Agent 8. total_clicks becomes paid_visitors. total_leads is the paid lead count.\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"paid_traffic\\\": {\\n    \\\"total_daily_budget\\\": 0,\\n    \\\"channels\\\": [\\n      {\\n        \\\"name\\\": \\\"\\\",\\n        \\\"allocation_percentage\\\": 0,\\n        \\\"daily_budget\\\": 0,\\n        \\\"cpc\\\": 0,\\n        \\\"ctr\\\": 0,\\n        \\\"conversion_rate\\\": 0,\\n        \\\"expected_clicks\\\": 0,\\n        \\\"expected_leads\\\": 0\\n      }\\n    ],\\n    \\\"totals\\\": {\\n      \\\"total_clicks\\\": 0,\\n      \\\"total_leads\\\": 0,\\n      \\\"blended_cpl\\\": 0\\n    }\\n  }\\n}\\n\\nFINAL CHECK before output:\\n* Does expected_clicks = daily_budget / cpc for each channel?\\n* Does expected_leads = expected_clicks * conversion_rate?\\n* Does blended_cpl = total_daily_budget / total_leads?\\n* Are allocation percentages summing to 100?\\nIf any check fails, fix internally before returning.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a paid traffic plan for the following input:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.4,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 6 – Paid Traffic Agent in the LeadOS system.\\n\\nPURPOSE: Simulate a paid acquisition strategy with realistic, numerically consistent performance metrics.\\n\\nCORE LOGIC (MANDATORY – ALL NUMBERS MUST BE DERIVED):\\n* expected_clicks = daily_budget / cpc\\n* expected_leads = expected_clicks * (conversion_rate / 100)\\n* total_clicks = sum of all channel expected_clicks\\n* total_leads = sum of all channel expected_leads\\n* blended_cpl = total_daily_budget / total_leads\\n* daily_budget = total_daily_budget * (allocation_percentage / 100)\\n\\nCHANNEL CONSTRAINTS:\\n* CPC: LinkedIn $8-15, Google $4-8, Facebook/Meta $1-4\\n* CTR: 0.5%-2% (informational only, not used in calculation)\\n* Conversion rate: 2%-5%\\n* Choose 2-3 channels only, justified by ICP\\n* B2B ICP → LinkedIn + Google Search\\n* B2C ICP → Meta + Google\\n\\nIMPORTANT: These numbers flow directly into Agent 8. total_clicks becomes paid_visitors. total_leads is the paid lead count.\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"paid_traffic\\\": {\\n    \\\"total_daily_budget\\\": 0,\\n    \\\"channels\\\": [\\n      {\\n        \\\"name\\\": \\\"\\\",\\n        \\\"allocation_percentage\\\": 0,\\n        \\\"daily_budget\\\": 0,\\n        \\\"cpc\\\": 0,\\n        \\\"ctr\\\": 0,\\n        \\\"conversion_rate\\\": 0,\\n        \\\"expected_clicks\\\": 0,\\n        \\\"expected_leads\\\": 0\\n      }\\n    ],\\n    \\\"totals\\\": {\\n      \\\"total_clicks\\\": 0,\\n      \\\"total_leads\\\": 0,\\n      \\\"blended_cpl\\\": 0\\n    }\\n  }\\n}\\n\\nFINAL CHECK before output:\\n* Does expected_clicks = daily_budget / cpc for each channel?\\n* Does expected_leads = expected_clicks * conversion_rate?\\n* Does blended_cpl = total_daily_budget / total_leads?\\n* Are allocation percentages summing to 100?\\nIf any check fails, fix internally before returning.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a paid traffic plan for the following input:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "groq-traffic-node",
-      "name": "Paid Traffic Engine (Claude)",
+      "name": "Paid Traffic Engine (Groq)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [500, 0],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ANTHROPIC_KEY",
-          "name": "Anthropic API Key"
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
         }
       }
     },
@@ -73,7 +64,7 @@
             {
               "id": "extract-json",
               "name": "traffic_plan",
-              "value": "={{ \n(() => {\n  const content = $json.content?.[0]?.text;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format from AI' };\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -101,8 +92,8 @@
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
-    "Prepare Prompt": { "main": [[{ "node": "Paid Traffic Engine (Claude)", "type": "main", "index": 0 }]] },
-    "Paid Traffic Engine (Claude)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
+    "Prepare Prompt": { "main": [[{ "node": "Paid Traffic Engine (Groq)", "type": "main", "index": 0 }]] },
+    "Paid Traffic Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
     "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,

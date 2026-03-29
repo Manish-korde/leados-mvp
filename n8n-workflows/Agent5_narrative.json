@@ -37,32 +37,23 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are an expert direct-response copywriter. Your job is to convert a validated business opportunity into high-converting messaging assets.\\n\\nRULES:\\n- Use the exact problem language\\n- Match tone to ICP\\n- Avoid generic marketing phrases\\n- Do NOT sound like AI\\n- Be specific and concrete\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"core_message\\\": \\\"One clear positioning sentence\\\",\\n  \\\"angles\\\": [\\n    { \\\"type\\\": \\\"pain\\\", \\\"message\\\": \\\"Highlight frustration\\\" },\\n    { \\\"type\\\": \\\"outcome\\\", \\\"message\\\": \\\"Highlight result\\\" },\\n    { \\\"type\\\": \\\"contrarian\\\", \\\"message\\\": \\\"Challenge common belief\\\" }\\n  ],\\n  \\\"assets\\\": {\\n    \\\"linkedin_post\\\": \\\"3-5 lines, engaging\\\",\\n    \\\"cold_dm\\\": \\\"Short, direct, personalized tone\\\",\\n    \\\"email\\\": \\\"Slightly longer, structured\\\"\\n  }\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Convert the following input into structured messaging assets:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.7,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert direct-response copywriter. Your job is to convert a validated business opportunity into high-converting messaging assets.\\n\\nRULES:\\n- Use the exact problem language\\n- Match tone to ICP\\n- Avoid generic marketing phrases\\n- Do NOT sound like AI\\n- Be specific and concrete\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"core_message\\\": \\\"One clear positioning sentence\\\",\\n  \\\"angles\\\": [\\n    { \\\"type\\\": \\\"pain\\\", \\\"message\\\": \\\"Highlight frustration\\\" },\\n    { \\\"type\\\": \\\"outcome\\\", \\\"message\\\": \\\"Highlight result\\\" },\\n    { \\\"type\\\": \\\"contrarian\\\", \\\"message\\\": \\\"Challenge common belief\\\" }\\n  ],\\n  \\\"assets\\\": {\\n    \\\"linkedin_post\\\": \\\"3-5 lines, engaging\\\",\\n    \\\"cold_dm\\\": \\\"Short, direct, personalized tone\\\",\\n    \\\"email\\\": \\\"Slightly longer, structured\\\"\\n  }\\n}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Convert the following input into structured messaging assets:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "groq-narrative-node",
-      "name": "Narrative Engine (Claude)",
+      "name": "Narrative Engine (Groq)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [500, 0],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ANTHROPIC_KEY",
-          "name": "Anthropic API Key"
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
         }
       }
     },
@@ -73,7 +64,7 @@
             {
               "id": "extract-json",
               "name": "narrative_assets",
-              "value": "={{ \n(() => {\n  const content = $json.content?.[0]?.text;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format from AI' };\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -115,14 +106,14 @@
       "main": [
         [
           {
-            "node": "Narrative Engine (Claude)",
+            "node": "Narrative Engine (Groq)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Narrative Engine (Claude)": {
+    "Narrative Engine (Groq)": {
       "main": [
         [
           {

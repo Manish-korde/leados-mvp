@@ -20,25 +20,16 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are an elite, first-principles business engineer. Your job is to translate a VALIDATED business opportunity into a concrete, execution-ready acquisition system. Output ONLY valid JSON.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Build a high-velocity acquisition funnel for the following validated offer.\\n\\nINPUT DATA:\\nOffer: \" + $json.body.selected_offer.offer + \"\\nICP: \" + $json.body.selected_offer.ICP + \"\\nPromise: \" + $json.body.selected_offer.promise + \"\\nPricing: \" + $json.body.selected_offer.pricing + \"\\nGuarantee: \" + $json.body.selected_offer.guarantee + \"\\nValidation Score: \" + $json.body.validation_context.score + \"\\nValidation Reason: \" + $json.body.validation_context.reason + \"\\n\\nSTRICT OUTPUT FORMAT (JSON ONLY):\\n{\\n  \\\"funnel\\\": {\\n    \\\"hook\\\": \\\"Short angle\\\",\\n    \\\"landing_page\\\": { \\\"headline\\\": \\\"\\\", \\\"subheadline\\\": \\\"\\\", \\\"cta\\\": \\\"\\\" },\\n    \\\"lead_magnet\\\": \\\"\\\",\\n    \\\"acquisition_channels\\\": [\\\"\\\"],\\n    \\\"conversion_flow\\\": [\\\"\\\"],\\n    \\\"first_7_day_execution\\\": [\\\"\\\" ]\\n  }\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.6,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an elite, first-principles business engineer. Your job is to translate a VALIDATED business opportunity into a concrete, execution-ready acquisition system. Output ONLY valid JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Build a high-velocity acquisition funnel for the following validated offer.\\n\\nINPUT DATA:\\nOffer: \" + $json.body.selected_offer.offer + \"\\nICP: \" + $json.body.selected_offer.ICP + \"\\nPromise: \" + $json.body.selected_offer.promise + \"\\nPricing: \" + $json.body.selected_offer.pricing + \"\\nGuarantee: \" + $json.body.selected_offer.guarantee + \"\\nValidation Score: \" + $json.body.validation_context.score + \"\\nValidation Reason: \" + $json.body.validation_context.reason + \"\\n\\nSTRICT OUTPUT FORMAT (JSON ONLY):\\n{\\n  \\\"funnel\\\": {\\n    \\\"hook\\\": \\\"Short angle\\\",\\n    \\\"landing_page\\\": { \\\"headline\\\": \\\"\\\", \\\"subheadline\\\": \\\"\\\", \\\"cta\\\": \\\"\\\" },\\n    \\\"lead_magnet\\\": \\\"\\\",\\n    \\\"acquisition_channels\\\": [\\\"\\\"],\\n    \\\"conversion_flow\\\": [\\\"\\\"],\\n    \\\"first_7_day_execution\\\": [\\\"\\\" ]\\n  }\\n}\"\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "groq-api",
-      "name": "Funnel Engineer (Claude)",
+      "name": "Funnel Engineer (Groq)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
@@ -47,8 +38,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ANTHROPIC_KEY",
-          "name": "Anthropic API Key"
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
         }
       }
     },
@@ -59,7 +50,7 @@
             {
               "id": "parse-content",
               "name": "funnel_data",
-              "value": "={{ \n(() => {\n  const content = $json.content?.[0]?.text;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -96,14 +87,14 @@
       "main": [
         [
           {
-            "node": "Funnel Engineer (Claude)",
+            "node": "Funnel Engineer (Groq)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Funnel Engineer (Claude)": {
+    "Funnel Engineer (Groq)": {
       "main": [
         [
           {

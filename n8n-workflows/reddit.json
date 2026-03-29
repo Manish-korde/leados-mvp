@@ -61,21 +61,12 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
         "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
+        "nodeCredentialType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ \n{\n  model: \"claude-sonnet-4-20250514\",\n  max_tokens: 4096,\n  messages: [\n    {\n      role: \"user\",\n      content: \"Analyze the following Reddit posts and extract business opportunities If more than one opportunity relates to e-commerce → INVALID → regenerate.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"opportunities\\\": [\\n    {\\n      \\\"solution\\\": \\\"\\\",\\n      \\\"solution_type\\\": \\\"saas | service | platform\\\",\\n      \\\"audience\\\": \\\"\\\",\\n      \\\"problem\\\": \\\"\\\",\\n      \\\"pain_intensity\\\": \\\"low | medium | high\\\",\\n      \\\"frequency\\\": \\\"\\\",\\n      \\\"evidence\\\": [\\n        \\\"\\\",\\n        \\\"\\\"\\n      ],\\n      \\\"existing_solutions\\\": \\\"\\\",\\n      \\\"willingness_to_pay\\\": \\\"low | medium | high\\\",\\n      \\\"source\\\": \\\"reddit\\\",\\n      \\\"confidence_score\\\": 0\\n    }\\n  ]\\n}\\n\\nCORE TASK:\\nIdentify DISTINCT opportunity clusters from the posts, not variations of the same idea.\\n\\nSTRICT RULES:\\n- Exactly 3 opportunities\\n- Each opportunity MUST represent a DIFFERENT domain/industry\\n\\nDOMAIN SEPARATION (CRITICAL):\\n- Each opportunity must belong to a different domain such as:\\n  hiring, marketing, dev tools, finance, education, productivity, etc.\\n- If two opportunities fall in the same domain → REJECT and regenerate\\n\\nBUSINESS MODEL CONSTRAINT:\\n- One MUST be SaaS/tool\\n- One MUST be Service\\n- One MUST be Platform/Marketplace\\n\\nPROBLEM DIVERSITY:\\n- Each must solve a completely different type of problem\\n- Do NOT repeat \\\"marketing\\\", \\\"e-commerce\\\", or \\\"lead generation\\\" more than once\\n\\nAUDIENCE DIVERSITY:\\n- Each must target a different user segment (e.g., founders, recruiters, students, devs)\\n\\nANTI-CLONING RULE (VERY IMPORTANT):\\n- If two outputs share similar keywords, domain, or use-case → they are INVALID\\n- You MUST internally regenerate until all 3 are clearly different\\n\\nEVIDENCE RULE:\\n- evidence MUST be real sentences from posts\\n\\nOUTPUT DISCIPLINE:\\n- frequency = \\\"seen in X posts\\\"\\n- confidence_score = 0–100\\n\\nFINAL CHECK BEFORE OUTPUT:\\n- Are all 3 from DIFFERENT domains?\\n- Are all 3 using DIFFERENT business models?\\n- Are all 3 solving DIFFERENT problems?\\n\\nIf ANY answer is NO → regenerate internally.\\n\\nPosts:\\n\" + $json.posts\n    }\n  ]\n}\n}}",
+        "jsonBody": "={{ \n{\n  model: \"llama-3.1-8b-instant\",\n  temperature: 0.4,\n  messages: [\n    {\n      role: \"user\",\n      content: \"Analyze the following Reddit posts and extract business opportunities If more than one opportunity relates to e-commerce → INVALID → regenerate.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nSTRICT FORMAT:\\n{\\n  \\\"opportunities\\\": [\\n    {\\n      \\\"solution\\\": \\\"\\\",\\n      \\\"solution_type\\\": \\\"saas | service | platform\\\",\\n      \\\"audience\\\": \\\"\\\",\\n      \\\"problem\\\": \\\"\\\",\\n      \\\"pain_intensity\\\": \\\"low | medium | high\\\",\\n      \\\"frequency\\\": \\\"\\\",\\n      \\\"evidence\\\": [\\n        \\\"\\\",\\n        \\\"\\\"\\n      ],\\n      \\\"existing_solutions\\\": \\\"\\\",\\n      \\\"willingness_to_pay\\\": \\\"low | medium | high\\\",\\n      \\\"source\\\": \\\"reddit\\\",\\n      \\\"confidence_score\\\": 0\\n    }\\n  ]\\n}\\n\\nCORE TASK:\\nIdentify DISTINCT opportunity clusters from the posts, not variations of the same idea.\\n\\nSTRICT RULES:\\n- Exactly 3 opportunities\\n- Each opportunity MUST represent a DIFFERENT domain/industry\\n\\nDOMAIN SEPARATION (CRITICAL):\\n- Each opportunity must belong to a different domain such as:\\n  hiring, marketing, dev tools, finance, education, productivity, etc.\\n- If two opportunities fall in the same domain → REJECT and regenerate\\n\\nBUSINESS MODEL CONSTRAINT:\\n- One MUST be SaaS/tool\\n- One MUST be Service\\n- One MUST be Platform/Marketplace\\n\\nPROBLEM DIVERSITY:\\n- Each must solve a completely different type of problem\\n- Do NOT repeat \\\"marketing\\\", \\\"e-commerce\\\", or \\\"lead generation\\\" more than once\\n\\nAUDIENCE DIVERSITY:\\n- Each must target a different user segment (e.g., founders, recruiters, students, devs)\\n\\nANTI-CLONING RULE (VERY IMPORTANT):\\n- If two outputs share similar keywords, domain, or use-case → they are INVALID\\n- You MUST internally regenerate until all 3 are clearly different\\n\\nEVIDENCE RULE:\\n- evidence MUST be real sentences from posts\\n\\nOUTPUT DISCIPLINE:\\n- frequency = \\\"seen in X posts\\\"\\n- confidence_score = 0–100\\n\\nFINAL CHECK BEFORE OUTPUT:\\n- Are all 3 from DIFFERENT domains?\\n- Are all 3 using DIFFERENT business models?\\n- Are all 3 solving DIFFERENT problems?\\n\\nIf ANY answer is NO → regenerate internally.\\n\\nPosts:\\n\" + $json.posts\n    }\n  ]\n}\n}}",
         "options": {
           "continueOnFail": true
         }
@@ -87,11 +78,11 @@
         336
       ],
       "id": "18ae0a08-6e21-47d2-8423-7136d6addb77",
-      "name": "Claude API",
+      "name": "groq API",
       "credentials": {
-        "httpHeaderAuth": {
-          "id": "ANTHROPIC_KEY",
-          "name": "Anthropic API Key"
+        "httpBearerAuth": {
+          "id": "Cr8ca3J4pwxMkvOd",
+          "name": "Bearer Auth account"
         }
       }
     },
@@ -125,7 +116,7 @@
             {
               "id": "d21047e0-f6df-4141-a2f7-c5093b959bfe",
               "name": "output",
-              "value": "={{$json[\"content\"][0][\"text\"]}}",
+              "value": "={{$json[\"choices\"][0][\"message\"][\"content\"]}}",
               "type": "string"
             }
           ]
@@ -166,6 +157,38 @@
       ],
       "id": "df3c42f4-fb0e-402f-86a5-d93355f692fb",
       "name": "extract_post"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"q\": \"startup problems OR business pain points\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b782f7a3-199b-4079-902e-adc95669b0db",
+      "name": "serp API"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a0ed2dc9-a821-4c7a-a5df-6c09572d05f0",
+      "name": "claude api"
     }
   ],
   "pinData": {},
@@ -175,6 +198,17 @@
         [
           {
             "node": "subreddit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "serp API": {
+      "main": [
+        [
+          {
+            "node": "claude api",
             "type": "main",
             "index": 0
           }
@@ -192,7 +226,7 @@
         ]
       ]
     },
-    "Claude API": {
+    "groq API": {
       "main": [
         [
           {
@@ -240,7 +274,7 @@
       "main": [
         [
           {
-            "node": "Claude API",
+            "node": "groq API",
             "type": "main",
             "index": 0
           }
