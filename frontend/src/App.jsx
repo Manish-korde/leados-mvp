@@ -163,7 +163,7 @@ function FunnelPanel({ funnel }) {
                    <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Pattern Interrupt Angle</p>
                  </div>
                </div>
-               <p className="text-2xl font-black text-white leading-tight tracking-tight italic">"{funnel.hook}"</p>
+               <p className="text-2xl font-black text-white leading-tight tracking-tight italic">"{typeof funnel.hook === 'object' ? (funnel.hook?.text || funnel.hook?.hook || JSON.stringify(funnel.hook)) : funnel.hook}"</p>
              </div>
           </div>
 
@@ -179,15 +179,15 @@ function FunnelPanel({ funnel }) {
             <div className="space-y-6 pl-4 border-l-2 border-slate-800">
               <div>
                 <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Headline</p>
-                <p className="text-xl font-black text-white leading-tight">{funnel.landing_page.headline}</p>
+                <p className="text-xl font-black text-white leading-tight">{typeof funnel.landing_page?.headline === 'object' ? JSON.stringify(funnel.landing_page.headline) : (funnel.landing_page?.headline || '')}</p>
               </div>
               <div>
                 <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Subheadline</p>
-                <p className="text-sm text-slate-400 font-bold leading-relaxed">{funnel.landing_page.subheadline}</p>
+                <p className="text-sm text-slate-400 font-bold leading-relaxed">{typeof funnel.landing_page?.subheadline === 'object' ? JSON.stringify(funnel.landing_page.subheadline) : (funnel.landing_page?.subheadline || '')}</p>
               </div>
               <div className="pt-2">
                 <button className="bg-white text-slate-950 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-white/5 active:scale-95 transition-all">
-                  {funnel.landing_page.cta}
+                  {typeof funnel.landing_page?.cta === 'object' ? (funnel.landing_page.cta?.text || funnel.landing_page.cta?.label || 'Get Started') : (funnel.landing_page?.cta || 'Get Started')}
                 </button>
               </div>
             </div>
@@ -198,14 +198,14 @@ function FunnelPanel({ funnel }) {
               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 px-1">Lead Magnet</h4>
               <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex items-center gap-4 group hover:border-amber-500/30 transition-colors">
                 <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">🎁</div>
-                <p className="text-xs font-black text-slate-200 leading-snug">{funnel.lead_magnet}</p>
+                <p className="text-xs font-black text-slate-200 leading-snug">{typeof funnel.lead_magnet === 'object' ? (funnel.lead_magnet?.title || funnel.lead_magnet?.name || JSON.stringify(funnel.lead_magnet)) : (funnel.lead_magnet || '')}</p>
               </div>
             </div>
             <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 px-1">Acquisition Channels</h4>
               <div className="flex flex-wrap gap-2">
                 {funnel.acquisition_channels.map((chan, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[10px] font-black text-blue-400 uppercase tracking-wider">{chan}</span>
+                  <span key={i} className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[10px] font-black text-blue-400 uppercase tracking-wider">{typeof chan === 'object' ? (chan?.name || chan?.channel || JSON.stringify(chan)) : String(chan)}</span>
                 ))}
               </div>
             </div>
@@ -229,9 +229,16 @@ function FunnelPanel({ funnel }) {
                   <div className="absolute left-[-17px] top-0 w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[10px] font-black text-white group hover:border-emerald-500/50 transition-colors">
                     {i + 1}
                   </div>
-                  <p className="text-xs font-bold text-slate-300 leading-relaxed mt-1 group-hover:text-white transition-colors">
-                    {step}
-                  </p>
+                   <div className="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3">
+                     {typeof step === 'object' ? (
+                       <>
+                         <p className="text-xs font-bold text-slate-300 leading-relaxed">{step.task || step.action || step.description || JSON.stringify(step)}</p>
+                         {step.status && <span className="mt-1 inline-block px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[8px] font-black text-emerald-400 uppercase">{step.status}</span>}
+                       </>
+                     ) : (
+                       <p className="text-xs font-bold text-slate-300 leading-relaxed">{String(step)}</p>
+                     )}
+                   </div>
                 </div>
               ))}
             </div>
@@ -485,6 +492,165 @@ export default function App() {
   const [isGeneratingOutbound, setIsGeneratingOutbound] = useState(false);
   const [captureData, setCaptureData] = useState(null);
   const [isGeneratingCapture, setIsGeneratingCapture] = useState(false);
+  const [qualificationData, setQualificationData] = useState(null);
+  const [isGeneratingQualification, setIsGeneratingQualification] = useState(false);
+  const [routingData, setRoutingData] = useState(null);
+  const [isGeneratingRouting, setIsGeneratingRouting] = useState(false);
+  const [attributionData, setAttributionData] = useState(null);
+  const [isGeneratingAttribution, setIsGeneratingAttribution] = useState(false);
+
+  const runAttributionAgent = async () => {
+    if (!routingData) return;
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) return;
+    setIsGeneratingAttribution(true);
+    setError(null);
+    setAttributionData(null);
+    const pt = trafficData?.paid_traffic || trafficData;
+    const payload = {
+      routed_leads: routingData.routed_leads || [],
+      capture_data: {
+        traffic: captureData?.traffic || {},
+        leads_summary: captureData?.leads_summary || {},
+        conversion: captureData?.conversion || {},
+      },
+      traffic_data: {
+        channels: pt?.channels || [],
+        totals: pt?.totals || {},
+        total_daily_budget: pt?.total_daily_budget,
+      },
+      offer_context: {
+        offer: winner.offerData?.offer || winner.solution,
+        pricing: winner.offerData?.pricing,
+        promise: winner.offerData?.promise,
+        ICP: winner.offerData?.ICP || winner.offerData?.icp || winner.audience,
+      },
+    };
+    try {
+      const res = await fetch('/webhook/agent11-tracking-attribution', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error('Attribution Agent Failed: ' + text.substring(0, 100));
+      if (!text || text.trim() === '' || text.trim() === 'null') throw new Error('Empty response from Attribution Agent. Check n8n is active.');
+      let result;
+      try { result = JSON.parse(text); } catch { throw new Error('Attribution Agent returned malformed data. Retry.'); }
+      if (result.error) throw new Error(result.error);
+      setAttributionData(result);
+      setTimeout(() => { document.getElementById('attribution-output')?.scrollIntoView({ behavior: 'smooth' }); }, 500);
+    } catch (err) {
+      setError('Attribution Failure: ' + err.message);
+    } finally {
+      setIsGeneratingAttribution(false);
+    }
+  };
+
+  const runRoutingAgent = async () => {
+    if (!qualificationData) return;
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) return;
+    setIsGeneratingRouting(true);
+    setError(null);
+    setRoutingData(null);
+    const payload = {
+      qualified_leads: (qualificationData.qualified_leads || []).map(lead => ({
+        lead_id: lead.lead_id,
+        name: lead.name,
+        company: lead.company,
+        bant_score: lead.bant_score,
+        classification: lead.classification,
+        responses: lead.responses,
+        final_status: lead.final_status,
+        routing: lead.routing,
+        call_script: lead.call_script,
+      })),
+      offer_context: {
+        offer: winner.offerData?.offer || winner.solution,
+        pricing: winner.offerData?.pricing,
+        promise: winner.offerData?.promise,
+      },
+      behavioural_signals: {},
+    };
+    try {
+      const res = await fetch('/webhook/agent10-sales-routing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error('Routing Agent Failed: ' + text.substring(0, 100));
+      if (!text || text.trim() === '' || text.trim() === 'null') throw new Error('Empty response from Routing Agent.');
+      let result;
+      try { result = JSON.parse(text); } catch { throw new Error('Routing Agent returned malformed data. Retry.'); }
+      if (result.error) throw new Error(result.error);
+      setRoutingData(result);
+      setTimeout(() => { document.getElementById('routing-output')?.scrollIntoView({ behavior: 'smooth' }); }, 500);
+    } catch (err) {
+      setError('Routing Failure: ' + err.message);
+    } finally {
+      setIsGeneratingRouting(false);
+    }
+  };
+
+  const runQualificationAgent = async () => {
+    if (!captureData) return;
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) return;
+
+    setIsGeneratingQualification(true);
+    setError(null);
+    setQualificationData(null);
+
+    const leads = captureData.leads || [];
+    const payload = {
+      leads: leads.map(l => ({
+        lead_id: l.lead_id || `lead-${Math.random().toString(36).slice(2,7)}`,
+        name: l.name,
+        company: l.company,
+        role: l.role,
+        source: l.source,
+        pain_level: l.pain_level,
+        intent_level: l.intent_level,
+        budget_level: l.budget_level,
+        ICP_match: l.ICP_match,
+        lead_score: l.lead_score,
+      })),
+      offer_context: {
+        offer: winner.offerData?.offer || winner.solution,
+        ICP: winner.offerData?.ICP || winner.offerData?.icp || winner.audience,
+        pricing: winner.offerData?.pricing,
+        promise: winner.offerData?.promise,
+      },
+      funnel_context: funnelData,
+    };
+
+    try {
+      const res = await fetch('/webhook/agent9-qualification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error('Qualification Agent Failed: ' + text.substring(0, 100));
+      if (!text || text.trim() === '' || text.trim() === 'null') {
+        throw new Error('Empty response from Qualification Agent. Check n8n is active and try again.');
+      }
+      let result;
+      try { result = JSON.parse(text); }
+      catch { throw new Error('Qualification Agent returned malformed data. Retry.'); }
+      if (result.error) throw new Error(result.error);
+      setQualificationData(result);
+      setTimeout(() => {
+        document.getElementById('qualification-output')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    } catch (err) {
+      setError('Qualification Failure: ' + err.message);
+    } finally {
+      setIsGeneratingQualification(false);
+    }
+  };
 
   const runCaptureAgent = async () => {
     if (!outboundData || !trafficData) return;
@@ -843,7 +1009,10 @@ export default function App() {
     setNarrativeData(null);
     setTrafficData(null);
     setOutboundData(null);
-    setCaptureData(null); // RESET ALL PIPELINE STATE
+    setCaptureData(null);
+    setQualificationData(null);
+    setRoutingData(null);
+    setAttributionData(null); // RESET FULL PIPELINE
     setFeedbackStatus("idle");
 
     try {
@@ -1304,7 +1473,7 @@ export default function App() {
                   <div className="bg-slate-950/80 p-8 rounded-3xl border border-slate-800/50 relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[40px] rounded-full"></div>
                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-4">Core Market Positioning</p>
-                     <p className="text-3xl font-black text-white italic tracking-tighter leading-tight italic">"{narrativeData.core_message}"</p>
+                     <p className="text-3xl font-black text-white italic tracking-tighter leading-tight italic">"{typeof narrativeData.core_message === 'object' ? (narrativeData.core_message?.text || narrativeData.core_message?.message || JSON.stringify(narrativeData.core_message)) : (narrativeData.core_message || '')}"</p>
                   </div>
 
                   {/* Messaging Angles */}
@@ -1315,7 +1484,7 @@ export default function App() {
                            <div className={`w-1.5 h-1.5 rounded-full ${angle.type === 'pain' ? 'bg-rose-500' : angle.type === 'outcome' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
                            Angle: {angle.type}
                         </p>
-                        <p className="text-[13px] text-slate-400 font-bold leading-relaxed">{angle.message}</p>
+                         <p className="text-[13px] text-slate-400 font-bold leading-relaxed">{typeof angle.message === 'object' ? (angle.message?.text || JSON.stringify(angle.message)) : (angle.message || '')}</p>
                       </div>
                     ))}
                   </div>
@@ -1328,14 +1497,14 @@ export default function App() {
                               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">LinkedIn / Social Angle</span>
                               <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-[8px] font-black uppercase rounded">Ready</span>
                            </header>
-                           <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{narrativeData.assets.linkedin_post}</p>
+                            <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{typeof narrativeData.assets?.linkedin_post === 'object' ? JSON.stringify(narrativeData.assets.linkedin_post) : (narrativeData.assets?.linkedin_post || '')}</p>
                         </div>
                         <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
                            <header className="flex justify-between items-center mb-6">
                               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cold DM / Direct Angle</span>
                               <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase rounded">Ready</span>
                            </header>
-                           <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{narrativeData.assets.cold_dm}</p>
+                            <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{typeof narrativeData.assets?.cold_dm === 'object' ? JSON.stringify(narrativeData.assets.cold_dm) : (narrativeData.assets?.cold_dm || '')}</p>
                         </div>
                      </div>
                      <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 flex flex-col">
@@ -1343,7 +1512,7 @@ export default function App() {
                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Sequence Asset</span>
                            <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[8px] font-black uppercase rounded">Ready</span>
                         </header>
-                        <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed flex-1">{narrativeData.assets.email}</p>
+                         <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed flex-1">{typeof narrativeData.assets?.email === 'object' ? JSON.stringify(narrativeData.assets.email) : (narrativeData.assets?.email || '')}</p>
                      </div>
                   </div>
                 </div>
@@ -1742,6 +1911,610 @@ export default function App() {
                       })}
                     </div>
                   </div>
+                </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* ── Step 9: AI Qualification Simulator ── */}
+            <section id="step-9" className={`${qualificationData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader
+                num="09"
+                title="AI Qualification Simulator"
+                subtitle="BANT Call Simulation · Lead Routing · Conversion Readiness"
+                status={qualificationData ? `${qualificationData.summary?.hot || 0} HOT leads identified` : (captureData ? 'Awaiting Activation' : 'Dormant')}
+              />
+
+              {!qualificationData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button
+                    onClick={runQualificationAgent}
+                    disabled={isGeneratingQualification || !captureData}
+                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      isGeneratingQualification
+                        ? 'bg-slate-800 text-slate-500 animate-pulse'
+                        : captureData
+                          ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-xl shadow-amber-500/30 scale-105'
+                          : 'bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed'
+                    }`}
+                  >
+                    {isGeneratingQualification ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-600 border-t-amber-400 rounded-full animate-spin"></div>
+                        Simulating Qualification Calls...
+                      </>
+                    ) : (
+                      'RUN AI QUALIFICATION'
+                    )}
+                  </button>
+                  {!captureData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 8 Lead Capture to unlock qualification layer.</p>}
+                </div>
+              ) : (
+                <div id="qualification-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+
+                  {/* Summary Distribution */}
+                  <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-3xl p-8">
+                    <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-6">BANT Qualification Summary</p>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      {[
+                        { label: 'Total', value: qualificationData.summary?.total_leads, color: 'text-white', bg: 'bg-slate-800/80 border-slate-700' },
+                        { label: '🔥 HOT', value: qualificationData.summary?.hot, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/30' },
+                        { label: '🌤 WARM', value: qualificationData.summary?.warm, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30' },
+                        { label: '⚡ MEDIUM', value: qualificationData.summary?.medium, color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/30' },
+                        { label: '❄ COLD', value: qualificationData.summary?.cold, color: 'text-slate-400', bg: 'bg-slate-800 border-slate-700' },
+                      ].map((s, i) => (
+                        <div key={i} className={`${s.bg} border rounded-2xl p-5 text-center`}>
+                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
+                          <p className={`text-4xl font-black ${s.color}`}>{s.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Lead Qualification Cards */}
+                  <div className="space-y-6">
+                    {(qualificationData.qualified_leads || []).map((lead, i) => {
+                      const statusColor = lead.final_status === 'HOT' ? 'text-rose-400 bg-rose-500/10 border-rose-500/30' :
+                        lead.final_status === 'WARM' ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' :
+                        lead.final_status === 'MEDIUM' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' :
+                        'text-slate-500 bg-slate-800/50 border-slate-700';
+                      const routeColor = lead.routing === 'checkout' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
+                        lead.routing === 'sales_call' ? 'text-sky-400 bg-sky-500/10 border-sky-500/30' :
+                        lead.routing === 'nurture' ? 'text-violet-400 bg-violet-500/10 border-violet-500/30' :
+                        'text-slate-500 bg-slate-800 border-slate-700';
+                      const routeIcon = lead.routing === 'checkout' ? '💳' : lead.routing === 'sales_call' ? '📞' : lead.routing === 'nurture' ? '🌱' : '🗑';
+                      const total = lead.bant_score?.total || 0;
+                      const totalPct = Math.round((total / 100) * 100);
+                      const scoreBarColor = total >= 80 ? 'bg-rose-500' : total >= 60 ? 'bg-amber-500' : total >= 40 ? 'bg-yellow-500' : 'bg-slate-600';
+
+                      return (
+                        <div key={i} className={`bg-slate-900/60 border rounded-3xl p-7 transition-all hover:shadow-xl ${
+                          lead.final_status === 'HOT' ? 'border-rose-500/30 hover:border-rose-500/50' :
+                          lead.final_status === 'WARM' ? 'border-amber-500/20 hover:border-amber-500/40' :
+                          'border-slate-800 hover:border-slate-700'
+                        }`}>
+
+                          {/* Lead Header */}
+                          <div className="flex flex-wrap items-start gap-4 mb-6">
+                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">
+                              {lead.name?.charAt(0) || '?'}
+                            </div>
+                            <div className="flex-1 min-w-[150px]">
+                              <p className="text-base font-black text-white leading-tight">{lead.name}</p>
+                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{lead.company}</p>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase ${statusColor}`}>{lead.final_status}</span>
+                              <span className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase flex items-center gap-1 ${routeColor}`}>{routeIcon} {lead.routing}</span>
+                            </div>
+                          </div>
+
+                          {/* BANT Score Bar */}
+                          <div className="mb-6">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">BANT Score</span>
+                              <span className="text-2xl font-black text-white">{total}<span className="text-slate-600 text-sm">/100</span></span>
+                            </div>
+                            <div className="w-full bg-slate-800 rounded-full h-2">
+                              <div className={`${scoreBarColor} h-full rounded-full transition-all duration-1000`} style={{width: `${totalPct}%`}}></div>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2 mt-3">
+                              {['budget','authority','need','timeline'].map(dim => {
+                                const score = lead.bant_score?.[dim] || 0;
+                                const cls = lead.classification?.[dim];
+                                const dimColor = cls === 'positive' ? 'text-emerald-400' : cls === 'neutral' ? 'text-amber-400' : 'text-slate-500';
+                                return (
+                                  <div key={dim} className="bg-slate-950/80 border border-slate-800/60 rounded-xl p-2 text-center">
+                                    <p className="text-[8px] font-black text-slate-600 uppercase mb-1">{dim}</p>
+                                    <p className={`text-base font-black ${dimColor}`}>{score}</p>
+                                    <p className={`text-[7px] font-black uppercase ${dimColor}`}>{cls}</p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Call Script */}
+                          <div className="bg-slate-950/80 border border-slate-800/50 rounded-2xl p-5 mb-4">
+                            <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-2">📞 Simulated Call Script</p>
+                            <p className="text-[12px] text-slate-300 font-bold leading-relaxed italic">"{lead.call_script}"</p>
+                          </div>
+
+                          {/* BANT Responses */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {['budget','authority','need','timeline'].map(dim => {
+                              const cls = lead.classification?.[dim];
+                              const resp = lead.responses?.[dim];
+                              const borderColor = cls === 'positive' ? 'border-emerald-500/20' : cls === 'neutral' ? 'border-amber-500/20' : 'border-slate-800';
+                              const labelColor = cls === 'positive' ? 'text-emerald-400' : cls === 'neutral' ? 'text-amber-400' : 'text-slate-500';
+                              const icon = cls === 'positive' ? '✓' : cls === 'neutral' ? '~' : '✗';
+                              return (
+                                <div key={dim} className={`bg-slate-900/40 border ${borderColor} rounded-xl p-4`}>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className={`text-xs font-black ${labelColor}`}>{icon}</span>
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{dim}</span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{resp}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* Step 10: Sales Routing Engine */}
+            <section id="step-10" className={`${routingData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader
+                num="10"
+                title="Sales Routing Engine"
+                subtitle="Deterministic Intent Scoring · CRM Stage Assignment · Pipeline Dispatch"
+                status={routingData ? `${routingData.pipeline_summary?.checkout || 0} Checkout · ${routingData.pipeline_summary?.sales_call || 0} Sales Call` : (qualificationData ? 'Awaiting Activation' : 'Dormant')}
+              />
+
+              {!routingData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button
+                    onClick={runRoutingAgent}
+                    disabled={isGeneratingRouting || !qualificationData}
+                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      isGeneratingRouting
+                        ? 'bg-slate-800 text-slate-500 animate-pulse'
+                        : qualificationData
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 hover:from-emerald-400 hover:to-teal-400 shadow-xl shadow-emerald-500/30 scale-105'
+                          : 'bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed'
+                    }`}
+                  >
+                    {isGeneratingRouting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-600 border-t-emerald-400 rounded-full animate-spin"></div>
+                        Computing Routing Decisions...
+                      </>
+                    ) : 'EXECUTE SALES ROUTING'}
+                  </button>
+                  {!qualificationData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 9 to unlock routing engine.</p>}
+                </div>
+              ) : (
+                <div id="routing-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+
+                  {/* Pipeline Board */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 rounded-3xl p-8">
+                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-6">Pipeline Distribution</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { label: 'Checkout', key: 'checkout', icon: '💳', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' },
+                          { label: 'Sales Call', key: 'sales_call', icon: '📞', color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/30' },
+                          { label: 'Nurture', key: 'nurture', icon: '🌱', color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/30' },
+                          { label: 'Disqualified', key: 'disqualified', icon: '🗑', color: 'text-slate-500', bg: 'bg-slate-800/80 border-slate-700' },
+                        ].map((bucket, i) => (
+                          <div key={i} className={`${bucket.bg} border rounded-2xl p-4 flex items-center gap-3`}>
+                            <span className="text-2xl">{bucket.icon}</span>
+                            <div>
+                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{bucket.label}</p>
+                              <p className={`text-3xl font-black ${bucket.color}`}>{routingData.pipeline_summary?.[bucket.key] || 0}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-5">
+                      <div>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Avg Intent Score</p>
+                        <p className="text-5xl font-black text-white">{routingData.pipeline_summary?.total_intent_score_avg || '–'}<span className="text-slate-600 text-xl">/100</span></p>
+                        {(() => {
+                          const avg = routingData.pipeline_summary?.total_intent_score_avg || 0;
+                          const pct = Math.min(avg, 100);
+                          const col = avg >= 75 ? 'bg-emerald-500' : avg >= 55 ? 'bg-amber-500' : avg >= 35 ? 'bg-yellow-500' : 'bg-slate-600';
+                          return <div className="w-full bg-slate-800 rounded-full h-2 mt-3"><div className={`${col} h-full rounded-full`} style={{width:`${pct}%`}}></div></div>;
+                        })()}
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Active Flags</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(routingData.pipeline_summary?.flags_triggered || []).length === 0
+                            ? <span className="text-[10px] font-black text-slate-700 uppercase">None</span>
+                            : (routingData.pipeline_summary?.flags_triggered || []).map((flag, i) => (
+                              <span key={i} className="px-2 py-1 bg-amber-500/10 border border-amber-500/30 rounded text-[8px] font-black text-amber-400 uppercase">{flag}</span>
+                            ))}
+                        </div>
+                      </div>
+                      <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between">
+                        <span className="text-[9px] font-black text-slate-500 uppercase">Total Processed</span>
+                        <span className="text-xl font-black text-white">{routingData.pipeline_summary?.total || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Formula Bar */}
+                  <div className="bg-slate-950/60 border border-slate-800/50 rounded-2xl px-6 py-4 flex flex-wrap gap-6 items-center">
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Formula</p>
+                    <p className="text-[11px] font-black text-slate-500">intent = <span className="text-white">(bant × 0.5)</span> + <span className="text-sky-400">(behaviour × 0.3)</span> + <span className="text-violet-400">(transcript × 0.2)</span></p>
+                    <p className="text-[9px] font-black text-slate-700 uppercase">≥75→Checkout · ≥60→Sales Call · ≥35→Nurture · &lt;35→Disqualify</p>
+                  </div>
+
+                  {/* Routed Lead Cards */}
+                  <div className="space-y-5">
+                    {(routingData.routed_leads || []).map((lead, i) => {
+                      const D = {
+                        CHECKOUT: { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30', icon: '💳', bar: 'bg-emerald-500', border: 'border-emerald-500/20 hover:border-emerald-500/50' },
+                        SALES_CALL: { color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/30', icon: '📞', bar: 'bg-sky-500', border: 'border-sky-500/20 hover:border-sky-500/40' },
+                        NURTURE: { color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/30', icon: '🌱', bar: 'bg-violet-500', border: 'border-violet-500/20 hover:border-violet-500/40' },
+                        DISQUALIFIED: { color: 'text-slate-500', bg: 'bg-slate-800/50 border-slate-700', icon: '🗑', bar: 'bg-slate-600', border: 'border-slate-800 hover:border-slate-700' },
+                      };
+                      const cfg = D[lead.final_decision] || D.DISQUALIFIED;
+                      const intentPct = Math.min(Math.round(lead.intent_score || 0), 100);
+                      const qualPct = Math.min(Math.round(lead.qualification_score || 0), 100);
+                      return (
+                        <div key={i} className={`bg-slate-900/60 border rounded-3xl p-7 transition-all ${cfg.border}`}>
+                          <div className="flex flex-wrap items-start gap-4 mb-6">
+                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{lead.name?.charAt(0)||'?'}</div>
+                            <div className="flex-1 min-w-[150px]">
+                              <p className="text-base font-black text-white">{lead.name}</p>
+                              <p className="text-[9px] font-black text-slate-500 uppercase">{lead.company}</p>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap ml-auto">
+                              <span className={`px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase flex items-center gap-1.5 ${cfg.bg} ${cfg.color}`}>{cfg.icon} {lead.final_decision?.replace('_', ' ')}</span>
+                              <span className="px-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-xl text-[9px] font-black text-slate-400 uppercase">{lead.crm_stage}</span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                            {[['BANT Score', lead.qualification_score, qualPct],['Intent Score', Math.round(lead.intent_score||0), intentPct]].map(([lbl,val,pct],j)=>(
+                              <div key={j}>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{lbl}</span>
+                                  <span className="text-sm font-black text-white">{val}<span className="text-slate-600">/100</span></span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                  <div className={`${cfg.bar} h-full rounded-full ${j===1?'opacity-70':''}`} style={{width:`${pct}%`}}></div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 mb-5">
+                            {[['Qual',lead.qualification_score],['Behaviour',lead.behaviour_score],['Transcript',lead.transcript_intent],['Intent',Math.round(lead.intent_score||0)]].map(([lbl,val],j)=>(
+                              <div key={j} className="bg-slate-950/80 border border-slate-800/60 rounded-xl px-3 py-2 text-center">
+                                <p className="text-[7px] font-black text-slate-600 uppercase mb-0.5">{lbl}</p>
+                                <p className="text-sm font-black text-white">{val}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="bg-slate-950/60 border border-slate-800/50 rounded-2xl p-5 space-y-4">
+                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Routing Reasoning</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              {['budget','authority','need','timeline'].map(dim => (
+                                <div key={dim}>
+                                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-0.5">{dim}</p>
+                                  <p className="text-[11px] text-slate-400 font-bold leading-snug">{lead.reasoning?.[dim] || '–'}</p>
+                                </div>
+                              ))}
+                            </div>
+                            {lead.reasoning?.behaviour_signals && (
+                              <div className="pt-3 border-t border-slate-800/60">
+                                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Behaviour Signals</p>
+                                <p className="text-[11px] text-slate-400 font-bold">{lead.reasoning.behaviour_signals}</p>
+                              </div>
+                            )}
+                            {lead.reasoning?.transcript_summary && (
+                              <div className="pt-3 border-t border-slate-800/60">
+                                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Transcript Signal</p>
+                                <p className="text-[11px] text-slate-300 font-bold italic">"{lead.reasoning.transcript_summary}"</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {lead.flags?.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              {lead.flags.map((flag, fi) => (
+                                <span key={fi} className="px-2 py-1 bg-amber-500/10 border border-amber-500/30 rounded text-[8px] font-black text-amber-400 uppercase">⚑ {flag}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* Step 11: Tracking & Attribution Engine */}
+            <section id="step-11" className={`${attributionData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader
+                num="11"
+                title="Tracking & Attribution Engine"
+                subtitle="UTM Mapping · Multi-Touch Attribution · Funnel Analytics · Data Integrity"
+                status={attributionData ? (attributionData.tracking_validation?.status || 'Complete') : (routingData ? 'Awaiting Activation' : 'Dormant')}
+              />
+
+              {!attributionData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button
+                    onClick={runAttributionAgent}
+                    disabled={isGeneratingAttribution || !routingData}
+                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      isGeneratingAttribution
+                        ? 'bg-slate-800 text-slate-500 animate-pulse'
+                        : routingData
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-400 hover:to-blue-400 shadow-xl shadow-cyan-500/30 scale-105'
+                          : 'bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed'
+                    }`}
+                  >
+                    {isGeneratingAttribution ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin"></div>
+                        Running Attribution Analysis...
+                      </>
+                    ) : 'RUN TRACKING & ATTRIBUTION'}
+                  </button>
+                  {!routingData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 10 Sales Routing to unlock attribution engine.</p>}
+                </div>
+              ) : (
+                <div id="attribution-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+
+                  {/* Tracking Health + Dashboard KPIs */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    {/* Health Badge */}
+                    <div className={`rounded-3xl p-8 border flex flex-col justify-center ${
+                      attributionData.tracking_validation?.status === 'TRACKING_HEALTHY' ? 'bg-emerald-500/10 border-emerald-500/30' :
+                      attributionData.tracking_validation?.status === 'TRACKING_DEGRADED' ? 'bg-amber-500/10 border-amber-500/30' :
+                      'bg-rose-500/10 border-rose-500/30'
+                    }`}>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Tracking Status</p>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full animate-pulse ${
+                          attributionData.tracking_validation?.status === 'TRACKING_HEALTHY' ? 'bg-emerald-400' :
+                          attributionData.tracking_validation?.status === 'TRACKING_DEGRADED' ? 'bg-amber-400' : 'bg-rose-400'
+                        }`}></div>
+                        <p className={`text-lg font-black ${
+                          attributionData.tracking_validation?.status === 'TRACKING_HEALTHY' ? 'text-emerald-400' :
+                          attributionData.tracking_validation?.status === 'TRACKING_DEGRADED' ? 'text-amber-400' : 'text-rose-400'
+                        }`}>{attributionData.tracking_validation?.status?.replace(/_/g,' ')}</p>
+                      </div>
+                      {attributionData.tracking_validation?.flags?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-4">
+                          {attributionData.tracking_validation.flags.map((f, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-[7px] font-black text-amber-400 uppercase">{f}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Leads by Source */}
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Leads by Source</p>
+                      <div className="space-y-3">
+                        {[['Paid', attributionData.dashboard?.leads_by_source?.paid, 'text-violet-400','bg-violet-500'],
+                          ['Outbound', attributionData.dashboard?.leads_by_source?.outbound, 'text-rose-400','bg-rose-500'],
+                          ['Organic', attributionData.dashboard?.leads_by_source?.organic, 'text-sky-400','bg-sky-500']
+                        ].map(([src, count, cls, bar], i) => {
+                          const total = (attributionData.dashboard?.leads_by_source?.paid||0) + (attributionData.dashboard?.leads_by_source?.outbound||0) + (attributionData.dashboard?.leads_by_source?.organic||0) || 1;
+                          const pct = Math.round(((count||0)/total)*100);
+                          return (
+                            <div key={i}>
+                              <div className="flex justify-between mb-1">
+                                <span className={`text-[10px] font-black uppercase ${cls}`}>{src}</span>
+                                <span className="text-[10px] font-black text-white">{count||0}</span>
+                              </div>
+                              <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                <div className={`${bar} h-full rounded-full`} style={{width:`${pct}%`}}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Top/Worst Channel */}
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-4">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Channel Intelligence</p>
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                        <p className="text-[8px] font-black text-emerald-500 uppercase mb-1">🏆 Top Performer</p>
+                        <p className="text-sm font-black text-white">{attributionData.dashboard?.top_performing_channel || '–'}</p>
+                      </div>
+                      <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3">
+                        <p className="text-[8px] font-black text-rose-500 uppercase mb-1">⚠ Worst CPL</p>
+                        <p className="text-sm font-black text-white">{attributionData.dashboard?.worst_performing_channel || '–'}</p>
+                      </div>
+                      <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between">
+                        <span className="text-[9px] font-black text-slate-500 uppercase">Total Spend</span>
+                        <span className="text-base font-black text-white">${attributionData.dashboard?.total_spend || 0}/day</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Funnel Waterfall */}
+                  <div className="bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-3xl p-8">
+                    <p className="text-[9px] font-black text-cyan-400 uppercase tracking-widest mb-6">Full-Funnel Conversion Waterfall</p>
+                    <div className="flex flex-wrap items-end gap-4">
+                      {[
+                        { label: 'Visitors', value: attributionData.funnel?.total_visitors, rate: null, color: 'bg-cyan-500', text: 'text-cyan-400' },
+                        { label: 'Leads', value: attributionData.funnel?.total_leads, rate: attributionData.funnel?.visitor_to_lead_rate, color: 'bg-blue-500', text: 'text-blue-400' },
+                        { label: 'Bookings', value: attributionData.funnel?.total_bookings, rate: attributionData.funnel?.lead_to_booking_rate, color: 'bg-violet-500', text: 'text-violet-400' },
+                        { label: 'Sales', value: attributionData.funnel?.total_sales, rate: attributionData.funnel?.booking_to_sale_rate, color: 'bg-emerald-500', text: 'text-emerald-400' },
+                      ].map((stage, i) => {
+                        const maxVal = attributionData.funnel?.total_visitors || 1;
+                        const heightPct = Math.max(Math.round(((stage.value||0) / maxVal) * 100), 8);
+                        return (
+                          <div key={i} className="flex-1 min-w-[80px] flex flex-col items-center gap-2">
+                            {stage.rate !== null && stage.rate !== undefined && (
+                              <span className="text-[9px] font-black text-slate-500 uppercase">{stage.rate}% ↓</span>
+                            )}
+                            <div className="w-full flex flex-col items-center">
+                              <p className={`text-xl font-black ${stage.text} mb-2`}>{(stage.value||0).toLocaleString()}</p>
+                              <div className="w-full rounded-t-xl" style={{height:`${Math.max(heightPct,8)*1.2}px`, background: `linear-gradient(to top, ${stage.color.replace('bg-','').replace('-500','')}, transparent)`}}>
+                                <div className={`${stage.color} w-full h-full rounded-t-xl opacity-60`}></div>
+                              </div>
+                            </div>
+                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{stage.label}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <span className="text-[9px] font-black text-slate-600 uppercase">Overall Conversion Rate:</span>
+                      <span className="text-sm font-black text-emerald-400">{attributionData.funnel?.overall_conversion}%</span>
+                    </div>
+                  </div>
+
+                  {/* Channel Performance Table */}
+                  <div>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Channel Performance Metrics</p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-slate-800">
+                            {['Channel','Spend/Day','Clicks','Leads','Bookings','Sales','CPL','CVR','Cost/Booking','Cost/Sale'].map(h => (
+                              <th key={h} className="pb-3 text-left text-[8px] font-black text-slate-600 uppercase tracking-widest pr-4 whitespace-nowrap">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-900">
+                          {(attributionData.channel_performance || []).map((ch, i) => (
+                            <tr key={i} className="hover:bg-slate-900/40 transition-colors">
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-white whitespace-nowrap">{ch.channel}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-slate-300">${ch.spend}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-slate-300">{ch.clicks}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-emerald-400">{ch.leads}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-sky-400">{ch.bookings}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-amber-400">{ch.sales}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-violet-400">${ch.cpl}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-slate-300">{ch.conversion_rate}%</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-slate-300">${ch.cost_per_booking}</p></td>
+                              <td className="py-3 pr-4"><p className="text-[11px] font-black text-slate-300">${ch.cost_per_sale}</p></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Lead Attribution Cards */}
+                  <div>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Lead Attribution Records</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {(attributionData.attribution_report || []).map((lead, i) => {
+                        const confColor = lead.attribution_confidence === 'HIGH' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
+                          lead.attribution_confidence === 'MEDIUM' ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' :
+                          'text-slate-500 bg-slate-800/50 border-slate-700';
+                        const decisionColor = lead.final_decision === 'CHECKOUT' ? 'text-emerald-400' :
+                          lead.final_decision === 'SALES_CALL' ? 'text-sky-400' :
+                          lead.final_decision === 'NURTURE' ? 'text-violet-400' : 'text-slate-500';
+                        return (
+                          <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/20 transition-all space-y-4">
+                            {/* Lead Header */}
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{lead.name?.charAt(0)||'?'}</div>
+                              <div className="flex-1">
+                                <p className="text-sm font-black text-white">{lead.name}</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase">{lead.company}</p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`px-2 py-0.5 rounded border text-[8px] font-black uppercase ${confColor}`}>{lead.attribution_confidence}</span>
+                                <span className={`text-[9px] font-black uppercase ${decisionColor}`}>{lead.final_decision?.replace('_',' ')}</span>
+                              </div>
+                            </div>
+
+                            {/* UTM Row */}
+                            <div className="bg-slate-950/60 border border-slate-800/50 rounded-xl px-4 py-3">
+                              <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-2">UTM Parameters</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {[['src',lead.utm?.utm_source],['med',lead.utm?.utm_medium],['cmp',lead.utm?.utm_campaign],['cnt',lead.utm?.utm_content],['trm',lead.utm?.utm_term]].filter(([,v])=>v&&v!=='').map(([k,v],j)=>(
+                                  <span key={j} className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded text-[8px] font-black text-cyan-400 font-mono">{k}={v}</span>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Touch Points */}
+                            <div>
+                              <div className="flex items-center gap-4 mb-2">
+                                <div className="flex-1">
+                                  <p className="text-[7px] font-black text-slate-600 uppercase">First Touch</p>
+                                  <p className="text-[10px] font-black text-violet-400">{lead.first_touch?.source} · {lead.first_touch?.campaign}</p>
+                                </div>
+                                <div className="text-slate-700">→</div>
+                                <div className="flex-1 text-right">
+                                  <p className="text-[7px] font-black text-slate-600 uppercase">Last Touch</p>
+                                  <p className="text-[10px] font-black text-emerald-400">{lead.last_touch?.source} · {lead.last_touch?.campaign}</p>
+                                </div>
+                              </div>
+                              {lead.touchpoints?.length > 0 && (
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {lead.touchpoints.map((tp, j) => (
+                                    <span key={j} className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded text-[8px] font-black text-slate-500">{typeof tp === 'object' ? (tp.event||tp.source||JSON.stringify(tp)) : tp}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Conversion + Flags */}
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <span className="text-[9px] font-black text-slate-600 uppercase">Conversion: <span className="text-white">{lead.conversion_event || '–'}</span></span>
+                              {lead.flags?.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {lead.flags.map((f,j)=>(
+                                    <span key={j} className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-[7px] font-black text-amber-400 uppercase">⚠ {f}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Validation Issues */}
+                  {attributionData.tracking_validation?.issues?.length > 0 && (
+                    <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-4">Tracking Issues Detected</p>
+                      <ul className="space-y-2">
+                        {attributionData.tracking_validation.issues.map((issue, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-rose-500 mt-0.5 shrink-0">✕</span>
+                            <p className="text-[11px] text-slate-400 font-bold leading-snug">{typeof issue === 'object' ? JSON.stringify(issue) : issue}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                 </div>
               )}
             </section>
