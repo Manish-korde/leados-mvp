@@ -483,6 +483,56 @@ export default function App() {
   const [isGeneratingTraffic, setIsGeneratingTraffic] = useState(false);
   const [outboundData, setOutboundData] = useState(null);
   const [isGeneratingOutbound, setIsGeneratingOutbound] = useState(false);
+  const [captureData, setCaptureData] = useState(null);
+  const [isGeneratingCapture, setIsGeneratingCapture] = useState(false);
+
+  const runCaptureAgent = async () => {
+    if (!outboundData || !trafficData) return;
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    if (!winner) return;
+
+    setIsGeneratingCapture(true);
+    setError(null);
+    setCaptureData(null);
+
+    const payload = {
+      offer: {
+        ICP: winner.offerData?.ICP || winner.offerData?.icp || winner.audience,
+        offer: winner.offerData?.offer || winner.solution,
+        pricing: winner.offerData?.pricing,
+        promise: winner.offerData?.promise,
+      },
+      funnel: funnelData,
+      content_assets: narrativeData,
+      paid_traffic: trafficData?.paid_traffic || trafficData,
+      outbound_outreach: outboundData?.outbound_outreach || outboundData,
+    };
+
+    try {
+      const res = await fetch("/webhook/agent8-inbound-capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error("Capture Agent Failed: " + text.substring(0, 100));
+      if (!text || text.trim() === "" || text.trim() === "null") {
+        throw new Error("Empty response from Capture Agent. Check n8n is active and try again.");
+      }
+      let result;
+      try { result = JSON.parse(text); }
+      catch { throw new Error("Capture Agent returned malformed data. Retry."); }
+      if (result.error) throw new Error(result.error);
+      setCaptureData(result);
+      setTimeout(() => {
+        document.getElementById('capture-output')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    } catch (err) {
+      setError("Inbound Capture Failure: " + err.message);
+    } finally {
+      setIsGeneratingCapture(false);
+    }
+  };
 
   const runOutboundAgent = async () => {
     if (!trafficData || !narrativeData || !funnelData) return;
@@ -792,7 +842,8 @@ export default function App() {
     setFunnelData(null);
     setNarrativeData(null);
     setTrafficData(null);
-    setOutboundData(null); // RESET ALL PIPELINE STATE
+    setOutboundData(null);
+    setCaptureData(null); // RESET ALL PIPELINE STATE
     setFeedbackStatus("idle");
 
     try {
@@ -1336,118 +1387,91 @@ export default function App() {
                 </div>
               ) : (
                 <div id="traffic-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
-
-                  {/* Summary Bar */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 bg-gradient-to-br from-violet-600/10 to-purple-500/5 border border-violet-500/20 rounded-3xl p-8">
-                      <p className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-2">Blended Performance Estimate</p>
-                      <div className="flex items-end gap-4">
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Daily Budget</p>
-                          <p className="text-4xl font-black text-white">${trafficData.total_budget}<span className="text-lg text-slate-500">/day</span></p>
-                        </div>
-                        <div className="ml-8">
-                          <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Blended CPL</p>
-                          <p className="text-4xl font-black text-violet-400">${trafficData.blended_cpl}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 flex flex-col justify-center">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">AI Reasoning</p>
-                      <p className="text-[12px] text-slate-400 font-bold leading-relaxed italic">"{trafficData.reasoning}"</p>
-                    </div>
-                  </div>
-
-                  {/* Channel Cards */}
-                  <div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Channel Breakdown</p>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {(trafficData.channels || []).map((ch, i) => (
-                        <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-3xl p-7 space-y-6 hover:border-violet-500/30 transition-all">
-
-                          {/* Channel Header */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-lg">
-                                {ch.channel?.toLowerCase().includes('linkedin') ? '💼' :
-                                 ch.channel?.toLowerCase().includes('google') ? '🔍' :
-                                 ch.channel?.toLowerCase().includes('meta') || ch.channel?.toLowerCase().includes('facebook') ? '📘' :
-                                 ch.channel?.toLowerCase().includes('tiktok') ? '🎵' : '📣'}
+                  {/* Summary Stats */}
+                  {(() => {
+                    const pt = trafficData?.paid_traffic || trafficData;
+                    return (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="md:col-span-2 bg-gradient-to-br from-violet-600/10 to-purple-500/5 border border-violet-500/20 rounded-3xl p-8">
+                            <p className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-4">Paid Performance Summary</p>
+                            <div className="flex flex-wrap gap-8 items-end">
+                              <div>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Daily Budget</p>
+                                <p className="text-4xl font-black text-white">${pt?.total_daily_budget}<span className="text-lg text-slate-500">/day</span></p>
                               </div>
                               <div>
-                                <h4 className="text-sm font-black text-white">{ch.channel}</h4>
-                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">{ch.objective}</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Clicks</p>
+                                <p className="text-4xl font-black text-sky-400">{pt?.totals?.total_clicks}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Blended CPL</p>
+                                <p className="text-4xl font-black text-violet-400">${pt?.totals?.blended_cpl}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Leads</p>
+                                <p className="text-4xl font-black text-emerald-400">{pt?.totals?.total_leads}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-[9px] font-black text-slate-600 uppercase">Allocation</p>
-                              <p className="text-xl font-black text-violet-400">{ch.budget?.allocation_percent}%</p>
-                            </div>
                           </div>
+                          <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 flex flex-col justify-center gap-3">
+                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Formula Verification</p>
+                            <p className="text-[11px] text-slate-500 font-bold">clicks = budget ÷ cpc</p>
+                            <p className="text-[11px] text-slate-500 font-bold">leads = clicks × cvr%</p>
+                            <p className="text-[11px] text-slate-500 font-bold">cpl = total_budget ÷ total_leads</p>
+                          </div>
+                        </div>
 
-                          {/* Performance Metrics */}
-                          <div className="grid grid-cols-4 gap-3">
-                            {[
-                              { label: 'CPC', value: `$${ch.performance_estimate?.cpc}` },
-                              { label: 'CTR', value: `${ch.performance_estimate?.ctr}%` },
-                              { label: 'CVR', value: `${ch.performance_estimate?.conversion_rate}%` },
-                              { label: 'CPL', value: `$${ch.performance_estimate?.cpl}` },
-                            ].map(m => (
-                              <div key={m.label} className="bg-slate-950/80 rounded-xl p-3 text-center border border-slate-800/60">
-                                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">{m.label}</p>
-                                <p className="text-sm font-black text-white">{m.value}</p>
+                        {/* Channel Cards */}
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Channel Breakdown</p>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {(pt?.channels || []).map((ch, i) => (
+                              <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-3xl p-7 space-y-5 hover:border-violet-500/30 transition-all">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-lg">
+                                      {(ch.name||'').toLowerCase().includes('linkedin') ? '💼' :
+                                       (ch.name||'').toLowerCase().includes('google') ? '🔍' :
+                                       (ch.name||'').toLowerCase().includes('meta') || (ch.name||'').toLowerCase().includes('facebook') ? '📘' : '📣'}
+                                    </div>
+                                    <div>
+                                      <h4 className="text-sm font-black text-white">{ch.name}</h4>
+                                      <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">{ch.allocation_percentage}% of budget</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-[9px] font-black text-slate-600 uppercase">Daily Budget</p>
+                                    <p className="text-lg font-black text-white">${ch.daily_budget}</p>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-5 gap-2">
+                                  {[
+                                    { label: 'CPC', value: `$${ch.cpc}` },
+                                    { label: 'CTR', value: `${ch.ctr}%` },
+                                    { label: 'CVR', value: `${ch.conversion_rate}%` },
+                                    { label: 'Clicks', value: ch.expected_clicks },
+                                    { label: 'Leads', value: ch.expected_leads },
+                                  ].map(m => (
+                                    <div key={m.label} className="bg-slate-950/80 rounded-xl p-2.5 text-center border border-slate-800/60">
+                                      <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">{m.label}</p>
+                                      <p className="text-sm font-black text-white">{m.value}</p>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                                  <p className="text-[9px] font-black text-emerald-500 uppercase">Expected Leads / Day</p>
+                                  <p className="text-xl font-black text-white">{ch.expected_leads}</p>
+                                </div>
                               </div>
                             ))}
                           </div>
-
-                          {/* Expected Leads */}
-                          <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
-                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">Expected Leads / Day</p>
-                            <p className="text-2xl font-black text-white">{ch.performance_estimate?.expected_leads_per_day}</p>
-                          </div>
-
-                          {/* Budget */}
-                          <div className="flex items-center justify-between">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Daily Budget</p>
-                            <p className="text-sm font-black text-white">${ch.budget?.daily_budget}/day</p>
-                          </div>
-
-                          {/* Targeting */}
-                          <div className="space-y-2 pt-4 border-t border-slate-800/50">
-                            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3">Targeting</p>
-                            <div className="flex flex-wrap gap-2">
-                              {[ch.targeting?.persona, ch.targeting?.geo, ch.targeting?.age_range].filter(Boolean).map((t, j) => (
-                                <span key={j} className="px-3 py-1 bg-slate-800/60 border border-slate-700/50 rounded-lg text-[10px] font-black text-slate-400 uppercase tracking-wider">{t}</span>
-                              ))}
-                            </div>
-                            {ch.targeting?.interests?.length > 0 && (
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                {ch.targeting.interests.map((int, j) => (
-                                  <span key={j} className="px-2 py-0.5 rounded text-[9px] font-black text-violet-400 bg-violet-500/10 border border-violet-500/20">{int}</span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Creatives */}
-                          {ch.creatives?.length > 0 && (
-                            <div className="space-y-2 pt-4 border-t border-slate-800/50">
-                              <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3">Ad Creatives</p>
-                              {ch.creatives.map((cr, j) => (
-                                <div key={j} className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2 py-0.5 rounded text-[8px] font-black text-amber-400 bg-amber-500/10 border border-amber-500/20 uppercase">{cr.type}</span>
-                                    <span className="text-[9px] font-black text-slate-600 uppercase">{cr.angle}</span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-400 font-bold italic leading-relaxed">"{cr.hook}"</p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </section>
@@ -1489,133 +1513,235 @@ export default function App() {
                 </div>
               ) : (
                 <div id="outbound-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
-
-                  {/* Targeting + Volume Summary */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-5">
-                      <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest">ICP Targeting Profile</p>
-                      <p className="text-xl font-black text-white">{outboundData.targeting?.persona}</p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Industry</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {(outboundData.targeting?.company_criteria?.industry || []).map((ind, i) => (
-                              <span key={i} className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] font-black text-slate-400 uppercase">{ind}</span>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Company Size</p>
-                          <p className="text-xs font-black text-slate-300">{outboundData.targeting?.company_criteria?.company_size}</p>
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Geography</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {(outboundData.targeting?.company_criteria?.geography || []).map((geo, i) => (
-                              <span key={i} className="px-2 py-0.5 bg-sky-500/10 border border-sky-500/20 rounded text-[9px] font-black text-sky-400 uppercase">{geo}</span>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Platforms</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {(outboundData.targeting?.platforms || []).map((p, i) => (
-                              <span key={i} className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded text-[9px] font-black text-rose-400 uppercase">{p}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      {outboundData.targeting?.company_criteria?.signals?.length > 0 && (
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Trigger Signals</p>
-                          <div className="flex flex-wrap gap-2">
-                            {outboundData.targeting.company_criteria.signals.map((sig, i) => (
-                              <span key={i} className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-black text-amber-400">⚡ {sig}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Volume Plan */}
-                    <div className="bg-gradient-to-br from-rose-600/10 to-pink-500/5 border border-rose-500/20 rounded-3xl p-8 flex flex-col justify-between">
-                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-6">Volume Plan</p>
-                      <div className="space-y-5">
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Daily Outreach</p>
-                          <p className="text-4xl font-black text-white">{outboundData.volume_plan?.daily_outreach}<span className="text-slate-500 text-sm"> contacts</span></p>
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Response Rate</p>
-                          <p className="text-2xl font-black text-rose-400">{outboundData.volume_plan?.expected_response_rate}</p>
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-black text-slate-600 uppercase mb-1">Meetings / Week</p>
-                          <p className="text-2xl font-black text-emerald-400">{outboundData.volume_plan?.expected_meetings_per_week}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Prospect Simulation */}
-                  <div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">Simulated Prospects</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {(outboundData.prospect_simulation || []).map((p, i) => (
-                        <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 hover:border-rose-500/30 transition-all">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm">
-                              {p.name?.charAt(0) || '?'}
+                  {(() => {
+                    const ob = outboundData?.outbound_outreach || outboundData;
+                    return (
+                      <>
+                        {/* KPI Summary */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {[
+                            { label: 'Daily Contacts', value: ob?.daily_contacts, color: 'text-white', bg: 'bg-slate-900/80 border-slate-800' },
+                            { label: 'Response Rate', value: `${ob?.response_rate}%`, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+                            { label: 'Positive Reply Rate', value: `${ob?.positive_reply_rate}%`, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+                            { label: 'Meetings / Day', value: ob?.meetings_booked_per_day, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                          ].map((stat, i) => (
+                            <div key={i} className={`${stat.bg} border rounded-2xl p-6 text-center`}>
+                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
+                              <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
                             </div>
-                            <div>
-                              <p className="text-sm font-black text-white leading-tight">{p.name}</p>
-                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{p.role}</p>
-                            </div>
-                          </div>
-                          <p className="text-[10px] font-black text-rose-400 mb-2">{p.company}</p>
-                          <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{p.reason_fit}</p>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Outreach Sequence + Message Variants */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Sequence */}
-                    <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Outreach Sequence</p>
-                      <div className="space-y-5 relative border-l border-slate-800/80 ml-4">
-                        {(outboundData.outreach_strategy?.sequence || []).map((step, i) => (
-                          <div key={i} className="relative pl-10">
-                            <div className="absolute left-[-17px] top-0 w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[10px] font-black text-rose-400">
-                              {step.step}
-                            </div>
-                            <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded text-[8px] font-black text-rose-400 uppercase">{step.channel}</span>
-                                <span className="text-[9px] font-black text-slate-600 uppercase">{step.timing}</span>
+                        {/* Math trace */}
+                        <div className="bg-slate-950/80 border border-slate-800 rounded-2xl px-6 py-4 flex flex-wrap gap-6">
+                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Derived</p>
+                          <p className="text-[11px] text-slate-500 font-bold">responses/day = {ob?.daily_contacts} × {ob?.response_rate}% = <span className="text-white">{Math.round((ob?.daily_contacts||0) * (ob?.response_rate||0) / 100)}</span></p>
+                          <p className="text-[11px] text-slate-500 font-bold">meetings/day = {Math.round((ob?.daily_contacts||0) * (ob?.response_rate||0) / 100)} × {ob?.positive_reply_rate}% = <span className="text-emerald-400">{ob?.meetings_booked_per_day}</span></p>
+                        </div>
+
+                        {/* Channels + Targeting */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">ICP Targeting</p>
+                            <p className="text-sm font-black text-white mb-4">{ob?.targeting?.persona}</p>
+                            <div className="space-y-3">
+                              <div>
+                                <p className="text-[9px] font-black text-slate-600 uppercase mb-2">Industry</p>
+                                <div className="flex flex-wrap gap-1.5">{(ob?.targeting?.company_criteria?.industry||[]).map((ind,i) => <span key={i} className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] font-black text-slate-400 uppercase">{ind}</span>)}</div>
                               </div>
-                              <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{step.goal}</p>
+                              <div>
+                                <p className="text-[9px] font-black text-slate-600 uppercase mb-2">Company Size</p>
+                                <p className="text-xs font-black text-slate-300">{ob?.targeting?.company_criteria?.company_size}</p>
+                              </div>
+                              <div>
+                                <p className="text-[9px] font-black text-slate-600 uppercase mb-2">Trigger Signals</p>
+                                <div className="flex flex-wrap gap-2">{(ob?.targeting?.company_criteria?.signals||[]).map((sig,i) => <span key={i} className="px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded text-[9px] font-black text-amber-400">⚡ {sig}</span>)}</div>
+                              </div>
                             </div>
                           </div>
-                        ))}
+
+                          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">Outreach Sequence</p>
+                            <div className="space-y-4 relative border-l border-slate-800/80 ml-3">
+                              {(ob?.sequence||[]).map((step, i) => (
+                                <div key={i} className="relative pl-8">
+                                  <div className="absolute left-[-15px] top-0 w-7 h-7 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[9px] font-black text-rose-400">{step.step}</div>
+                                  <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded text-[8px] font-black text-rose-400 uppercase">{step.channel}</span>
+                                      <span className="text-[9px] font-black text-slate-600">{step.timing}</span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{step.goal}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Prospects + Messages */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Simulated Prospects</p>
+                            <div className="space-y-3">
+                              {(ob?.prospect_simulation||[]).map((p, i) => (
+                                <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 hover:border-rose-500/20 transition-all flex items-start gap-3">
+                                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{p.name?.charAt(0)||'?'}</div>
+                                  <div>
+                                    <p className="text-sm font-black text-white">{p.name}</p>
+                                    <p className="text-[9px] font-black text-rose-400 uppercase">{p.role} · {p.company}</p>
+                                    <p className="text-[11px] text-slate-500 font-bold mt-1 leading-relaxed">{p.reason_fit}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Message Variants</p>
+                            <div className="space-y-3">
+                              {(ob?.message_variants||[]).map((msg, i) => (
+                                <div key={i} className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60">
+                                  <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[8px] font-black text-slate-400 uppercase mb-2 inline-block">{msg.channel}</span>
+                                  <p className="text-[11px] text-slate-300 font-bold whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* ── Step 8: Inbound Lead Capture ── */}
+            <section id="step-8" className={`${captureData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader
+                num="08"
+                title="Inbound Lead Capture"
+                subtitle="Traffic Conversion & Lead Object Generation"
+                status={captureData ? "Leads Captured" : (outboundData ? "Awaiting Activation" : "Dormant")}
+              />
+
+              {!captureData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button
+                    onClick={runCaptureAgent}
+                    disabled={isGeneratingCapture || !outboundData}
+                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      isGeneratingCapture
+                        ? "bg-slate-800 text-slate-500 animate-pulse"
+                        : outboundData
+                          ? "bg-emerald-600 text-white hover:bg-emerald-500 shadow-xl shadow-emerald-600/30 scale-105"
+                          : "bg-slate-900 text-slate-700 border border-slate-800 cursor-not-allowed"
+                    }`}
+                  >
+                    {isGeneratingCapture ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-500 border-t-emerald-400 rounded-full animate-spin"></div>
+                        Simulating Lead Capture...
+                      </>
+                    ) : (
+                      "SIMULATE INBOUND CAPTURE"
+                    )}
+                  </button>
+                  {!outboundData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 7 Outbound to unlock lead capture layer.</p>}
+                </div>
+              ) : (
+                <div id="capture-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
+                  {/* Visitor Derivation + Summary */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Total Visitors', value: captureData.traffic?.total_visitors?.toLocaleString(), color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
+                      { label: 'Total Leads', value: captureData.leads_summary?.total, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                      { label: 'High Intent', value: captureData.leads_summary?.high_intent, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+                      { label: 'Avg Conversion', value: captureData.conversion?.average, color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20' },
+                    ].map((stat, i) => (
+                      <div key={i} className={`${stat.bg} border rounded-2xl p-6 text-center`}>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
+                        <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Traffic Source Breakdown */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Visitor Source Derivation</p>
+                      <div className="space-y-4">
+                        {[['paid', 'violet', captureData.traffic?.paid_visitors, captureData.conversion?.paid], ['outbound', 'rose', captureData.traffic?.outbound_visitors, captureData.conversion?.outbound], ['organic', 'sky', captureData.traffic?.organic_visitors, captureData.conversion?.organic]].map(([src, color, vis, cvr], i) => {
+                          const total = captureData.traffic?.total_visitors || 1;
+                          const pct = Math.round(((vis||0) / total) * 100);
+                          const colorMap = { violet: 'bg-violet-500', rose: 'bg-rose-500', sky: 'bg-sky-500' };
+                          const textMap = { violet: 'text-violet-400', rose: 'text-rose-400', sky: 'text-sky-400' };
+                          return (
+                            <div key={i}>
+                              <div className="flex justify-between mb-1">
+                                <span className="text-[10px] font-black text-slate-400 uppercase">{src}</span>
+                                <span className="text-[10px] font-black text-white">{(vis||0).toLocaleString()} <span className="text-slate-600">visitors</span> → <span className={textMap[color]}>{cvr} CVR</span></span>
+                              </div>
+                              <div className="w-full bg-slate-800/50 rounded-full h-1.5">
+                                <div className={`${colorMap[color]} h-full rounded-full`} style={{width:`${pct}%`}}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* Message Variants */}
-                    <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Message Variants</p>
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Lead Source Split</p>
                       <div className="space-y-4">
-                        {(outboundData.message_variants || []).map((msg, i) => (
-                          <div key={i} className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/60">
-                            <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[8px] font-black text-slate-400 uppercase mb-3 inline-block">{msg.channel}</span>
-                            <p className="text-[12px] text-slate-300 font-bold whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                        {[['Paid', captureData.leads_summary?.paid,'text-violet-400'], ['Outbound', captureData.leads_summary?.outbound,'text-rose-400'], ['Organic', captureData.leads_summary?.organic,'text-sky-400']].map(([label, count, cls], i) => (
+                          <div key={i} className="flex items-center justify-between bg-slate-900/60 border border-slate-800/50 rounded-xl px-4 py-3">
+                            <p className={`text-[10px] font-black uppercase ${cls}`}>{label} Leads</p>
+                            <p className="text-lg font-black text-white">{count}</p>
                           </div>
                         ))}
+                        <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                          <p className="text-[10px] font-black uppercase text-emerald-400">Total</p>
+                          <p className="text-lg font-black text-white">{captureData.leads_summary?.total}</p>
+                        </div>
+                        <p className="text-[9px] font-black text-slate-700 uppercase tracking-widest">{captureData.calculation?.formula}</p>
                       </div>
                     </div>
                   </div>
 
+                  {/* Lead Table with Scoring */}
+                  <div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">Captured Lead Objects</p>
+                    <div className="space-y-3">
+                      {(captureData.leads || []).map((lead, i) => {
+                        const intentColor = lead.intent_level === 'hot' ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : lead.intent_level === 'warm' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-slate-400 bg-slate-800 border-slate-700';
+                        const scoreColor = (lead.lead_score||0) >= 7 ? 'text-emerald-400' : (lead.lead_score||0) >= 5 ? 'text-amber-400' : 'text-rose-400';
+                        const srcColor = lead.source === 'paid' ? 'text-violet-400 bg-violet-500/10 border-violet-500/20' : lead.source === 'outbound' ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-sky-400 bg-sky-500/10 border-sky-500/20';
+                        return (
+                          <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 hover:border-emerald-500/20 transition-all">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{lead.name?.charAt(0)||'?'}</div>
+                              <div className="flex-1 min-w-[140px]">
+                                <p className="text-sm font-black text-white leading-tight">{lead.name}</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase">{lead.role} · {lead.company}</p>
+                              </div>
+                              <p className="text-[10px] font-black text-slate-600 hidden lg:block">{lead.email}</p>
+                              <div className="flex items-center gap-2 ml-auto flex-wrap justify-end">
+                                <span className={`px-2 py-0.5 rounded border text-[8px] font-black uppercase ${srcColor}`}>{lead.source}</span>
+                                <span className={`px-2 py-0.5 rounded border text-[8px] font-black uppercase ${intentColor}`}>{lead.intent_level}</span>
+                                <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] font-black text-slate-400 uppercase">ICP: {lead.ICP_match}</span>
+                                <div className="flex flex-col items-center bg-slate-950/80 border border-slate-800 rounded-lg px-3 py-1">
+                                  <span className="text-[7px] font-black text-slate-600 uppercase">Score</span>
+                                  <span className={`text-base font-black ${scoreColor}`}>{lead.lead_score}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </section>

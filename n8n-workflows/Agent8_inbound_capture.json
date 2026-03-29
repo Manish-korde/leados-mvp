@@ -1,0 +1,101 @@
+{
+  "name": "Agent 8 – Inbound Lead Capture",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent8-inbound-capture",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "prompt-construction",
+              "name": "prompt_input",
+              "value": "={{ \"Offer/ICP: \" + JSON.stringify($json.body.offer) + \"\\nFunnel: \" + JSON.stringify($json.body.funnel) + \"\\nPaid Traffic (Agent 6): \" + JSON.stringify($json.body.paid_traffic) + \"\\nOutbound Outreach (Agent 7): \" + JSON.stringify($json.body.outbound_outreach) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-input",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.3,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 8 – Inbound Lead Capture in the LeadOS pipeline.\\n\\nPURPOSE: Derive all traffic and lead numbers from Agent 6 and Agent 7. Convert audience exposure into structured lead objects with scoring. Every number must be traceable.\\n\\nSTEP 1 – DERIVE VISITORS (use EXACT values from Agent 6 & 7 input):\\npaid_visitors = total_clicks from Agent 6 paid_traffic.totals.total_clicks\\noutbound_visitors = daily_contacts * (response_rate / 100) from Agent 7 outbound_outreach\\norganic_visitors = 15% of paid_visitors (rounded)\\ntotal_visitors = paid_visitors + outbound_visitors + organic_visitors\\n\\nSTEP 2 – CONVERSION RATES (adjust based on funnel quality):\\npaid_conversion: 2%-5%\\noutbound_conversion: 0.5%-2%\\norganic_conversion: 3%-8%\\n\\nSTEP 3 – CALCULATE LEADS:\\nleads_paid = round(paid_visitors * paid_conversion / 100)\\nleads_outbound = round(outbound_visitors * outbound_conversion / 100)\\nleads_organic = round(organic_visitors * organic_conversion / 100)\\ntotal_leads = leads_paid + leads_outbound + leads_organic\\nhigh_intent_leads = count of leads with intent_level = hot\\navg_conversion = (total_leads / total_visitors) * 100, formatted as percentage string\\n\\nSTEP 4 – LEAD SCORING FORMULA (apply to every lead):\\nVALUE MAP: low=3, medium=6, high=10\\nlead_score = (ICP_match_value * 0.4) + (intent_value * 0.3) + (pain_value * 0.2) + (budget_value * 0.1)\\nRound to 1 decimal place.\\n\\nSTEP 5 – GENERATE lead objects equal to total_leads (min 6, max 15):\\nDistribute source proportionally: paid/outbound/organic matching lead counts.\\nNot all leads are high quality. Realistic mix: ~30% hot, ~40% warm, ~30% cold.\\nLead emails: firstname.lastname@company.com format.\\nCompany names must match ICP industry.\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"traffic\\\": {\\n    \\\"paid_visitors\\\": 0,\\n    \\\"outbound_visitors\\\": 0,\\n    \\\"organic_visitors\\\": 0,\\n    \\\"total_visitors\\\": 0\\n  },\\n  \\\"conversion\\\": {\\n    \\\"paid\\\": \\\"\\\",\\n    \\\"outbound\\\": \\\"\\\",\\n    \\\"organic\\\": \\\"\\\",\\n    \\\"average\\\": \\\"\\\"\\n  },\\n  \\\"leads_summary\\\": {\\n    \\\"paid\\\": 0,\\n    \\\"outbound\\\": 0,\\n    \\\"organic\\\": 0,\\n    \\\"total\\\": 0,\\n    \\\"high_intent\\\": 0\\n  },\\n  \\\"leads\\\": [\\n    {\\n      \\\"lead_id\\\": \\\"\\\",\\n      \\\"name\\\": \\\"\\\",\\n      \\\"company\\\": \\\"\\\",\\n      \\\"role\\\": \\\"\\\",\\n      \\\"email\\\": \\\"\\\",\\n      \\\"source\\\": \\\"\\\",\\n      \\\"pain_level\\\": \\\"\\\",\\n      \\\"intent_level\\\": \\\"\\\",\\n      \\\"budget_level\\\": \\\"\\\",\\n      \\\"ICP_match\\\": \\\"\\\",\\n      \\\"lead_score\\\": 0,\\n      \\\"score_breakdown\\\": {\\n        \\\"ICP_match\\\": 0,\\n        \\\"intent\\\": 0,\\n        \\\"pain\\\": 0,\\n        \\\"budget\\\": 0\\n      }\\n    }\\n  ],\\n  \\\"calculation\\\": {\\n    \\\"formula\\\": \\\"leads = visitors * conversion_rate\\\",\\n    \\\"lead_score_formula\\\": \\\"score = (ICP*0.4) + (intent*0.3) + (pain*0.2) + (budget*0.1)\\\"\\n  },\\n  \\\"source_trace\\\": {\\n    \\\"agent_6\\\": \\\"paid traffic – total_clicks used as paid_visitors\\\",\\n    \\\"agent_7\\\": \\\"outbound – daily_contacts * response_rate = outbound_visitors\\\",\\n    \\\"agent_4\\\": \\\"funnel quality affects conversion rates\\\",\\n    \\\"agent_2\\\": \\\"ICP defines lead quality scoring\\\"\\n  }\\n}\\n\\nFINAL CONSISTENCY CHECK:\\n* total_visitors = paid + outbound + organic?\\n* leads_summary.total = paid + outbound + organic lead counts?\\n* leads array length = leads_summary.total?\\n* lead_score correctly computed for each lead?\\n* high_intent count matches actual hot leads?\\nIf any fail, fix internally before returning.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Simulate inbound lead capture from the following pipeline data. Use the EXACT numbers from Agent 6 and Agent 7 to derive all visitor and lead counts:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "groq-capture-node",
+      "name": "Inbound Capture Engine (Groq)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [500, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-json",
+              "name": "capture_data",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-json-node",
+      "name": "Extract JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.capture_data }}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
+    "Prepare Prompt": { "main": [[{ "node": "Inbound Capture Engine (Groq)", "type": "main", "index": 0 }]] },
+    "Inbound Capture Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
+    "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" }
+}
