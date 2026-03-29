@@ -20,12 +20,21 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "url": "https://api.anthropic.com/v1/messages",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.1,\n  \"response_format\": {\n    \"type\": \"json_object\"\n  },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a Validation Agent acting as a DECISION GATE. Your exact goal for this hackathon is to FORCE A WINNER from the provided batch. YOU MUST ALWAYS SELECT EXACTLY ONE WINNER EVEN IF THE SCORES ARE LOW.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"EVALUATE EACH OFFER INDEPENDENTLY based on these criteria:\\n1. Demand: Is the problem real, urgent, and active?\\n2. Competition: Is the market too crowded?\\n3. Pricing: Is the suggested range feasible for the ICP?\\n4. Delivery: Can this be executed without extreme complexity?\\n5. Risk: Refund risk, platform dependency, or volatility.\\n\\nSTRICT JSON OUTPUT ONLY:\\n{\\n  \\\"evaluations\\\": [\\n    {\\n      \\\"id\\\": \\\"EXACT_INPUT_ID\\\",\\n      \\\"decision\\\": \\\"GO / NO-GO\\\",\\n      \\\"score\\\": 0-10,\\n      \\\"reason\\\": \\\"Short analytical justification\\\"\\n    }\\n  ],\\n  \\\"selected_offer\\\": \\\"offer_id\\\",\\n  \\\"final_decision\\\": \\\"GO\\\",\\n  \\\"summary\\\": \\\"Overall verdict on the batch\\\"\\n}\\n\\nRULES:\\n- You MUST select the single best offer as 'selected_offer'. selected_offer CANNOT be null.\\n- final_decision MUST ALWAYS BE 'GO'.\\n\\nINPUT OFFERS:\\n\" + JSON.stringify($json.body.opportunities)\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are a Validation Agent acting as a DECISION GATE. Your exact goal for this hackathon is to FORCE A WINNER from the provided batch. YOU MUST ALWAYS SELECT EXACTLY ONE WINNER EVEN IF THE SCORES ARE LOW.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"EVALUATE EACH OFFER INDEPENDENTLY based on these criteria:\\n1. Demand: Is the problem real, urgent, and active?\\n2. Competition: Is the market too crowded?\\n3. Pricing: Is the suggested range feasible for the ICP?\\n4. Delivery: Can this be executed without extreme complexity?\\n5. Risk: Refund risk, platform dependency, or volatility.\\n\\nSTRICT JSON OUTPUT ONLY:\\n{\\n  \\\"evaluations\\\": [\\n    {\\n      \\\"id\\\": \\\"EXACT_INPUT_ID\\\",\\n      \\\"decision\\\": \\\"GO / NO-GO\\\",\\n      \\\"score\\\": 0-10,\\n      \\\"reason\\\": \\\"Short analytical justification\\\"\\n    }\\n  ],\\n  \\\"selected_offer\\\": \\\"offer_id\\\",\\n  \\\"final_decision\\\": \\\"GO\\\",\\n  \\\"summary\\\": \\\"Overall verdict on the batch\\\"\\n}\\n\\nRULES:\\n- You MUST select the single best offer as 'selected_offer'. selected_offer CANNOT be null.\\n- final_decision MUST ALWAYS BE 'GO'.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\\n\\nINPUT OFFERS:\\n\" + JSON.stringify($json.body.opportunities)\n    }\n  ]\n} }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -35,11 +44,11 @@
         0
       ],
       "id": "b1c2d3e4-f5g6-h7i8-j9k0-l1m2n3o4p5q6",
-      "name": "Groq Selection",
+      "name": "Claude Selection",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "UXgmT5ea2qmzvhCy",
-          "name": "Header Auth account"
+          "id": "ANTHROPIC_KEY",
+          "name": "Anthropic API Key"
         }
       }
     },
@@ -50,7 +59,7 @@
             {
               "id": "parse-content",
               "name": "parsed",
-              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.content?.[0]?.text;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -87,14 +96,14 @@
       "main": [
         [
           {
-            "node": "Groq Selection",
+            "node": "Claude Selection",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Groq Selection": {
+    "Claude Selection": {
       "main": [
         [
           {

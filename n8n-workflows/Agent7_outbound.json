@@ -37,23 +37,32 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "url": "https://api.anthropic.com/v1/messages",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.4,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 7 – Outbound Outreach Simulation in the LeadOS system.\\n\\nPURPOSE: Simulate outbound prospecting with realistic, numerically consistent engagement metrics.\\n\\nCORE LOGIC (MANDATORY – ALL NUMBERS MUST BE DERIVED):\\n* responses = daily_contacts * (response_rate / 100)\\n* positive_replies = responses * (positive_reply_rate / 100)\\n* meetings_booked_per_day = positive_replies (rounded to nearest integer)\\n\\nCONSTRAINTS:\\n* daily_contacts: 20-80 realistic contacts per day\\n* response_rate: 2%-10% (cold outbound reality)\\n* positive_reply_rate: 20%-50% of responses\\n* channels must match ICP (B2B = LinkedIn + Email, B2C = Email + DM)\\n\\nIMPORTANT: outbound_visitors in Agent 8 = daily_contacts * (response_rate/100). Your numbers directly feed Agent 8 visitor calculations.\\n\\nANTI-GENERIC:\\n* No 'hope you are doing well'\\n* No 'we help companies grow'\\n* Be specific to the ICP and offer\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"outbound_outreach\\\": {\\n    \\\"daily_contacts\\\": 0,\\n    \\\"channels\\\": [],\\n    \\\"response_rate\\\": 0,\\n    \\\"positive_reply_rate\\\": 0,\\n    \\\"meetings_booked_per_day\\\": 0,\\n    \\\"targeting\\\": {\\n      \\\"persona\\\": \\\"\\\",\\n      \\\"company_criteria\\\": {\\n        \\\"industry\\\": [],\\n        \\\"company_size\\\": \\\"\\\",\\n        \\\"geography\\\": [],\\n        \\\"signals\\\": []\\n      }\\n    },\\n    \\\"sequence\\\": [\\n      { \\\"step\\\": 1, \\\"channel\\\": \\\"\\\", \\\"timing\\\": \\\"\\\", \\\"goal\\\": \\\"\\\" }\\n    ],\\n    \\\"message_variants\\\": [\\n      { \\\"channel\\\": \\\"\\\", \\\"message\\\": \\\"\\\" }\\n    ],\\n    \\\"prospect_simulation\\\": [\\n      { \\\"name\\\": \\\"\\\", \\\"role\\\": \\\"\\\", \\\"company\\\": \\\"\\\", \\\"reason_fit\\\": \\\"\\\" }\\n    ]\\n  }\\n}\\n\\nFINAL CHECK:\\n* meetings_booked_per_day = daily_contacts * response_rate/100 * positive_reply_rate/100?\\n* Are channels appropriate for the ICP?\\n* Are 3-5 prospects simulated?\\nIf any check fails, fix internally.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate an outbound outreach simulation plan for the following pipeline data:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are Agent 7 – Outbound Outreach Simulation in the LeadOS system.\\n\\nPURPOSE: Simulate outbound prospecting with realistic, numerically consistent engagement metrics.\\n\\nCORE LOGIC (MANDATORY – ALL NUMBERS MUST BE DERIVED):\\n* responses = daily_contacts * (response_rate / 100)\\n* positive_replies = responses * (positive_reply_rate / 100)\\n* meetings_booked_per_day = positive_replies (rounded to nearest integer)\\n\\nCONSTRAINTS:\\n* daily_contacts: 20-80 realistic contacts per day\\n* response_rate: 2%-10% (cold outbound reality)\\n* positive_reply_rate: 20%-50% of responses\\n* channels must match ICP (B2B = LinkedIn + Email, B2C = Email + DM)\\n\\nIMPORTANT: outbound_visitors in Agent 8 = daily_contacts * (response_rate/100). Your numbers directly feed Agent 8 visitor calculations.\\n\\nANTI-GENERIC:\\n* No 'hope you are doing well'\\n* No 'we help companies grow'\\n* Be specific to the ICP and offer\\n\\nOUTPUT FORMAT (STRICT JSON ONLY):\\n{\\n  \\\"outbound_outreach\\\": {\\n    \\\"daily_contacts\\\": 0,\\n    \\\"channels\\\": [],\\n    \\\"response_rate\\\": 0,\\n    \\\"positive_reply_rate\\\": 0,\\n    \\\"meetings_booked_per_day\\\": 0,\\n    \\\"targeting\\\": {\\n      \\\"persona\\\": \\\"\\\",\\n      \\\"company_criteria\\\": {\\n        \\\"industry\\\": [],\\n        \\\"company_size\\\": \\\"\\\",\\n        \\\"geography\\\": [],\\n        \\\"signals\\\": []\\n      }\\n    },\\n    \\\"sequence\\\": [\\n      { \\\"step\\\": 1, \\\"channel\\\": \\\"\\\", \\\"timing\\\": \\\"\\\", \\\"goal\\\": \\\"\\\" }\\n    ],\\n    \\\"message_variants\\\": [\\n      { \\\"channel\\\": \\\"\\\", \\\"message\\\": \\\"\\\" }\\n    ],\\n    \\\"prospect_simulation\\\": [\\n      { \\\"name\\\": \\\"\\\", \\\"role\\\": \\\"\\\", \\\"company\\\": \\\"\\\", \\\"reason_fit\\\": \\\"\\\" }\\n    ]\\n  }\\n}\\n\\nFINAL CHECK:\\n* meetings_booked_per_day = daily_contacts * response_rate/100 * positive_reply_rate/100?\\n* Are channels appropriate for the ICP?\\n* Are 3-5 prospects simulated?\\nIf any check fails, fix internally.\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate an outbound outreach simulation plan for the following pipeline data:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
         "options": {}
       },
       "id": "groq-outbound-node",
-      "name": "Outbound Engine (Groq)",
+      "name": "Outbound Engine (Claude)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [500, 0],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "UXgmT5ea2qmzvhCy",
-          "name": "Header Auth account"
+          "id": "ANTHROPIC_KEY",
+          "name": "Anthropic API Key"
         }
       }
     },
@@ -64,7 +73,7 @@
             {
               "id": "extract-json",
               "name": "outbound_plan",
-              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.content?.[0]?.text;\n  if (!content) return { error: 'No response from AI' };\n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format from AI' };\n  } catch (e) {\n    return { error: 'Invalid JSON format from AI' };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -92,8 +101,8 @@
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
-    "Prepare Prompt": { "main": [[{ "node": "Outbound Engine (Groq)", "type": "main", "index": 0 }]] },
-    "Outbound Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
+    "Prepare Prompt": { "main": [[{ "node": "Outbound Engine (Claude)", "type": "main", "index": 0 }]] },
+    "Outbound Engine (Claude)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
     "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,
