@@ -1,7 +1,7 @@
 FROM n8nio/n8n:latest
 
 # Set environment variables
-ENV N8N_PORT=5678
+# Railway injects PORT env var — n8n must use it
 ENV N8N_PROTOCOL=https
 ENV GENERIC_TIMEZONE=Asia/Kolkata
 ENV N8N_SECURE_COOKIE=false
@@ -28,9 +28,6 @@ COPY --chown=node:node n8n-start.sh /home/node/n8n-start.sh
 USER root
 RUN chmod +x /home/node/n8n-start.sh
 USER node
-
-# Expose the n8n port
-EXPOSE 5678
 
 # Use startup script (imports workflows + creates credentials + starts n8n)
 CMD ["/bin/sh", "/home/node/n8n-start.sh"]
