@@ -515,6 +515,58 @@ export default function App() {
   const [isGeneratingRouting, setIsGeneratingRouting] = useState(false);
   const [attributionData, setAttributionData] = useState(null);
   const [isGeneratingAttribution, setIsGeneratingAttribution] = useState(false);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [isGeneratingPerformance, setIsGeneratingPerformance] = useState(false);
+  const [hygieneData, setHygieneData] = useState(null);
+  const [isGeneratingHygiene, setIsGeneratingHygiene] = useState(false);
+
+  const runPerformanceAgent = async () => {
+    setIsGeneratingPerformance(true);
+    setError(null);
+    try {
+      const res = await fetch('/webhook/agent12-performance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          traffic_data: trafficData,
+          capture_data: captureData,
+          routing_data: routingData,
+          attribution_data: attributionData
+        }),
+      });
+      if (!res.ok) throw new Error('Agent 12 failed');
+      const data = await res.json();
+      setPerformanceData(data.performance_report || data);
+    } catch (err) {
+      setError('Performance Agent: ' + err.message);
+    } finally {
+      setIsGeneratingPerformance(false);
+    }
+  };
+
+  const runHygieneAgent = async () => {
+    setIsGeneratingHygiene(true);
+    setError(null);
+    try {
+      const res = await fetch('/webhook/agent13-crm-hygiene', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          capture_data: captureData,
+          qualification_data: qualificationData,
+          routing_data: routingData,
+          attribution_data: attributionData
+        }),
+      });
+      if (!res.ok) throw new Error('Agent 13 failed');
+      const data = await res.json();
+      setHygieneData(data.hygiene_report || data);
+    } catch (err) {
+      setError('CRM Hygiene Agent: ' + err.message);
+    } finally {
+      setIsGeneratingHygiene(false);
+    }
+  };
 
   const runAttributionAgent = async () => {
     if (!routingData) return;
@@ -2549,6 +2601,135 @@ export default function App() {
                     </div>
                   )}
 
+                </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* Step 12: Performance Optimisation */}
+            <section id="step-12" className={`${performanceData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader num="12" title="Performance Optimisation Engine" subtitle="Kill Losers · Scale Winners · Budget Reallocation · ROI Analysis" status={performanceData ? 'Complete' : (attributionData ? 'Awaiting Activation' : 'Dormant')} />
+              {!performanceData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button onClick={runPerformanceAgent} disabled={isGeneratingPerformance || !attributionData} className="group relative px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:shadow-lg hover:shadow-orange-500/25 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                    {isGeneratingPerformance ? 'Analysing Performance...' : (attributionData ? 'Run Performance Audit' : 'Complete Step 11 First')}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-8 mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-slate-950/50 border border-emerald-500/20 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-2">ROI</p>
+                      <p className="text-3xl font-black text-emerald-400">{performanceData.pipeline_metrics?.roi_percentage || 0}%</p>
+                    </div>
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Spend</p>
+                      <p className="text-3xl font-black text-white">${performanceData.pipeline_metrics?.total_spend || 0}</p>
+                    </div>
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Est. Revenue</p>
+                      <p className="text-3xl font-black text-white">${performanceData.pipeline_metrics?.estimated_revenue || 0}</p>
+                    </div>
+                  </div>
+                  {performanceData.scale_list?.length > 0 && (
+                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-3">Scale These Channels</p>
+                      {performanceData.scale_list.map((s, i) => (
+                        <div key={i} className="flex justify-between items-center py-2 border-b border-slate-800/50 last:border-0">
+                          <span className="text-xs font-black text-white">{s.channel}</span>
+                          <span className="text-[10px] font-bold text-emerald-400">${s.new_budget}/day — {s.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {performanceData.kill_list?.length > 0 && (
+                    <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-3">Kill These Channels</p>
+                      {performanceData.kill_list.map((k, i) => (
+                        <div key={i} className="flex justify-between items-center py-2 border-b border-slate-800/50 last:border-0">
+                          <span className="text-xs font-black text-white">{k.channel}</span>
+                          <span className="text-[10px] font-bold text-rose-400">Save ${k.savings} — {k.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {performanceData.weekly_summary && (
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Weekly Summary</p>
+                      <p className="text-xs text-slate-300 font-bold leading-relaxed">{performanceData.weekly_summary}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+            <Connector />
+
+            {/* Step 13: CRM & Data Hygiene */}
+            <section id="step-13" className={`${hygieneData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+              <StepHeader num="13" title="CRM & Data Hygiene" subtitle="Deduplication · Email Validation · Pipeline Audit · Data Quality Score" status={hygieneData ? 'Complete' : (performanceData ? 'Awaiting Activation' : 'Dormant')} />
+              {!hygieneData ? (
+                <div className="py-20 flex flex-col items-center">
+                  <button onClick={runHygieneAgent} disabled={isGeneratingHygiene || !attributionData} className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:shadow-lg hover:shadow-violet-500/25 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                    {isGeneratingHygiene ? 'Auditing CRM Data...' : (attributionData ? 'Run Data Hygiene Audit' : 'Complete Step 11 First')}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-8 mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className={`bg-slate-950/50 border rounded-2xl p-6 ${hygieneData.data_quality_score >= 80 ? 'border-emerald-500/30' : hygieneData.data_quality_score >= 50 ? 'border-amber-500/30' : 'border-rose-500/30'}`}>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Quality Score</p>
+                      <p className={`text-3xl font-black ${hygieneData.data_quality_score >= 80 ? 'text-emerald-400' : hygieneData.data_quality_score >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>{hygieneData.data_quality_score}/100</p>
+                    </div>
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Audited</p>
+                      <p className="text-3xl font-black text-white">{hygieneData.total_contacts_audited || 0}</p>
+                    </div>
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Clean</p>
+                      <p className="text-3xl font-black text-emerald-400">{hygieneData.summary?.clean_records || 0}</p>
+                    </div>
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Issues</p>
+                      <p className="text-3xl font-black text-rose-400">{hygieneData.summary?.issues_found || 0}</p>
+                    </div>
+                  </div>
+                  {hygieneData.duplicates_found?.length > 0 && (
+                    <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-3">Duplicates Found</p>
+                      {hygieneData.duplicates_found.map((d, i) => (
+                        <div key={i} className="py-2 border-b border-slate-800/50 last:border-0">
+                          <span className="text-xs font-black text-white">{d.name}</span>
+                          <span className="text-[10px] text-slate-500 ml-2">{d.email} — {d.occurrences}x — Action: {d.action}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {hygieneData.pipeline_mismatches?.length > 0 && (
+                    <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-3">Pipeline Mismatches</p>
+                      {hygieneData.pipeline_mismatches.map((m, i) => (
+                        <div key={i} className="py-2 border-b border-slate-800/50 last:border-0">
+                          <span className="text-xs font-black text-white">{m.name}</span>
+                          <span className="text-[10px] text-rose-400 ml-2">{m.issue}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {hygieneData.recommendations?.length > 0 && (
+                    <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                      <p className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-3">Recommendations</p>
+                      <ul className="space-y-2">
+                        {hygieneData.recommendations.map((r, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-violet-500 mt-0.5">→</span>
+                            <p className="text-[11px] text-slate-300 font-bold leading-snug">{r}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </section>

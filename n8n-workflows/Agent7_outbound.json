@@ -79,8 +79,32 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const o = $json.outbound_plan?.outbound_outreach || $json.outbound_plan || {}; const body = 'LeadOS Outbound Outreach Log\\n\\nDaily Contacts: ' + (o.daily_contacts || 0) + '\\nResponse Rate: ' + (o.response_rate || 0) + '%\\nPositive Reply Rate: ' + (o.positive_reply_rate || 0) + '%\\nMeetings/Day: ' + (o.meetings_booked_per_day || 0) + '\\nChannels: ' + (o.channels || []).join(', ') + '\\n\\nNote: Outreach simulated only. No emails sent by LeadOS.'; return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
+        "options": {}
+      },
+      "id": "hubspot-log-outreach",
+      "name": "HubSpot Log Outreach",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SasebC8AoVJed4oj",
+          "name": "Header Auth hubspot"
+        }
+      }
+    },
+    {
+      "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ $json.outbound_plan }}",
+        "responseBody": "={{ $('Extract JSON').first().json.outbound_plan }}",
         "options": {}
       },
       "id": "webhook-response",
@@ -94,7 +118,8 @@
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
     "Prepare Prompt": { "main": [[{ "node": "Outbound Engine (Groq)", "type": "main", "index": 0 }]] },
     "Outbound Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
-    "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+    "Extract JSON": { "main": [[{ "node": "HubSpot Log Outreach", "type": "main", "index": 0 }]] },
+    "HubSpot Log Outreach": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,
   "settings": { "executionOrder": "v1" }

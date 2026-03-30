@@ -1,0 +1,126 @@
+{
+  "name": "Agent 12 \u2013 Performance Optimisation Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent12-performance",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "prompt-input",
+              "name": "prompt_input",
+              "value": "={{ \"Paid Traffic (Agent 6): \" + JSON.stringify($json.body.traffic_data) + \"\\n\\nCapture Data (Agent 8): \" + JSON.stringify($json.body.capture_data) + \"\\n\\nRouting Data (Agent 10): \" + JSON.stringify($json.body.routing_data) + \"\\n\\nAttribution Data (Agent 11): \" + JSON.stringify($json.body.attribution_data) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-input",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.2,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 12 \u2013 Performance Optimisation Engine in the LeadOS pipeline. You are a DETERMINISTIC analytics engine. You analyse campaign and pipeline performance data to make kill/scale/adjust decisions.\\n\\nCORE FUNCTION:\\n1. Analyse each channel's performance (CPL, conversion rate, cost per sale)\\n2. Identify top performers and underperformers\\n3. Recommend budget reallocations\\n4. Flag channels to KILL (CPL > 2x average or conversion < 1%)\\n5. Flag channels to SCALE (CPL < average AND conversion > 3%)\\n6. Calculate overall pipeline ROI\\n\\nBUDGET REALLOCATION RULES:\\n- Kill channels get $0 budget\\n- Scale channels get +30% budget from killed channels\\n- Maintain channels keep current budget\\n- Total budget must equal original total\\n\\nROI CALCULATION:\\n- Revenue potential = total_sales * average_deal_value (estimate from offer pricing)\\n- ROI = ((revenue_potential - total_spend) / total_spend) * 100\\n\\nOUTPUT FORMAT (STRICT JSON):\\n{\\n  \\\"performance_report\\\": {\\n    \\\"analysis_period\\\": \\\"daily\\\",\\n    \\\"top_channels\\\": [{\\\"name\\\": \\\"\\\", \\\"cpl\\\": 0, \\\"conversion_rate\\\": 0, \\\"reason\\\": \\\"\\\"}],\\n    \\\"underperformers\\\": [{\\\"name\\\": \\\"\\\", \\\"cpl\\\": 0, \\\"conversion_rate\\\": 0, \\\"reason\\\": \\\"\\\"}],\\n    \\\"kill_list\\\": [{\\\"channel\\\": \\\"\\\", \\\"reason\\\": \\\"\\\", \\\"savings\\\": 0}],\\n    \\\"scale_list\\\": [{\\\"channel\\\": \\\"\\\", \\\"reason\\\": \\\"\\\", \\\"new_budget\\\": 0}],\\n    \\\"budget_recommendations\\\": [{\\\"channel\\\": \\\"\\\", \\\"current_budget\\\": 0, \\\"recommended_budget\\\": 0, \\\"change\\\": \\\"\\\"}],\\n    \\\"pipeline_metrics\\\": {\\n      \\\"total_spend\\\": 0,\\n      \\\"total_leads\\\": 0,\\n      \\\"total_sales\\\": 0,\\n      \\\"overall_cpl\\\": 0,\\n      \\\"overall_conversion\\\": 0,\\n      \\\"estimated_revenue\\\": 0,\\n      \\\"roi_percentage\\\": 0\\n    },\\n    \\\"weekly_summary\\\": \\\"\\\"\\n  }\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyse all pipeline performance data below and generate optimisation recommendations:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "groq-performance-node",
+      "name": "Performance Engine (Groq)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [500, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-json",
+              "name": "performance_data",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from performance engine' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON from performance engine', raw: content.substring(0, 200) };\n  }\n})()\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-json-node",
+      "name": "Extract JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const r = $json.performance_data?.performance_report || {}; const body = 'LeadOS Performance Report\\n\\nROI: ' + (r.pipeline_metrics?.roi_percentage || 0) + '%\\nTotal Spend: $' + (r.pipeline_metrics?.total_spend || 0) + '\\nTotal Leads: ' + (r.pipeline_metrics?.total_leads || 0) + '\\nTotal Sales: ' + (r.pipeline_metrics?.total_sales || 0) + '\\n\\nKill: ' + (r.kill_list || []).map(k => k.channel).join(', ') + '\\nScale: ' + (r.scale_list || []).map(s => s.channel).join(', ') + '\\n\\nSummary: ' + (r.weekly_summary || 'N/A'); return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
+        "options": {}
+      },
+      "id": "hubspot-log-report",
+      "name": "HubSpot Log Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SasebC8AoVJed4oj",
+          "name": "Header Auth hubspot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $('Extract JSON').first().json.performance_data }}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
+    "Prepare Prompt": { "main": [[{ "node": "Performance Engine (Groq)", "type": "main", "index": 0 }]] },
+    "Performance Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
+    "Extract JSON": { "main": [[{ "node": "HubSpot Log Report", "type": "main", "index": 0 }]] },
+    "HubSpot Log Report": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" }
+}

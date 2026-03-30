@@ -79,8 +79,32 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/update",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const leads = $json.qualification_data?.qualified_leads || []; const statusMap = { 'HOT': 'OPEN_DEAL', 'WARM': 'IN_PROGRESS', 'MEDIUM': 'OPEN', 'COLD': 'UNQUALIFIED' }; const inputs = leads.map(l => ({ id: l.email || l.lead_id, idProperty: 'email', properties: { hs_lead_status: statusMap[l.final_status] || 'OPEN' } })); return { inputs: inputs }; })() }}",
+        "options": {}
+      },
+      "id": "hubspot-bant-update",
+      "name": "HubSpot Update BANT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SasebC8AoVJed4oj",
+          "name": "Header Auth hubspot"
+        }
+      }
+    },
+    {
+      "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ $json.qualification_data }}",
+        "responseBody": "={{ $('Extract JSON').first().json.qualification_data }}",
         "options": {}
       },
       "id": "webhook-response",
@@ -94,7 +118,8 @@
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
     "Prepare Prompt": { "main": [[{ "node": "Qualification Engine (Groq)", "type": "main", "index": 0 }]] },
     "Qualification Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
-    "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+    "Extract JSON": { "main": [[{ "node": "HubSpot Update BANT", "type": "main", "index": 0 }]] },
+    "HubSpot Update BANT": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,
   "settings": { "executionOrder": "v1" }

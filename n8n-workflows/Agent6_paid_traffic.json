@@ -79,8 +79,32 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const t = $json.traffic_plan?.paid_traffic || $json.traffic_plan || {}; const channels = (t.channels || []).map(c => c.name + ': $' + c.daily_budget + '/day, CPC=$' + c.cpc + ', ' + c.expected_leads + ' leads').join('\\n'); const body = 'LeadOS Paid Traffic Report\\n\\nTotal Budget: $' + (t.total_daily_budget || 0) + '/day\\n\\nChannels:\\n' + channels + '\\n\\nTotals: ' + (t.totals?.total_clicks || 0) + ' clicks, ' + (t.totals?.total_leads || 0) + ' leads, CPL=$' + (t.totals?.blended_cpl || 0); return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
+        "options": {}
+      },
+      "id": "hubspot-log-campaigns",
+      "name": "HubSpot Log Campaigns",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SasebC8AoVJed4oj",
+          "name": "Header Auth hubspot"
+        }
+      }
+    },
+    {
+      "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ $json.traffic_plan }}",
+        "responseBody": "={{ $('Extract JSON').first().json.traffic_plan }}",
         "options": {}
       },
       "id": "webhook-response",
@@ -94,7 +118,8 @@
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
     "Prepare Prompt": { "main": [[{ "node": "Paid Traffic Engine (Groq)", "type": "main", "index": 0 }]] },
     "Paid Traffic Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
-    "Extract JSON": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+    "Extract JSON": { "main": [[{ "node": "HubSpot Log Campaigns", "type": "main", "index": 0 }]] },
+    "HubSpot Log Campaigns": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,
   "settings": { "executionOrder": "v1" }

@@ -1,0 +1,126 @@
+{
+  "name": "Agent 13 \u2013 CRM & Data Hygiene",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent13-crm-hygiene",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "prompt-input",
+              "name": "prompt_input",
+              "value": "={{ \"All Leads (Agent 8): \" + JSON.stringify($json.body.capture_data) + \"\\n\\nQualification Data (Agent 9): \" + JSON.stringify($json.body.qualification_data) + \"\\n\\nRouting Data (Agent 10): \" + JSON.stringify($json.body.routing_data) + \"\\n\\nAttribution Data (Agent 11): \" + JSON.stringify($json.body.attribution_data) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-input",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"model\": \"llama-3.1-8b-instant\",\n  \"temperature\": 0.1,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Agent 13 \u2013 CRM & Data Hygiene in the LeadOS pipeline. You are a DETERMINISTIC data quality auditor. You do NOT generate content. You ONLY audit, validate, and report on data quality.\\n\\nCORE FUNCTION:\\n1. DUPLICATE DETECTION: Find leads with same name+company or same email across all data\\n2. EMAIL VALIDATION: Flag emails that are malformed (missing @, invalid domain patterns)\\n3. MISSING FIELDS: Flag leads with empty name, company, email, or role\\n4. PIPELINE CONSISTENCY: Check if routing decision matches qualification status (e.g. HOT lead should not be DISQUALIFIED)\\n5. STALE LEADS: Flag leads with COLD status that have been in pipeline\\n6. DATA QUALITY SCORE: 0-100 based on (valid_records / total_records * 100) minus penalties\\n\\nPENALTY RULES:\\n- Each duplicate: -5 points\\n- Each invalid email: -3 points\\n- Each missing field: -2 points\\n- Each pipeline mismatch: -5 points\\n- Each stale lead: -1 point\\n\\nRECOMMENDATIONS: For each issue found, provide a specific actionable fix\\n\\nOUTPUT FORMAT (STRICT JSON):\\n{\\n  \\\"hygiene_report\\\": {\\n    \\\"total_contacts_audited\\\": 0,\\n    \\\"data_quality_score\\\": 0,\\n    \\\"duplicates_found\\\": [{\\\"name\\\": \\\"\\\", \\\"email\\\": \\\"\\\", \\\"occurrences\\\": 0, \\\"action\\\": \\\"merge\\\"}],\\n    \\\"invalid_emails\\\": [{\\\"lead_id\\\": \\\"\\\", \\\"email\\\": \\\"\\\", \\\"issue\\\": \\\"\\\"}],\\n    \\\"missing_fields\\\": [{\\\"lead_id\\\": \\\"\\\", \\\"name\\\": \\\"\\\", \\\"missing\\\": []}],\\n    \\\"pipeline_mismatches\\\": [{\\\"lead_id\\\": \\\"\\\", \\\"name\\\": \\\"\\\", \\\"qualification_status\\\": \\\"\\\", \\\"routing_decision\\\": \\\"\\\", \\\"issue\\\": \\\"\\\"}],\\n    \\\"stale_leads\\\": [{\\\"lead_id\\\": \\\"\\\", \\\"name\\\": \\\"\\\", \\\"status\\\": \\\"\\\", \\\"reason\\\": \\\"\\\"}],\\n    \\\"summary\\\": {\\n      \\\"clean_records\\\": 0,\\n      \\\"issues_found\\\": 0,\\n      \\\"critical_issues\\\": 0,\\n      \\\"warnings\\\": 0\\n    },\\n    \\\"recommendations\\\": [\\\"\\\"\\n    ]\\n  }\\n}\\n\\nReturn ONLY valid JSON. No explanation. No markdown.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Audit all lead and CRM data from the pipeline below. Check every record for quality issues:\\n\\n\" + $json.prompt_input\n    }\n  ]\n} }}",
+        "options": {}
+      },
+      "id": "groq-hygiene-node",
+      "name": "Hygiene Engine (Groq)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [500, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UXgmT5ea2qmzvhCy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "extract-json",
+              "name": "hygiene_data",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from hygiene engine' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON from hygiene engine', raw: content.substring(0, 200) };\n  }\n})()\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-json-node",
+      "name": "Extract JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const h = $json.hygiene_data?.hygiene_report || {}; const body = 'LeadOS CRM Hygiene Report\\n\\nData Quality Score: ' + (h.data_quality_score || 0) + '/100\\nTotal Audited: ' + (h.total_contacts_audited || 0) + '\\nClean Records: ' + (h.summary?.clean_records || 0) + '\\nIssues Found: ' + (h.summary?.issues_found || 0) + '\\nCritical: ' + (h.summary?.critical_issues || 0) + '\\n\\nDuplicates: ' + (h.duplicates_found || []).length + '\\nInvalid Emails: ' + (h.invalid_emails || []).length + '\\nMissing Fields: ' + (h.missing_fields || []).length + '\\nPipeline Mismatches: ' + (h.pipeline_mismatches || []).length; return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
+        "options": {}
+      },
+      "id": "hubspot-log-hygiene",
+      "name": "HubSpot Log Hygiene",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SasebC8AoVJed4oj",
+          "name": "Header Auth hubspot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $('Extract JSON').first().json.hygiene_data }}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
+    "Prepare Prompt": { "main": [[{ "node": "Hygiene Engine (Groq)", "type": "main", "index": 0 }]] },
+    "Hygiene Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
+    "Extract JSON": { "main": [[{ "node": "HubSpot Log Hygiene", "type": "main", "index": 0 }]] },
+    "HubSpot Log Hygiene": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" }
+}
