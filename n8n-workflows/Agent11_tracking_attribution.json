@@ -86,15 +86,14 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ (() => { const report = $json.attribution_data.attribution_report || []; const inputs = report.map(l => ({ id: l.email || l.lead_id, idProperty: 'email', properties: { utm_campaign: l.utm?.utm_campaign || '', hs_analytics_source: l.utm?.utm_source || '', hs_analytics_source_data_1: l.utm?.utm_medium || '', hs_analytics_source_data_2: l.utm?.utm_campaign || '' } })); return { inputs: inputs }; })() }}",
-        "options": {
-          "continueOnFail": true
-        }
+        "options": {}
       },
       "id": "hubspot-utm-update",
       "name": "HubSpot Sync Attribution",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1000, 0],
+      "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "HUBSPOT_KEY",

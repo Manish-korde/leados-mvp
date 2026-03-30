@@ -83,15 +83,14 @@
         "url": "https://api.calendly.com/event_types?active=true&count=1",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
-        "options": {
-          "continueOnFail": true
-        }
+        "options": {}
       },
       "id": "calendly-fetch",
       "name": "Fetch Calendly Link",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1000, 0],
+      "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "CALENDLY_TOKEN",
@@ -106,7 +105,7 @@
             {
               "id": "enrich-calendly",
               "name": "routing_data",
-              "value": "={{ (() => { const data = $('Extract JSON').first().json.routing_data; const calendly = $json; const bookingUrl = (calendly.collection && calendly.collection.length > 0) ? calendly.collection[0].scheduling_url : null; if (data.routed_leads) { data.routed_leads = data.routed_leads.map(lead => { if (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') { lead.calendly_link = bookingUrl; } else { lead.calendly_link = null; } return lead; }); } return data; })() }}",
+              "value": "={{ (() => { const data = $('Extract JSON').first().json.routing_data; let bookingUrl = null; try { const calendly = $json; bookingUrl = (calendly && calendly.collection && calendly.collection.length > 0) ? calendly.collection[0].scheduling_url : null; } catch(e) {} if (data.routed_leads) { data.routed_leads = data.routed_leads.map(lead => { if (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') { lead.calendly_link = bookingUrl; } else { lead.calendly_link = null; } return lead; }); } return data; })() }}",
               "type": "string"
             }
           ]
@@ -128,15 +127,14 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ (() => { const leads = $json.routing_data.routed_leads || []; const stageMap = { 'CHECKOUT': 'opportunity', 'SALES_CALL': 'salesqualifiedlead', 'NURTURE': 'marketingqualifiedlead', 'DISQUALIFIED': 'other' }; const statusMap = { 'CHECKOUT': 'OPEN_DEAL', 'SALES_CALL': 'IN_PROGRESS', 'NURTURE': 'OPEN', 'DISQUALIFIED': 'UNQUALIFIED' }; const inputs = leads.map(l => ({ id: l.email || l.lead_id, idProperty: 'email', properties: { lifecyclestage: stageMap[l.final_decision] || 'lead', hs_lead_status: statusMap[l.final_decision] || 'NEW' } })); return { inputs: inputs }; })() }}",
-        "options": {
-          "continueOnFail": true
-        }
+        "options": {}
       },
       "id": "hubspot-update-contacts",
       "name": "HubSpot Update Stages",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1500, 0],
+      "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "HUBSPOT_KEY",

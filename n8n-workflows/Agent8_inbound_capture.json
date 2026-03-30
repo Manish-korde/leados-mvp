@@ -86,15 +86,14 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ (() => { const leads = $json.capture_data.leads || []; const inputs = leads.map(l => ({ properties: { firstname: (l.name || '').split(' ')[0] || 'Unknown', lastname: (l.name || '').split(' ').slice(1).join(' ') || '', email: l.email || l.lead_id + '@placeholder.com', company: l.company || '', jobtitle: l.role || '', hs_lead_status: 'NEW', lifecyclestage: 'lead' } })); return { inputs: inputs }; })() }}",
-        "options": {
-          "continueOnFail": true
-        }
+        "options": {}
       },
       "id": "hubspot-sync",
       "name": "HubSpot Sync Contacts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1000, 0],
+      "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "HUBSPOT_KEY",

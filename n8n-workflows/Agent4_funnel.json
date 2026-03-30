@@ -63,15 +63,14 @@
         "url": "https://api.calendly.com/event_types?active=true&count=1",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
-        "options": {
-          "continueOnFail": true
-        }
+        "options": {}
       },
       "id": "calendly-fetch",
       "name": "Fetch Calendly Link",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [750, 0],
+      "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "CALENDLY_TOKEN",
@@ -86,7 +85,7 @@
             {
               "id": "merge-calendly",
               "name": "funnel_data",
-              "value": "={{ (() => { const data = $('Parser').first().json.funnel_data; const calendly = $json; if (calendly.collection && calendly.collection.length > 0) { const evt = calendly.collection[0]; data.booking_link = evt.scheduling_url || null; data.booking_link_type = evt.name || 'Discovery Call'; } else { data.booking_link = null; data.booking_link_type = null; } return data; })() }}",
+              "value": "={{ (() => { const data = $('Parser').first().json.funnel_data; try { const calendly = $json; if (calendly && calendly.collection && calendly.collection.length > 0) { const evt = calendly.collection[0]; data.booking_link = evt.scheduling_url || null; data.booking_link_type = evt.name || 'Discovery Call'; } else { data.booking_link = null; data.booking_link_type = null; } } catch(e) { data.booking_link = null; data.booking_link_type = null; } return data; })() }}",
               "type": "string"
             }
           ]
@@ -108,15 +107,14 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ (() => { const f = $json.funnel_data.funnel || $json.funnel_data; const body = 'LeadOS Funnel Design\\n\\nHook: ' + (f.hook || 'N/A') + '\\nHeadline: ' + (f.landing_page?.headline || 'N/A') + '\\nCTA: ' + (f.landing_page?.cta || 'N/A') + '\\nLead Magnet: ' + (f.lead_magnet || 'N/A') + '\\nChannels: ' + (f.acquisition_channels || []).join(', ') + '\\nBooking: ' + ($json.funnel_data.booking_link || 'Not configured'); return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
-        "options": {
-          "continueOnFail": true
-        }
+        "options": {}
       },
       "id": "hubspot-note",
       "name": "HubSpot Save Funnel",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1250, 0],
+      "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "HUBSPOT_KEY",
