@@ -110,7 +110,7 @@
             {
               "id": "merge-calendly",
               "name": "funnel_data",
-              "value": "={{ (() => { const data = $('Parser').first().json.funnel_data; try { const calendly = $json; if (calendly && calendly.collection && calendly.collection.length > 0) { const evt = calendly.collection[0]; data.booking_link = evt.scheduling_url || null; data.booking_link_type = evt.name || 'Discovery Call'; } else { data.booking_link = null; data.booking_link_type = null; } } catch(e) { data.booking_link = null; data.booking_link_type = null; } return data; })() }}",
+              "value": "={{ (() => { const data = $('Parser').first().json.funnel_data || {}; data.booking_link = 'https://calendly.com/leados2-hackathon-neobim/30min'; data.booking_link_type = '30 Minute Meeting'; return data; })() }}",
               "type": "string"
             }
           ]

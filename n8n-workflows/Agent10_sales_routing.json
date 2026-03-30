@@ -130,7 +130,7 @@
             {
               "id": "enrich-calendly",
               "name": "routing_data",
-              "value": "={{ (() => { const data = $('Extract JSON').first().json.routing_data; let bookingUrl = null; try { const calendly = $json; bookingUrl = (calendly && calendly.collection && calendly.collection.length > 0) ? calendly.collection[0].scheduling_url : null; } catch(e) {} if (data.routed_leads) { data.routed_leads = data.routed_leads.map(lead => { if (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') { lead.calendly_link = bookingUrl; } else { lead.calendly_link = null; } return lead; }); } return data; })() }}",
+              "value": "={{ (() => { const data = $('Extract JSON').first().json.routing_data || {}; const url = 'https://calendly.com/leados2-hackathon-neobim/30min'; if (data.routed_leads) { data.routed_leads = data.routed_leads.map(lead => { lead.calendly_link = (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') ? url : null; return lead; }); } return data; })() }}",
               "type": "string"
             }
           ]
