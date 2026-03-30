@@ -61,8 +61,16 @@
       "parameters": {
         "method": "GET",
         "url": "https://api.calendly.com/users/me",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "httpHeaderAuth",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzc0ODczMjg1LCJqdGkiOiJkZGRkZWFmNy0zZDNmLTQ3MGUtYTJhYi1hM2M3YTMxNjRiNzAiLCJ1c2VyX3V1aWQiOiJjZjYxMzVlNS1jMDM0LTQzNzItYWNjYy03NjdmNjYxMzYzZTciLCJzY29wZSI6ImF2YWlsYWJpbGl0eTpyZWFkIGF2YWlsYWJpbGl0eTp3cml0ZSBldmVudF90eXBlczpyZWFkIGV2ZW50X3R5cGVzOndyaXRlIGxvY2F0aW9uczpyZWFkIHJvdXRpbmdfZm9ybXM6cmVhZCBzaGFyZXM6d3JpdGUgc2NoZWR1bGVkX2V2ZW50czpyZWFkIHNjaGVkdWxlZF9ldmVudHM6d3JpdGUgc2NoZWR1bGluZ19saW5rczp3cml0ZSBncm91cHM6cmVhZCBvcmdhbml6YXRpb25zOnJlYWQgb3JnYW5pemF0aW9uczp3cml0ZSB1c2VyczpyZWFkIGFjdGl2aXR5X2xvZzpyZWFkIGRhdGFfY29tcGxpYW5jZTp3cml0ZSBvdXRnb2luZ19jb21tdW5pY2F0aW9uczpyZWFkIHdlYmhvb2tzOnJlYWQgd2ViaG9va3M6d3JpdGUifQ.F1IVikBxk4EbV4mTuhEcoXfYqlDk6RS3mVcU4-k7usbfiLh6z1g_5P5qLUoO-JNNNmEi-olvg2rtIEMpNTlq3g"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "calendly-user",
@@ -70,20 +78,22 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [750, 0],
-      "onError": "continueRegularOutput",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "yGQYy64XnLNHhU15",
-          "name": "Header Auth Calendly"
-        }
-      }
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "method": "GET",
         "url": "={{ 'https://api.calendly.com/event_types?user=' + ($json.resource?.uri || '') + '&active=true&count=1' }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "httpHeaderAuth",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzc0ODczMjg1LCJqdGkiOiJkZGRkZWFmNy0zZDNmLTQ3MGUtYTJhYi1hM2M3YTMxNjRiNzAiLCJ1c2VyX3V1aWQiOiJjZjYxMzVlNS1jMDM0LTQzNzItYWNjYy03NjdmNjYxMzYzZTciLCJzY29wZSI6ImF2YWlsYWJpbGl0eTpyZWFkIGF2YWlsYWJpbGl0eTp3cml0ZSBldmVudF90eXBlczpyZWFkIGV2ZW50X3R5cGVzOndyaXRlIGxvY2F0aW9uczpyZWFkIHJvdXRpbmdfZm9ybXM6cmVhZCBzaGFyZXM6d3JpdGUgc2NoZWR1bGVkX2V2ZW50czpyZWFkIHNjaGVkdWxlZF9ldmVudHM6d3JpdGUgc2NoZWR1bGluZ19saW5rczp3cml0ZSBncm91cHM6cmVhZCBvcmdhbml6YXRpb25zOnJlYWQgb3JnYW5pemF0aW9uczp3cml0ZSB1c2VyczpyZWFkIGFjdGl2aXR5X2xvZzpyZWFkIGRhdGFfY29tcGxpYW5jZTp3cml0ZSBvdXRnb2luZ19jb21tdW5pY2F0aW9uczpyZWFkIHdlYmhvb2tzOnJlYWQgd2ViaG9va3M6d3JpdGUifQ.F1IVikBxk4EbV4mTuhEcoXfYqlDk6RS3mVcU4-k7usbfiLh6z1g_5P5qLUoO-JNNNmEi-olvg2rtIEMpNTlq3g"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "calendly-events",
@@ -91,13 +101,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1000, 0],
-      "onError": "continueRegularOutput",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "yGQYy64XnLNHhU15",
-          "name": "Header Auth Calendly"
-        }
-      }
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
