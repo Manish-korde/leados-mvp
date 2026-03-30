@@ -79,6 +79,48 @@
     },
     {
       "parameters": {
+        "method": "GET",
+        "url": "https://api.calendly.com/event_types?active=true&count=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "continueOnFail": true
+        }
+      },
+      "id": "calendly-fetch",
+      "name": "Fetch Calendly Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CALENDLY_TOKEN",
+          "name": "Calendly API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "enrich-calendly",
+              "name": "routing_data",
+              "value": "={{ (() => { const data = $('Extract JSON').first().json.routing_data; const calendly = $json; const bookingUrl = (calendly.collection && calendly.collection.length > 0) ? calendly.collection[0].scheduling_url : null; if (data.routed_leads) { data.routed_leads = data.routed_leads.map(lead => { if (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') { lead.calendly_link = bookingUrl; } else { lead.calendly_link = null; } return lead; }); } return data; })() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "calendly-enrich",
+      "name": "Enrich with Calendly Links",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1250, 0]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/update",
         "authentication": "predefinedCredentialType",
@@ -94,7 +136,7 @@
       "name": "HubSpot Update Stages",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [1000, 0],
+      "position": [1500, 0],
       "credentials": {
         "httpHeaderAuth": {
           "id": "HUBSPOT_KEY",
@@ -109,7 +151,7 @@
             {
               "id": "merge-routing",
               "name": "routing_data",
-              "value": "={{ (() => { const data = $('Extract JSON').first().json.routing_data; data.crm_sync_status = ($json.results) ? 'success' : 'failed'; return data; })() }}",
+              "value": "={{ (() => { const data = $('Enrich with Calendly Links').first().json.routing_data; data.crm_sync_status = ($json.results) ? 'success' : 'failed'; return data; })() }}",
               "type": "string"
             }
           ]
@@ -120,7 +162,7 @@
       "name": "Merge CRM Status",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [1250, 0]
+      "position": [1750, 0]
     },
     {
       "parameters": {
@@ -132,14 +174,16 @@
       "name": "Respond",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1500, 0]
+      "position": [2000, 0]
     }
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
     "Prepare Prompt": { "main": [[{ "node": "Sales Routing Engine (Groq)", "type": "main", "index": 0 }]] },
     "Sales Routing Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
-    "Extract JSON": { "main": [[{ "node": "HubSpot Update Stages", "type": "main", "index": 0 }]] },
+    "Extract JSON": { "main": [[{ "node": "Fetch Calendly Link", "type": "main", "index": 0 }]] },
+    "Fetch Calendly Link": { "main": [[{ "node": "Enrich with Calendly Links", "type": "main", "index": 0 }]] },
+    "Enrich with Calendly Links": { "main": [[{ "node": "HubSpot Update Stages", "type": "main", "index": 0 }]] },
     "HubSpot Update Stages": { "main": [[{ "node": "Merge CRM Status", "type": "main", "index": 0 }]] },
     "Merge CRM Status": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },

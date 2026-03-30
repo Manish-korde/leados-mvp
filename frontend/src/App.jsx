@@ -243,6 +243,23 @@ function FunnelPanel({ funnel }) {
               ))}
             </div>
 
+            {/* Calendly Booking Link */}
+            {funnel.booking_link && (
+              <div className="mt-8 bg-purple-500/10 border border-purple-500/20 p-5 rounded-2xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-sm">📅</div>
+                  <div>
+                    <span className="text-[9px] font-black text-purple-400 uppercase tracking-widest">{funnel.booking_link_type || 'Discovery Call'}</span>
+                    <p className="text-[8px] text-slate-500 font-bold uppercase">via Calendly</p>
+                  </div>
+                </div>
+                <a href={funnel.booking_link} target="_blank" rel="noopener noreferrer"
+                   className="block w-full px-4 py-3 bg-purple-500/20 border border-purple-500/40 rounded-xl text-purple-400 text-[10px] font-black uppercase tracking-wider hover:bg-purple-500/30 transition-colors text-center">
+                  Book {funnel.booking_link_type || 'Discovery Call'}
+                </a>
+              </div>
+            )}
+
             <div className="mt-12 bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-2xl group hover:bg-emerald-500/20 transition-all cursor-pointer">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Next Phase</span>
@@ -2240,6 +2257,20 @@ export default function App() {
                               {lead.flags.map((flag, fi) => (
                                 <span key={fi} className="px-2 py-1 bg-amber-500/10 border border-amber-500/30 rounded text-[8px] font-black text-amber-400 uppercase">⚑ {flag}</span>
                               ))}
+                            </div>
+                          )}
+
+                          {/* Calendly Booking Link */}
+                          {lead.calendly_link && (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') && (
+                            <div className="mt-5 pt-4 border-t border-slate-800/50">
+                              <a href={lead.calendly_link} target="_blank" rel="noopener noreferrer"
+                                 className={`block w-full px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors text-center ${
+                                   lead.final_decision === 'CHECKOUT'
+                                     ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30'
+                                     : 'bg-sky-500/20 border border-sky-500/40 text-sky-400 hover:bg-sky-500/30'
+                                 }`}>
+                                📅 {lead.final_decision === 'CHECKOUT' ? 'Schedule Enterprise Discussion' : 'Schedule Sales Call'}
+                              </a>
                             </div>
                           )}
                         </div>

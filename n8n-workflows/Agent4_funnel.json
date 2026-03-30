@@ -59,13 +59,55 @@
     },
     {
       "parameters": {
+        "method": "GET",
+        "url": "https://api.calendly.com/event_types?active=true&count=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "continueOnFail": true
+        }
+      },
+      "id": "calendly-fetch",
+      "name": "Fetch Calendly Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [750, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CALENDLY_TOKEN",
+          "name": "Calendly API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "merge-calendly",
+              "name": "funnel_data",
+              "value": "={{ (() => { const data = $('Parser').first().json.funnel_data; const calendly = $json; if (calendly.collection && calendly.collection.length > 0) { const evt = calendly.collection[0]; data.booking_link = evt.scheduling_url || null; data.booking_link_type = evt.name || 'Discovery Call'; } else { data.booking_link = null; data.booking_link_type = null; } return data; })() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "merge-calendly-node",
+      "name": "Merge Calendly Link",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1000, 0]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://api.hubapi.com/crm/v3/objects/notes",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ (() => { const f = $json.funnel_data.funnel || $json.funnel_data; const body = 'LeadOS Funnel Design\\n\\nHook: ' + (f.hook || 'N/A') + '\\nHeadline: ' + (f.landing_page?.headline || 'N/A') + '\\nCTA: ' + (f.landing_page?.cta || 'N/A') + '\\nLead Magnet: ' + (f.lead_magnet || 'N/A') + '\\nChannels: ' + (f.acquisition_channels || []).join(', '); return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
+        "jsonBody": "={{ (() => { const f = $json.funnel_data.funnel || $json.funnel_data; const body = 'LeadOS Funnel Design\\n\\nHook: ' + (f.hook || 'N/A') + '\\nHeadline: ' + (f.landing_page?.headline || 'N/A') + '\\nCTA: ' + (f.landing_page?.cta || 'N/A') + '\\nLead Magnet: ' + (f.lead_magnet || 'N/A') + '\\nChannels: ' + (f.acquisition_channels || []).join(', ') + '\\nBooking: ' + ($json.funnel_data.booking_link || 'Not configured'); return { properties: { hs_note_body: body, hs_timestamp: new Date().toISOString() } }; })() }}",
         "options": {
           "continueOnFail": true
         }
@@ -74,7 +116,7 @@
       "name": "HubSpot Save Funnel",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [750, 0],
+      "position": [1250, 0],
       "credentials": {
         "httpHeaderAuth": {
           "id": "HUBSPOT_KEY",
@@ -85,20 +127,22 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ $('Parser').first().json.funnel_data }}",
+        "responseBody": "={{ $('Merge Calendly Link').first().json.funnel_data }}",
         "options": {}
       },
       "id": "webhook-response",
       "name": "Respond",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1000, 0]
+      "position": [1500, 0]
     }
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Funnel Engineer (Groq)", "type": "main", "index": 0 }]] },
     "Funnel Engineer (Groq)": { "main": [[{ "node": "Parser", "type": "main", "index": 0 }]] },
-    "Parser": { "main": [[{ "node": "HubSpot Save Funnel", "type": "main", "index": 0 }]] },
+    "Parser": { "main": [[{ "node": "Fetch Calendly Link", "type": "main", "index": 0 }]] },
+    "Fetch Calendly Link": { "main": [[{ "node": "Merge Calendly Link", "type": "main", "index": 0 }]] },
+    "Merge Calendly Link": { "main": [[{ "node": "HubSpot Save Funnel", "type": "main", "index": 0 }]] },
     "HubSpot Save Funnel": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,
