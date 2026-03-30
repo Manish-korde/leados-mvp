@@ -846,7 +846,10 @@ export default function App() {
       console.log("Funnel Agent Result:", result);
       
       if (result.error) throw new Error(result.error);
-      setFunnelData(result.funnel);
+      const funnel = result.funnel || result;
+      if (result.booking_link) funnel.booking_link = result.booking_link;
+      if (result.booking_link_type) funnel.booking_link_type = result.booking_link_type;
+      setFunnelData(funnel);
       
       // Scroll to funnel
       setTimeout(() => {
