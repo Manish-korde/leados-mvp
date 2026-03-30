@@ -96,8 +96,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "HUBSPOT_KEY",
-          "name": "HubSpot API Key"
+          "id": "SasebC8AoVJed4oj",
+          "name": "Header Auth hubspot"
         }
       }
     },
