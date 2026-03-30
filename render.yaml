@@ -1,0 +1,50 @@
+services:
+  # n8n Backend - Docker Web Service (FREE)
+  - type: web
+    name: leados-n8n
+    runtime: docker
+    dockerfilePath: ./Dockerfile.n8n
+    plan: free
+    region: oregon
+    healthCheckPath: /healthz
+    envVars:
+      - key: N8N_PORT
+        value: "5678"
+      - key: N8N_PROTOCOL
+        value: https
+      - key: WEBHOOK_URL
+        fromService:
+          name: leados-n8n
+          type: web
+          property: host
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true
+      - key: N8N_API_KEY
+        generateValue: true
+      - key: N8N_SECURE_COOKIE
+        value: "false"
+      - key: N8N_EDITOR_ENABLED
+        value: "true"
+      - key: GENERIC_TIMEZONE
+        value: Asia/Kolkata
+      - key: GROQ_API_KEY
+        sync: false
+      - key: HUBSPOT_API_KEY
+        sync: false
+      - key: CALENDLY_TOKEN
+        sync: false
+
+  # React Frontend - Static Site (FREE)
+  - type: web
+    name: leados-mvp
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    plan: free
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE
+        value: https://leados-n8n.onrender.com

@@ -5,9 +5,28 @@ ENV N8N_PORT=5678
 ENV N8N_PROTOCOL=https
 ENV GENERIC_TIMEZONE=Asia/Kolkata
 ENV N8N_SECURE_COOKIE=false
+ENV N8N_DIAGNOSTICS_ENABLED=false
+ENV N8N_PERSONALIZATION_ENABLED=false
+ENV N8N_TEMPLATES_ENABLED=false
+
+# Install curl for startup script API calls
+USER root
+RUN apk add --no-cache curl
+USER node
+
+# Copy workflow files into the image (survives restarts)
+COPY --chown=node:node n8n-workflows/ /home/node/workflows/
+
+# Copy startup script
+COPY --chown=node:node n8n-start.sh /home/node/n8n-start.sh
+
+# Make startup script executable
+USER root
+RUN chmod +x /home/node/n8n-start.sh
+USER node
 
 # Expose the n8n port
 EXPOSE 5678
 
-# Start n8n
-CMD ["n8n", "start"]
+# Use startup script (imports workflows + creates credentials + starts n8n)
+CMD ["/bin/sh", "/home/node/n8n-start.sh"]
