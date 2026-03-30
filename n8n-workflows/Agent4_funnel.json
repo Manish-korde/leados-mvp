@@ -44,7 +44,7 @@
             {
               "id": "parse-content",
               "name": "funnel_data",
-              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    return match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from AI' };\n  \n  try {\n    const cleaned = content.replace(/```json|```/g, '').trim();\n    const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n    const data = match ? JSON.parse(match[0]) : { error: 'Invalid JSON format' };\n    data.booking_link = 'https://calendly.com/leados2-hackathon-neobim/30min';\n    data.booking_link_type = '30 Minute Meeting';\n    return data;\n  } catch (e) {\n    return { error: 'Parsing error: ' + e.message };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
@@ -150,7 +150,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ $('Merge Calendly Link').first().json.funnel_data }}",
+        "responseBody": "={{ $('Parser').first().json.funnel_data }}",
         "options": {}
       },
       "id": "webhook-response",

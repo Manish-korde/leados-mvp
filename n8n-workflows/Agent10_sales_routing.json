@@ -64,7 +64,7 @@
             {
               "id": "extract-json",
               "name": "routing_data",
-              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from routing engine' };\n  try {\n    return JSON.parse(content);\n  } catch (e) {\n    return { error: 'Invalid JSON from routing engine', raw: content.substring(0, 200) };\n  }\n})()\n}}",
+              "value": "={{ \n(() => {\n  const content = $json.choices?.[0]?.message?.content;\n  if (!content) return { error: 'No response from routing engine' };\n  try {\n    const data = JSON.parse(content);\n    const url = 'https://calendly.com/leados2-hackathon-neobim/30min';\n    if (data.routed_leads) {\n      data.routed_leads = data.routed_leads.map(lead => {\n        lead.calendly_link = (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') ? url : null;\n        return lead;\n      });\n    }\n    return data;\n  } catch (e) {\n    return { error: 'Invalid JSON from routing engine', raw: content.substring(0, 200) };\n  }\n})()\n}}",
               "type": "string"
             }
           ]
