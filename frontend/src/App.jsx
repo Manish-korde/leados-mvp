@@ -34,9 +34,12 @@ const getSolutionTypeBadge = (type) => {
   return { label: "Service", cls: "bg-amber-500/10 text-amber-400 border-amber-500/30" };
 };
 
+// API base URL — empty string for local dev (uses Vite proxy), full URL for production
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 // Fire-and-forget webhook
 const fireWebhook = (path, body) =>
-  fetch(path, {
+  fetch(API_BASE + path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -54,7 +57,7 @@ async function callAgent2(opp, angle = null) {
     ...(angle ? { angle } : {}),
   };
 
-  const res = await fetch("/webhook/agent2-offer", {
+  const res = await fetch(API_BASE + "/webhook/agent2-offer", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -524,7 +527,7 @@ export default function App() {
     setIsGeneratingPerformance(true);
     setError(null);
     try {
-      const res = await fetch('/webhook/agent12-performance', {
+      const res = await fetch(API_BASE + '/webhook/agent12-performance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -548,7 +551,7 @@ export default function App() {
     setIsGeneratingHygiene(true);
     setError(null);
     try {
-      const res = await fetch('/webhook/agent13-crm-hygiene', {
+      const res = await fetch(API_BASE + '/webhook/agent13-crm-hygiene', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -596,7 +599,7 @@ export default function App() {
       },
     };
     try {
-      const res = await fetch('/webhook/agent11-tracking-attribution', {
+      const res = await fetch(API_BASE + '/webhook/agent11-tracking-attribution', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -643,7 +646,7 @@ export default function App() {
       behavioural_signals: {},
     };
     try {
-      const res = await fetch('/webhook/agent10-sales-routing', {
+      const res = await fetch(API_BASE + '/webhook/agent10-sales-routing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -696,7 +699,7 @@ export default function App() {
     };
 
     try {
-      const res = await fetch('/webhook/agent9-qualification', {
+      const res = await fetch(API_BASE + '/webhook/agent9-qualification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -744,7 +747,7 @@ export default function App() {
     };
 
     try {
-      const res = await fetch("/webhook/agent8-inbound-capture", {
+      const res = await fetch(API_BASE + "/webhook/agent8-inbound-capture", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -791,7 +794,7 @@ export default function App() {
     };
 
     try {
-      const res = await fetch("/webhook/agent7-outbound", {
+      const res = await fetch(API_BASE + "/webhook/agent7-outbound", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -836,7 +839,7 @@ export default function App() {
     };
 
     try {
-      const res = await fetch("/webhook/agent6-paid-traffic", {
+      const res = await fetch(API_BASE + "/webhook/agent6-paid-traffic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -882,7 +885,7 @@ export default function App() {
         }
       };
 
-      const res = await fetch("/webhook/agent4-funnel", {
+      const res = await fetch(API_BASE + "/webhook/agent4-funnel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -932,7 +935,7 @@ export default function App() {
     };
 
     try {
-      const response = await fetch("/webhook/agent5-narrative", {
+      const response = await fetch(API_BASE + "/webhook/agent5-narrative", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -972,7 +975,7 @@ export default function App() {
         })
       };
 
-      const res = await fetch("/webhook/agent3-selection", {
+      const res = await fetch(API_BASE + "/webhook/agent3-selection", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -1010,7 +1013,7 @@ export default function App() {
   };
 
   const callAgent2 = async (opp, instructions = "") => {
-    const res = await fetch("/webhook/agent2-offer", {
+    const res = await fetch(API_BASE + "/webhook/agent2-offer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1088,7 +1091,7 @@ export default function App() {
     setFeedbackStatus("idle");
 
     try {
-      const response = await fetch("/webhook/agent1", {
+      const response = await fetch(API_BASE + "/webhook/agent1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -1191,7 +1194,7 @@ export default function App() {
     };
 
     try {
-      await fetch("/webhook/refine-intelligence", {
+      await fetch(API_BASE + "/webhook/refine-intelligence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
