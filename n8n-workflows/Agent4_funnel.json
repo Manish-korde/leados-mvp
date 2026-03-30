@@ -60,16 +60,37 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://api.calendly.com/event_types?active=true&count=1",
+        "url": "https://api.calendly.com/users/me",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
         "options": {}
       },
-      "id": "calendly-fetch",
-      "name": "Fetch Calendly Link",
+      "id": "calendly-user",
+      "name": "Get Calendly User",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [750, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CALENDLY_TOKEN",
+          "name": "Calendly API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.calendly.com/event_types?user=' + ($json.resource?.uri || '') + '&active=true&count=1' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "calendly-events",
+      "name": "Fetch Calendly Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 0],
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
@@ -96,7 +117,7 @@
       "name": "Merge Calendly Link",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [1000, 0]
+      "position": [1250, 0]
     },
     {
       "parameters": {
@@ -113,7 +134,7 @@
       "name": "HubSpot Save Funnel",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [1250, 0],
+      "position": [1500, 0],
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
@@ -132,14 +153,15 @@
       "name": "Respond",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1500, 0]
+      "position": [1750, 0]
     }
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Funnel Engineer (Groq)", "type": "main", "index": 0 }]] },
     "Funnel Engineer (Groq)": { "main": [[{ "node": "Parser", "type": "main", "index": 0 }]] },
-    "Parser": { "main": [[{ "node": "Fetch Calendly Link", "type": "main", "index": 0 }]] },
-    "Fetch Calendly Link": { "main": [[{ "node": "Merge Calendly Link", "type": "main", "index": 0 }]] },
+    "Parser": { "main": [[{ "node": "Get Calendly User", "type": "main", "index": 0 }]] },
+    "Get Calendly User": { "main": [[{ "node": "Fetch Calendly Events", "type": "main", "index": 0 }]] },
+    "Fetch Calendly Events": { "main": [[{ "node": "Merge Calendly Link", "type": "main", "index": 0 }]] },
     "Merge Calendly Link": { "main": [[{ "node": "HubSpot Save Funnel", "type": "main", "index": 0 }]] },
     "HubSpot Save Funnel": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
