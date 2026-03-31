@@ -1216,9 +1216,53 @@ export default function App() {
   const selectedCount = opportunities.filter((o) => o.validationInfo?.isSelected).length;
   const rejectedCount = opportunities.filter((o) => o.validationInfo?.decision === "NO-GO").length;
 
+  // Scroll to top
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const scrollToAgent = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   return (
     <div className="min-h-screen bg-[#0a0e1a] text-slate-100 font-sans selection:bg-blue-500/30 overflow-x-hidden">
-      
+
+      {/* ── Floating Navigation Bar ── */}
+      {opportunities.length > 0 && (
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl px-2 py-1.5 flex items-center gap-1 shadow-2xl shadow-black/50">
+          {[
+            ['step-1','01','Market Intel'],
+            ['step-2','02','Offers'],
+            ['step-3','03','Validation'],
+            ['step-4','04','Funnel'],
+            ['step-5','05','Narrative'],
+            ['step-6','06','Traffic'],
+            ['step-7','07','Outbound'],
+            ['step-8','08','Inbound'],
+            ['step-9','09','Qualify'],
+            ['step-10','10','Routing'],
+            ['step-11','11','Attribution'],
+            ['step-12','12','Perf'],
+            ['step-13','13','Hygiene'],
+          ].map(([id, num, label]) => (
+            <button
+              key={id}
+              onClick={() => scrollToAgent(id)}
+              className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+              title={label}
+            >
+              <span className="w-5 h-5 rounded-md bg-slate-800 group-hover:bg-cyan-500/20 flex items-center justify-center text-[9px] font-black text-slate-500 group-hover:text-cyan-400 transition-all">{num}</span>
+              <span className="hidden xl:inline">{label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
+
+      {/* ── Back to Top Button ── */}
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 hover:scale-110 transition-all shadow-lg shadow-cyan-500/10 flex items-center justify-center backdrop-blur-sm"
+        title="Back to top"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+      </button>
+
       {/* Background Orbs */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/8 blur-[150px] rounded-full"></div>
@@ -1295,7 +1339,7 @@ export default function App() {
           <div className="space-y-4 animate-in fade-in duration-1000">
             
             {/* ── Step 1: Signals ── */}
-            <section id="step-1" className="bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
+            <section id="step-1" className="scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
               <StepHeader 
                 num="01" 
                 title="Market Intelligence" 
@@ -1328,7 +1372,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 2: Offers ── */}
-            <section id="step-2" className="bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
+            <section id="step-2" className="scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
               <StepHeader 
                 num="02" 
                 title="Opportunity Engineering" 
@@ -1346,7 +1390,7 @@ export default function App() {
             {!opportunities.some(o => o.isLoadingOffer) && (
               <>
                 <Connector />
-                <section id="step-3" className="bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <section id="step-3" className="scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
                    {/* Decorative Gradient */}
                    <div className="absolute top-0 right-0 w-[500px] h-full bg-emerald-500/[0.03] blur-[100px] pointer-events-none"></div>
 
@@ -1494,7 +1538,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 4: Funnel ── */}
-            <section id="step-4" className={`${funnelData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-4" className={`${funnelData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader 
                 num="04" 
                 title="GTM Blueprint" 
@@ -1516,7 +1560,7 @@ export default function App() {
              <Connector />
 
             {/* ── Step 5: Messaging Architecture ── */}
-            <section id="step-5" className={`${narrativeData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-5" className={`${narrativeData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader 
                 num="05" 
                 title="Narrative Builder" 
@@ -1603,7 +1647,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 6: Paid Traffic Layer ── */}
-            <section id="step-6" className={`${trafficData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-6" className={`${trafficData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="06"
                 title="Paid Traffic Layer"
@@ -1729,7 +1773,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 7: Outbound Outreach Simulation ── */}
-            <section id="step-7" className={`${outboundData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-7" className={`${outboundData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="07"
                 title="Outbound Simulation"
@@ -1868,7 +1912,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 8: Inbound Lead Capture ── */}
-            <section id="step-8" className={`${captureData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-8" className={`${captureData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="08"
                 title="Inbound Lead Capture"
@@ -1999,7 +2043,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 9: AI Qualification Simulator ── */}
-            <section id="step-9" className={`${qualificationData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-9" className={`${qualificationData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="09"
                 title="AI Qualification Simulator"
@@ -2153,7 +2197,7 @@ export default function App() {
             <Connector />
 
             {/* Step 10: Sales Routing Engine */}
-            <section id="step-10" className={`${routingData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-10" className={`${routingData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="10"
                 title="Sales Routing Engine"
@@ -2211,7 +2255,7 @@ export default function App() {
                     <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-5">
                       <div>
                         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Avg Intent Score</p>
-                        <p className="text-5xl font-black text-white">{routingData.pipeline_summary?.total_intent_score_avg || '–'}<span className="text-slate-500 text-xl">/100</span></p>
+                        <p className="text-5xl font-black text-white">{typeof routingData.pipeline_summary?.total_intent_score_avg === 'number' ? Math.round(routingData.pipeline_summary.total_intent_score_avg) : '–'}<span className="text-slate-500 text-xl">/100</span></p>
                         {(() => {
                           const avg = routingData.pipeline_summary?.total_intent_score_avg || 0;
                           const pct = Math.min(avg, 100);
@@ -2349,7 +2393,7 @@ export default function App() {
             <Connector />
 
             {/* Step 11: Tracking & Attribution Engine */}
-            <section id="step-11" className={`${attributionData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-11" className={`${attributionData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="11"
                 title="Tracking & Attribution Engine"
@@ -2617,7 +2661,7 @@ export default function App() {
             <Connector />
 
             {/* Step 12: Performance Optimisation */}
-            <section id="step-12" className={`${performanceData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-12" className={`${performanceData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader num="12" title="Performance Optimisation Engine" subtitle="Kill Losers · Scale Winners · Budget Reallocation · ROI Analysis" status={performanceData ? 'Complete' : (attributionData ? 'Awaiting Activation' : 'Dormant')} />
               {!performanceData ? (
                 <div className="py-20 flex flex-col items-center">
@@ -2676,7 +2720,7 @@ export default function App() {
             <Connector />
 
             {/* Step 13: CRM & Data Hygiene */}
-            <section id="step-13" className={`${hygieneData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-13" className={`${hygieneData ? 'opacity-100' : 'opacity-40'} scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader num="13" title="CRM & Data Hygiene" subtitle="Deduplication · Email Validation · Pipeline Audit · Data Quality Score" status={hygieneData ? 'Complete' : (performanceData ? 'Awaiting Activation' : 'Dormant')} />
               {!hygieneData ? (
                 <div className="py-20 flex flex-col items-center">
