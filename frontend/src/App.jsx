@@ -118,7 +118,7 @@ function OfferPanel({ offerData, isWinner }) {
 
       <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-800/50">
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Target ICP</p>
-        <p className="text-sm text-slate-200 font-bold leading-snug">{
+        <p className="text-sm text-slate-100 font-bold leading-snug">{
           typeof (offerData.ICP || offerData.icp) === 'object'
             ? Object.entries(offerData.ICP || offerData.icp).map(([k, v]) => `${k}: ${v}`).join(' · ')
             : (offerData.ICP || offerData.icp)
@@ -132,7 +132,7 @@ function OfferPanel({ offerData, isWinner }) {
         </div>
         <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/50">
           <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Guarantee</p>
-          <p className="text-sm text-slate-200 font-bold leading-tight">{offerData.guarantee}</p>
+          <p className="text-sm text-slate-100 font-bold leading-tight">{offerData.guarantee}</p>
         </div>
       </div>
 
@@ -471,7 +471,8 @@ function OpportunityCard({ opp, index, onRetry }) {
 function Connector() {
   return (
     <div className="flex flex-col items-center py-6">
-      <div className="w-px h-16 bg-gradient-to-b from-blue-500 to-transparent"></div>
+      <div className="w-px h-16 bg-gradient-to-b from-cyan-500 via-blue-500 to-transparent"></div>
+      <div className="w-2 h-2 rounded-full bg-cyan-500/50 mt-1"></div>
     </div>
   );
 }
@@ -480,17 +481,17 @@ function StepHeader({ num, title, subtitle, status }) {
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center gap-5">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center font-black text-xl text-white shadow-xl shadow-blue-500/20 ring-4 ring-slate-950">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-black text-xl text-white shadow-xl shadow-cyan-500/25 ring-4 ring-[#0a0e1a]">
           {num}
         </div>
         <div>
           <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase">{title}</h2>
-          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{subtitle}</p>
+          <p className="text-[11px] font-bold text-cyan-400/60 uppercase tracking-widest mt-1">{subtitle}</p>
         </div>
       </div>
       {status && (
         <div className={`px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest ${
-          status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-900 text-slate-500 border-slate-800'
+          status === 'Active' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40' : 'bg-slate-900 text-slate-400 border-slate-700'
         }`}>
           {status}
         </div>
@@ -1216,12 +1217,13 @@ export default function App() {
   const rejectedCount = opportunities.filter((o) => o.validationInfo?.decision === "NO-GO").length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0e1a] text-slate-100 font-sans selection:bg-blue-500/30 overflow-x-hidden">
       
       {/* Background Orbs */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-sky-600/4 blur-[100px] rounded-full"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/8 blur-[150px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-600/6 blur-[130px] rounded-full"></div>
+        <div className="absolute top-[40%] left-[30%] w-[400px] h-[400px] bg-emerald-600/4 blur-[120px] rounded-full"></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
@@ -1229,8 +1231,8 @@ export default function App() {
         {/* ── Hero Section ── */}
         <header className="text-center mb-24">
           <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 bg-slate-900/50 border border-slate-800 rounded-2xl">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-sky-400 rounded-xl flex items-center justify-center font-black text-lg text-white shadow-lg shadow-blue-500/20">L</div>
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">LeadOS v2.0 · Decision Layer</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center font-black text-lg text-white shadow-lg shadow-blue-500/30">L</div>
+            <span className="text-[11px] font-black text-slate-300 uppercase tracking-[0.3em]">LeadOS v2.0 · Decision Layer</span>
           </div>
           
           <div className="flex justify-center gap-4 mb-4">
@@ -1247,10 +1249,10 @@ export default function App() {
           
           <h1 className="text-6xl md:text-7xl font-black text-white tracking-tighter mb-6 italic leading-[0.9]">
             From Market Signals to<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Scalable Revenue Systems</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400">Scalable Revenue Systems</span>
           </h1>
-          
-          <p className="text-lg text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
+
+          <p className="text-lg text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
             LeadOS discovers opportunities, generates offers, validates them, and builds go-to-market funnels — with autonomous execution automation in progress.
           </p>
 
@@ -1262,7 +1264,7 @@ export default function App() {
               className={`h-16 px-12 rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-4 ${
                 isLoading
                   ? "bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed"
-                  : "bg-white text-slate-950 hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
+                  : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_rgba(6,182,212,0.3)] hover:shadow-[0_0_60px_rgba(6,182,212,0.4)]"
               }`}
             >
               {isLoading ? (
@@ -1293,7 +1295,7 @@ export default function App() {
           <div className="space-y-4 animate-in fade-in duration-1000">
             
             {/* ── Step 1: Signals ── */}
-            <section id="step-1" className="bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm">
+            <section id="step-1" className="bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
               <StepHeader 
                 num="01" 
                 title="Market Intelligence" 
@@ -1301,7 +1303,7 @@ export default function App() {
                 status="Active"
               />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 bg-slate-950/50 rounded-3xl border border-slate-800/50 p-8">
+                <div className="md:col-span-2 bg-slate-900/60 rounded-3xl border border-slate-700/40 p-8">
                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Signal Cluster Analysis</p>
                   <div className="flex items-end gap-2 mb-6">
                     <span className="text-5xl font-black text-white">{opportunities.length}</span>
@@ -1326,7 +1328,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 2: Offers ── */}
-            <section id="step-2" className="bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm">
+            <section id="step-2" className="bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
               <StepHeader 
                 num="02" 
                 title="Opportunity Engineering" 
@@ -1344,7 +1346,7 @@ export default function App() {
             {!opportunities.some(o => o.isLoadingOffer) && (
               <>
                 <Connector />
-                <section id="step-3" className="bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <section id="step-3" className="bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
                    {/* Decorative Gradient */}
                    <div className="absolute top-0 right-0 w-[500px] h-full bg-emerald-500/[0.03] blur-[100px] pointer-events-none"></div>
 
@@ -1356,7 +1358,7 @@ export default function App() {
                    />
 
                    {!opportunities.some(o => o.validationInfo) ? (
-                     <div className="flex flex-col items-center py-12 text-center bg-slate-950/50 rounded-3xl border border-slate-800/50 border-dashed">
+                     <div className="flex flex-col items-center py-12 text-center bg-slate-900/60 rounded-3xl border border-slate-700/40 border-dashed">
                        <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-3xl mb-6">⚖️</div>
                        <h3 className="text-2xl font-black text-white italic mb-2">Gate Awaiting Batch Approval</h3>
                        <p className="text-slate-500 text-sm max-w-md mx-auto mb-10 leading-relaxed font-medium capitalize">
@@ -1492,7 +1494,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 4: Funnel ── */}
-            <section id="step-4" className={`${funnelData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-4" className={`${funnelData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader 
                 num="04" 
                 title="GTM Blueprint" 
@@ -1514,7 +1516,7 @@ export default function App() {
              <Connector />
 
             {/* ── Step 5: Messaging Architecture ── */}
-            <section id="step-5" className={`${narrativeData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-5" className={`${narrativeData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader 
                 num="05" 
                 title="Narrative Builder" 
@@ -1601,7 +1603,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 6: Paid Traffic Layer ── */}
-            <section id="step-6" className={`${trafficData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-6" className={`${trafficData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="06"
                 title="Paid Traffic Layer"
@@ -1727,7 +1729,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 7: Outbound Outreach Simulation ── */}
-            <section id="step-7" className={`${outboundData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-7" className={`${outboundData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="07"
                 title="Outbound Simulation"
@@ -1866,7 +1868,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 8: Inbound Lead Capture ── */}
-            <section id="step-8" className={`${captureData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-8" className={`${captureData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="08"
                 title="Inbound Lead Capture"
@@ -1997,7 +1999,7 @@ export default function App() {
             <Connector />
 
             {/* ── Step 9: AI Qualification Simulator ── */}
-            <section id="step-9" className={`${qualificationData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-9" className={`${qualificationData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="09"
                 title="AI Qualification Simulator"
@@ -2115,7 +2117,7 @@ export default function App() {
                           </div>
 
                           {/* Call Script */}
-                          <div className="bg-slate-950/80 border border-slate-800/50 rounded-2xl p-5 mb-4">
+                          <div className="bg-slate-900/70 border border-slate-700/40 rounded-2xl p-5 mb-4">
                             <p className="text-[11px] font-black text-amber-400 uppercase tracking-widest mb-2">📞 Simulated Call Script</p>
                             <p className="text-[12px] text-slate-300 font-bold leading-relaxed italic">"{lead.call_script}"</p>
                           </div>
@@ -2151,7 +2153,7 @@ export default function App() {
             <Connector />
 
             {/* Step 10: Sales Routing Engine */}
-            <section id="step-10" className={`${routingData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-10" className={`${routingData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="10"
                 title="Sales Routing Engine"
@@ -2347,7 +2349,7 @@ export default function App() {
             <Connector />
 
             {/* Step 11: Tracking & Attribution Engine */}
-            <section id="step-11" className={`${attributionData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-11" className={`${attributionData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader
                 num="11"
                 title="Tracking & Attribution Engine"
@@ -2615,7 +2617,7 @@ export default function App() {
             <Connector />
 
             {/* Step 12: Performance Optimisation */}
-            <section id="step-12" className={`${performanceData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-12" className={`${performanceData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader num="12" title="Performance Optimisation Engine" subtitle="Kill Losers · Scale Winners · Budget Reallocation · ROI Analysis" status={performanceData ? 'Complete' : (attributionData ? 'Awaiting Activation' : 'Dormant')} />
               {!performanceData ? (
                 <div className="py-20 flex flex-col items-center">
@@ -2674,7 +2676,7 @@ export default function App() {
             <Connector />
 
             {/* Step 13: CRM & Data Hygiene */}
-            <section id="step-13" className={`${hygieneData ? 'opacity-100' : 'opacity-40'} bg-slate-900/30 border border-slate-800/50 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
+            <section id="step-13" className={`${hygieneData ? 'opacity-100' : 'opacity-40'} bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm transition-opacity duration-1000`}>
               <StepHeader num="13" title="CRM & Data Hygiene" subtitle="Deduplication · Email Validation · Pipeline Audit · Data Quality Score" status={hygieneData ? 'Complete' : (performanceData ? 'Awaiting Activation' : 'Dormant')} />
               {!hygieneData ? (
                 <div className="py-20 flex flex-col items-center">
@@ -2780,7 +2782,7 @@ export default function App() {
                 </div>
               </div>
               <div className="text-center mt-12 mb-8">
-                <p className="text-[11px] font-black text-slate-800 uppercase tracking-[0.5em]">LeadOS · Autonomous Revenue Pipeline · 2026</p>
+                <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.5em]">LeadOS · Autonomous Revenue Pipeline · 2026</p>
               </div>
             </footer>
           </div>
