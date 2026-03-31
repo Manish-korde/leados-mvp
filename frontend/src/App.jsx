@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 const getIntensityColor = (v) => {
@@ -467,6 +467,143 @@ function OpportunityCard({ opp, index, onRetry }) {
   );
 }
 
+// ─── Ad Mockup Component ──────────────────────────────────────────────────────
+const CHANNEL_THEMES = {
+  linkedin: {
+    bg: 'from-[#0A66C2] to-[#004182]',
+    border: 'border-[#0A66C2]/40',
+    accent: 'bg-[#70B5F9]',
+    accentText: 'text-[#004182]',
+    icon: '💼',
+    ctaText: 'Learn More',
+    label: 'Sponsored',
+    platform: 'LinkedIn',
+  },
+  google: {
+    bg: 'from-white to-slate-50',
+    border: 'border-emerald-500/30',
+    accent: 'bg-[#1a73e8]',
+    accentText: 'text-white',
+    icon: '🔍',
+    ctaText: 'Visit Site',
+    label: 'Ad',
+    platform: 'Google Search',
+    darkText: true,
+  },
+  meta: {
+    bg: 'from-[#1877F2] to-[#0d5bbf]',
+    border: 'border-[#1877F2]/40',
+    accent: 'bg-white',
+    accentText: 'text-[#1877F2]',
+    icon: '📘',
+    ctaText: 'Sign Up',
+    label: 'Sponsored',
+    platform: 'Meta',
+  },
+  default: {
+    bg: 'from-violet-700 to-purple-900',
+    border: 'border-violet-500/40',
+    accent: 'bg-violet-400',
+    accentText: 'text-violet-900',
+    icon: '📣',
+    ctaText: 'Get Started',
+    label: 'Promoted',
+    platform: 'Display',
+  },
+};
+
+function AdMockup({ channel, offerData, narrativeData }) {
+  if (!offerData && !narrativeData) return null;
+
+  const channelKey = (channel?.name || '').toLowerCase();
+  const theme = channelKey.includes('linkedin') ? CHANNEL_THEMES.linkedin
+    : channelKey.includes('google') ? CHANNEL_THEMES.google
+    : (channelKey.includes('meta') || channelKey.includes('facebook')) ? CHANNEL_THEMES.meta
+    : CHANNEL_THEMES.default;
+
+  const truncate = (str, len) => {
+    if (!str) return '';
+    const s = typeof str === 'object' ? JSON.stringify(str) : String(str);
+    return s.length > len ? s.slice(0, len) + '...' : s;
+  };
+
+  const headline = truncate(
+    narrativeData?.core_message || narrativeData?.positioning || offerData?.offer || 'Transform Your Business Today',
+    65
+  );
+  const subheadline = truncate(
+    narrativeData?.angles?.[0]?.message || narrativeData?.angles?.[0]?.angle || offerData?.promise || '',
+    90
+  );
+  const pricing = offerData?.pricing || '';
+
+  // Google Search Ad format
+  if (channelKey.includes('google')) {
+    return (
+      <div className="mt-5">
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Ad Preview</p>
+        <div className="rounded-2xl overflow-hidden border border-slate-700/50 bg-white p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-300">Ad</span>
+            <span className="text-[10px] text-emerald-700">yourbrand.com</span>
+          </div>
+          <p className="text-[15px] font-bold text-[#1a0dab] leading-tight hover:underline cursor-pointer">{headline}</p>
+          <p className="text-[11px] text-slate-600 leading-relaxed">{subheadline}</p>
+          {pricing && <p className="text-[10px] font-bold text-slate-500">{pricing}</p>}
+          <div className="flex items-center gap-3 pt-1">
+            <span className="text-[9px] text-slate-400">Est. CPC: ${channel.cpc}</span>
+            <span className="text-[9px] text-slate-400">CTR: {channel.ctr}%</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Display/Social ad format (LinkedIn, Meta, default)
+  return (
+    <div className="mt-5">
+      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Ad Preview</p>
+      <div className={`rounded-2xl overflow-hidden border ${theme.border}`}>
+        {/* Ad header */}
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-950/80">
+          <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs">{theme.icon}</div>
+          <div className="flex-1">
+            <p className="text-[10px] font-bold text-slate-200">Your Brand</p>
+            <p className="text-[9px] text-slate-500">{theme.label} · {theme.platform}</p>
+          </div>
+          <span className="text-[8px] font-black text-slate-600 uppercase">...</span>
+        </div>
+        {/* Ad body */}
+        <div className={`bg-gradient-to-br ${theme.bg} px-5 py-6 space-y-3`}>
+          <p className={`text-[15px] font-black leading-tight ${theme.darkText ? 'text-slate-900' : 'text-white'}`}>
+            {headline}
+          </p>
+          {subheadline && (
+            <p className={`text-[11px] leading-relaxed ${theme.darkText ? 'text-slate-600' : 'text-white/70'}`}>
+              {subheadline}
+            </p>
+          )}
+          {pricing && (
+            <p className={`text-[11px] font-black ${theme.darkText ? 'text-emerald-700' : 'text-emerald-300'}`}>
+              {pricing}
+            </p>
+          )}
+          <div className="pt-1">
+            <span className={`inline-block px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider ${theme.accent} ${theme.accentText} shadow-lg`}>
+              {theme.ctaText}
+            </span>
+          </div>
+        </div>
+        {/* Ad footer */}
+        <div className="bg-slate-950/80 px-4 py-2 flex items-center justify-between">
+          <span className="text-[9px] text-slate-500">Est. CPC: ${channel.cpc}</span>
+          <span className="text-[9px] text-slate-500">CTR: {channel.ctr}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── App ───────────────────────────────────────────────────────────────────────
 function Connector() {
   return (
@@ -527,6 +664,34 @@ export default function App() {
   const [isGeneratingPerformance, setIsGeneratingPerformance] = useState(false);
   const [hygieneData, setHygieneData] = useState(null);
   const [isGeneratingHygiene, setIsGeneratingHygiene] = useState(false);
+  const [activeStep, setActiveStep] = useState(null);
+
+  // Track which agent section is currently visible
+  useEffect(() => {
+    const sections = document.querySelectorAll('section[id^="step-"]');
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the topmost visible section
+        let topEntry = null;
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (!topEntry || entry.boundingClientRect.top < topEntry.boundingClientRect.top) {
+              topEntry = entry;
+            }
+          }
+        });
+        if (topEntry) {
+          setActiveStep(topEntry.target.id);
+        }
+      },
+      { threshold: 0.15, rootMargin: '-80px 0px -50% 0px' }
+    );
+
+    sections.forEach(s => observer.observe(s));
+    return () => observer.disconnect();
+  }, [opportunities.length]);
 
   const runPerformanceAgent = async () => {
     setIsGeneratingPerformance(true);
@@ -1240,17 +1405,28 @@ export default function App() {
             ['step-11','11','Attribution'],
             ['step-12','12','Perf'],
             ['step-13','13','Hygiene'],
-          ].map(([id, num, label]) => (
-            <button
-              key={id}
-              onClick={() => scrollToAgent(id)}
-              className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
-              title={label}
-            >
-              <span className="w-5 h-5 rounded-md bg-slate-800 group-hover:bg-cyan-500/20 flex items-center justify-center text-[9px] font-black text-slate-500 group-hover:text-cyan-400 transition-all">{num}</span>
-              <span className="hidden xl:inline">{label}</span>
-            </button>
-          ))}
+          ].map(([id, num, label]) => {
+            const isActive = id === activeStep;
+            return (
+              <button
+                key={id}
+                onClick={() => scrollToAgent(id)}
+                className={`group flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all ${
+                  isActive
+                    ? 'text-cyan-300 bg-cyan-500/20 shadow-lg shadow-cyan-500/20'
+                    : 'text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10'
+                }`}
+                title={label}
+              >
+                <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black transition-all ${
+                  isActive
+                    ? 'bg-cyan-500/30 text-cyan-200 ring-1 ring-cyan-400/50'
+                    : 'bg-slate-800 text-slate-500 group-hover:bg-cyan-500/20 group-hover:text-cyan-400'
+                }`}>{num}</span>
+                <span className="hidden xl:inline">{label}</span>
+              </button>
+            );
+          })}
         </nav>
       )}
 
@@ -1759,6 +1935,13 @@ export default function App() {
                                   <p className="text-[11px] font-black text-emerald-500 uppercase">Expected Leads / Day</p>
                                   <p className="text-xl font-black text-white">{ch.expected_leads}</p>
                                 </div>
+
+                                {/* Simulated Ad Preview */}
+                                <AdMockup
+                                  channel={ch}
+                                  offerData={opportunities.find(o => o.validationInfo?.isSelected)?.offerData}
+                                  narrativeData={narrativeData}
+                                />
                               </div>
                             ))}
                           </div>
