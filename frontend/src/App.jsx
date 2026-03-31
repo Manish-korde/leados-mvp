@@ -118,7 +118,11 @@ function OfferPanel({ offerData, isWinner }) {
 
       <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-800/50">
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Target ICP</p>
-        <p className="text-sm text-slate-200 font-bold leading-snug">{offerData.ICP || offerData.icp}</p>
+        <p className="text-sm text-slate-200 font-bold leading-snug">{
+          typeof (offerData.ICP || offerData.icp) === 'object'
+            ? Object.entries(offerData.ICP || offerData.icp).map(([k, v]) => `${k}: ${v}`).join(' · ')
+            : (offerData.ICP || offerData.icp)
+        }</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
