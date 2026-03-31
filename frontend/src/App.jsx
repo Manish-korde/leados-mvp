@@ -91,11 +91,11 @@ function OfferPanel({ offerData, isWinner }) {
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/40"></div>
-          <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Engineered Offer</h4>
+          <h4 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.2em]">Engineered Offer</h4>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-black text-slate-500 uppercase">Quality Score:</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase">Quality Score:</span>
             <span className={`text-xs font-black ${getScoreColor(score)}`}>{score}/7</span>
           </div>
         </div>
@@ -104,36 +104,36 @@ function OfferPanel({ offerData, isWinner }) {
       {isForced && (
         <div className="bg-rose-500/10 border border-rose-500/30 px-4 py-3 rounded-xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></div>
-          <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Low Confidence Output (Agent 2)</span>
+          <span className="text-[11px] font-black text-rose-400 uppercase tracking-widest">Low Confidence Output (Agent 2)</span>
         </div>
       )}
 
       {/* Main Core Offer Section */}
       <div className={`${isWinner ? 'bg-emerald-500/15 border-emerald-500/30 ring-1 ring-emerald-500/20' : 'bg-slate-950/80 border-slate-800/80'} p-5 rounded-2xl border shadow-2xl`}>
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Core Solution Mechanism</p>
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Core Solution Mechanism</p>
         <p className="text-xl font-black text-white leading-tight tracking-tight">
           {offerData.offer}
         </p>
       </div>
 
       <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-800/50">
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Target ICP</p>
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Target ICP</p>
         <p className="text-sm text-slate-200 font-bold leading-snug">{offerData.ICP || offerData.icp}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/50">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Pricing Model</p>
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Pricing Model</p>
           <p className="text-sm font-black text-emerald-400 tracking-tight">{offerData.pricing}</p>
         </div>
         <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/50">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Guarantee</p>
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Guarantee</p>
           <p className="text-sm text-slate-200 font-bold leading-tight">{offerData.guarantee}</p>
         </div>
       </div>
 
       <div className="bg-sky-500/10 p-5 rounded-2xl border border-sky-500/20 shadow-lg shadow-sky-500/5">
-        <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-3">The Central Promise</p>
+        <p className="text-[11px] font-black text-sky-500 uppercase tracking-widest mb-3">The Central Promise</p>
         <p className="text-lg text-sky-100 font-black italic leading-tight">
           "{offerData.promise}"
         </p>
@@ -150,7 +150,7 @@ function FunnelPanel({ funnel }) {
     <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
       <div className="border-l-4 border-amber-500 pl-6 py-1">
         <h2 className="text-3xl font-black text-white tracking-tighter italic">Acquisition Funnel</h2>
-        <p className="text-slate-600 text-[9px] font-black mt-1 uppercase tracking-widest">Translation: Opportunity → Execution System</p>
+        <p className="text-slate-500 text-[11px] font-black mt-1 uppercase tracking-widest">Translation: Opportunity → Execution System</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -162,7 +162,7 @@ function FunnelPanel({ funnel }) {
                <div className="flex items-center gap-3 mb-6">
                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shadow-inner">🪝</div>
                  <div>
-                   <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-widest leading-none">The Hook</h4>
+                   <h4 className="text-[11px] font-black text-amber-500 uppercase tracking-widest leading-none">The Hook</h4>
                    <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Pattern Interrupt Angle</p>
                  </div>
                </div>
@@ -174,22 +174,22 @@ function FunnelPanel({ funnel }) {
             <div className="flex items-center gap-3 mb-8">
               <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-xl shadow-inner">📄</div>
               <div>
-                <h4 className="text-[10px] font-black text-blue-500 uppercase tracking-widest leading-none">Landing Page Copy</h4>
+                <h4 className="text-[11px] font-black text-blue-500 uppercase tracking-widest leading-none">Landing Page Copy</h4>
                 <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Conversion Optimized</p>
               </div>
             </div>
             
             <div className="space-y-6 pl-4 border-l-2 border-slate-800">
               <div>
-                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Headline</p>
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Headline</p>
                 <p className="text-xl font-black text-white leading-tight">{typeof funnel.landing_page?.headline === 'object' ? JSON.stringify(funnel.landing_page.headline) : (funnel.landing_page?.headline || '')}</p>
               </div>
               <div>
-                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2">Subheadline</p>
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Subheadline</p>
                 <p className="text-sm text-slate-400 font-bold leading-relaxed">{typeof funnel.landing_page?.subheadline === 'object' ? JSON.stringify(funnel.landing_page.subheadline) : (funnel.landing_page?.subheadline || '')}</p>
               </div>
               <div className="pt-2">
-                <button className="bg-white text-slate-950 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-white/5 active:scale-95 transition-all">
+                <button className="bg-white text-slate-950 px-8 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-white/5 active:scale-95 transition-all">
                   {typeof funnel.landing_page?.cta === 'object' ? (funnel.landing_page.cta?.text || funnel.landing_page.cta?.label || 'Get Started') : (funnel.landing_page?.cta || 'Get Started')}
                 </button>
               </div>
@@ -198,17 +198,17 @@ function FunnelPanel({ funnel }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 px-1">Lead Magnet</h4>
+              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 px-1">Lead Magnet</h4>
               <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 flex items-center gap-4 group hover:border-amber-500/30 transition-colors">
                 <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">🎁</div>
                 <p className="text-xs font-black text-slate-200 leading-snug">{typeof funnel.lead_magnet === 'object' ? (funnel.lead_magnet?.title || funnel.lead_magnet?.name || JSON.stringify(funnel.lead_magnet)) : (funnel.lead_magnet || '')}</p>
               </div>
             </div>
             <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 px-1">Acquisition Channels</h4>
+              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 px-1">Acquisition Channels</h4>
               <div className="flex flex-wrap gap-2">
                 {funnel.acquisition_channels.map((chan, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[10px] font-black text-blue-400 uppercase tracking-wider">{typeof chan === 'object' ? (chan?.name || chan?.channel || JSON.stringify(chan)) : String(chan)}</span>
+                  <span key={i} className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-[11px] font-black text-blue-400 uppercase tracking-wider">{typeof chan === 'object' ? (chan?.name || chan?.channel || JSON.stringify(chan)) : String(chan)}</span>
                 ))}
               </div>
             </div>
@@ -221,7 +221,7 @@ function FunnelPanel({ funnel }) {
             <div className="flex items-center gap-3 mb-8">
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl shadow-inner">⚡</div>
               <div>
-                <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">First 7-Day Launch</h4>
+                <h4 className="text-[11px] font-black text-emerald-500 uppercase tracking-widest leading-none">First 7-Day Launch</h4>
                 <p className="text-xs text-slate-500 font-bold mt-1 uppercase">Immediate Execution</p>
               </div>
             </div>
@@ -229,7 +229,7 @@ function FunnelPanel({ funnel }) {
             <div className="space-y-6 relative border-l border-slate-800/80 ml-5 pr-2">
               {funnel.first_7_day_execution.map((step, i) => (
                 <div key={i} className="relative pl-10">
-                  <div className="absolute left-[-17px] top-0 w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[10px] font-black text-white group hover:border-emerald-500/50 transition-colors">
+                  <div className="absolute left-[-17px] top-0 w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[11px] font-black text-white group hover:border-emerald-500/50 transition-colors">
                     {i + 1}
                   </div>
                    <div className="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3">
@@ -252,12 +252,12 @@ function FunnelPanel({ funnel }) {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-sm">📅</div>
                   <div>
-                    <span className="text-[9px] font-black text-purple-400 uppercase tracking-widest">{funnel.booking_link_type || 'Discovery Call'}</span>
+                    <span className="text-[11px] font-black text-purple-400 uppercase tracking-widest">{funnel.booking_link_type || 'Discovery Call'}</span>
                     <p className="text-[8px] text-slate-500 font-bold uppercase">via Calendly</p>
                   </div>
                 </div>
                 <a href={funnel.booking_link} target="_blank" rel="noopener noreferrer"
-                   className="block w-full px-4 py-3 bg-purple-500/20 border border-purple-500/40 rounded-xl text-purple-400 text-[10px] font-black uppercase tracking-wider hover:bg-purple-500/30 transition-colors text-center">
+                   className="block w-full px-4 py-3 bg-purple-500/20 border border-purple-500/40 rounded-xl text-purple-400 text-[11px] font-black uppercase tracking-wider hover:bg-purple-500/30 transition-colors text-center">
                   Book {funnel.booking_link_type || 'Discovery Call'}
                 </a>
               </div>
@@ -265,7 +265,7 @@ function FunnelPanel({ funnel }) {
 
             <div className="mt-12 bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-2xl group hover:bg-emerald-500/20 transition-all cursor-pointer">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Next Phase</span>
+                <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">Next Phase</span>
                 <span className="text-xs">→</span>
               </div>
               <p className="text-[11px] font-black text-white uppercase tracking-tight">Lock Implementation Plan</p>
@@ -319,7 +319,7 @@ function OpportunityCard({ opp, index, onRetry }) {
 
       {/* Status Banner */}
       <div className="flex items-center justify-between gap-2 mb-6">
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-black text-[9px] uppercase tracking-widest ${
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-black text-[11px] uppercase tracking-widest ${
           isSelected ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" :
           isValidated && !isNoGo ? "bg-slate-800/40 text-slate-400 border-slate-700" :
           isNoGo ? "bg-rose-500/20 text-rose-400 border-rose-500/30" :
@@ -336,7 +336,7 @@ function OpportunityCard({ opp, index, onRetry }) {
         
         {isRevising && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg animate-pulse">
-            <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Regenerating...</span>
+            <span className="text-[11px] font-black text-amber-400 uppercase tracking-widest">Regenerating...</span>
           </div>
         )}
       </div>
@@ -353,7 +353,7 @@ function OpportunityCard({ opp, index, onRetry }) {
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">For</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">For</span>
             <span className="text-xs text-slate-400 font-semibold">{opp.audience}</span>
           </div>
         </div>
@@ -377,7 +377,7 @@ function OpportunityCard({ opp, index, onRetry }) {
         <section>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50"></div>
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Problem Input (Signal)</h4>
+            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Problem Input (Signal)</h4>
           </div>
           <p className="text-base text-slate-200 leading-relaxed italic border-l-2 border-slate-800/80 pl-4 py-1">
             "{opp.problem}"
@@ -386,7 +386,7 @@ function OpportunityCard({ opp, index, onRetry }) {
 
         {opp.evidence?.length > 0 && (
           <section className="bg-slate-950/40 p-4 rounded-xl border border-slate-800/40">
-            <h4 className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-3">Contextual Evidence</h4>
+            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Contextual Evidence</h4>
             {opp.evidence.slice(0, 2).map((ev, i) => (
               <div key={i} className="flex gap-3 items-start mb-2 last:mb-0">
                 <div className="w-1 h-1 rounded-full bg-slate-700 mt-2 shrink-0"></div>
@@ -398,18 +398,18 @@ function OpportunityCard({ opp, index, onRetry }) {
 
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800/30">
           <div>
-            <h4 className="text-[9px] font-black text-slate-700 uppercase tracking-widest mb-1.5 font-bold">Market Frequency</h4>
+            <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-1.5 font-bold">Market Frequency</h4>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-tight">{opp.frequency}</p>
           </div>
           <div>
-            <h4 className="text-[9px] font-black text-slate-700 uppercase tracking-widest mb-1.5 font-bold">Existing Friction</h4>
+            <h4 className="text-[11px] font-black text-slate-700 uppercase tracking-widest mb-1.5 font-bold">Existing Friction</h4>
             <p className="text-xs text-slate-400 font-bold uppercase tracking-tight">{opp.existing_solutions}</p>
           </div>
         </div>
 
         <div className="pt-2">
           <div className="flex justify-between items-center mb-2">
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
               {isValidated ? "Validation Outcome" : "Model Alignment (Agent 2)"}
             </h4>
             <span className={`text-xs font-black ${isSelected ? 'text-emerald-500' : 'text-blue-500'}`}>{isValidated ? (isSelected ? '100' : '0') : opp.confidence_score}%</span>
@@ -426,7 +426,7 @@ function OpportunityCard({ opp, index, onRetry }) {
           <div className="pt-4 border-t border-slate-800/30">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-1.5 h-1.5 rounded-full ${isNoGo ? 'bg-rose-500' : 'bg-emerald-500'}`}></div>
-              <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Validation Reasoning</h4>
+              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Validation Reasoning</h4>
             </div>
             <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{validationReason}</p>
           </div>
@@ -439,19 +439,19 @@ function OpportunityCard({ opp, index, onRetry }) {
       {opp.isLoadingOffer && (
         <div className="mt-5 p-3 border-t border-slate-800/50 flex items-center gap-3 text-slate-500">
           <div className="w-4 h-4 border-2 border-slate-700 border-t-emerald-500 rounded-full animate-spin shrink-0"></div>
-          <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 animate-pulse">Engineering Offer...</span>
+          <span className="text-[11px] font-black uppercase tracking-widest text-emerald-600 animate-pulse">Engineering Offer...</span>
         </div>
       )}
 
       {opp.offerError && (
         <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl animate-shake">
           <div className="flex items-start gap-3 text-rose-400 mb-4">
-             <div className="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-[10px] shrink-0">!</div>
+             <div className="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-[11px] shrink-0">!</div>
              <p className="text-[11px] font-bold leading-tight">{opp.offerError}</p>
           </div>
           <button 
             onClick={() => onRetry(index)}
-            className="w-full py-2 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20"
+            className="w-full py-2 bg-rose-500 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20"
           >
             Retry Alpha Engine
           </button>
@@ -481,11 +481,11 @@ function StepHeader({ num, title, subtitle, status }) {
         </div>
         <div>
           <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase">{title}</h2>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{subtitle}</p>
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{subtitle}</p>
         </div>
       </div>
       {status && (
-        <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${
+        <div className={`px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest ${
           status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-900 text-slate-500 border-slate-800'
         }`}>
           {status}
@@ -1226,7 +1226,7 @@ export default function App() {
         <header className="text-center mb-24">
           <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 bg-slate-900/50 border border-slate-800 rounded-2xl">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-sky-400 rounded-xl flex items-center justify-center font-black text-lg text-white shadow-lg shadow-blue-500/20">L</div>
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">LeadOS v2.0 · Decision Layer</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">LeadOS v2.0 · Decision Layer</span>
           </div>
           
           <div className="flex justify-center gap-4 mb-4">
@@ -1234,7 +1234,7 @@ export default function App() {
                href="http://localhost:5678" 
                target="_blank" 
                rel="noreferrer"
-               className="px-4 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-[9px] font-black text-slate-500 uppercase tracking-widest hover:border-blue-500/40 hover:text-blue-400 transition-all flex items-center gap-2"
+               className="px-4 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-[11px] font-black text-slate-400 uppercase tracking-widest hover:border-blue-500/40 hover:text-blue-400 transition-all flex items-center gap-2"
              >
                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
                Open n8n Workflows
@@ -1257,7 +1257,7 @@ export default function App() {
               disabled={isLoading}
               className={`h-16 px-12 rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 flex items-center gap-4 ${
                 isLoading
-                  ? "bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed"
+                  ? "bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed"
                   : "bg-white text-slate-950 hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
               }`}
             >
@@ -1270,7 +1270,7 @@ export default function App() {
                 "Trigger Intelligence Scout"
               )}
             </button>
-            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Connects to Reddit, Groq & Agentic Decision Layer</p>
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Connects to Reddit, Groq & Agentic Decision Layer</p>
           </div>
         </header>
 
@@ -1278,10 +1278,10 @@ export default function App() {
           <div className="mb-12 bg-rose-500/10 border border-rose-500/20 p-6 rounded-3xl flex items-center gap-4 text-rose-400 animate-in fade-in slide-in-from-top-4">
             <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center font-black text-xl border border-rose-500/20 shrink-0">!</div>
             <div className="flex-1">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1">Signal Disruption Detected</p>
+              <p className="text-[11px] font-black uppercase tracking-widest mb-1">Signal Disruption Detected</p>
               <p className="text-sm font-bold opacity-80">{error}</p>
             </div>
-            <button onClick={() => setError(null)} className="text-[10px] font-black opacity-40 hover:opacity-100 uppercase tracking-widest shrink-0 px-4 py-2 hover:bg-rose-500/10 rounded-xl transition-all">Dismiss</button>
+            <button onClick={() => setError(null)} className="text-[11px] font-black opacity-40 hover:opacity-100 uppercase tracking-widest shrink-0 px-4 py-2 hover:bg-rose-500/10 rounded-xl transition-all">Dismiss</button>
           </div>
         )}
 
@@ -1298,14 +1298,14 @@ export default function App() {
               />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 bg-slate-950/50 rounded-3xl border border-slate-800/50 p-8">
-                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Signal Cluster Analysis</p>
+                  <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Signal Cluster Analysis</p>
                   <div className="flex items-end gap-2 mb-6">
                     <span className="text-5xl font-black text-white">{opportunities.length}</span>
-                    <span className="text-sm font-black text-slate-500 uppercase pb-2">Verified Pain Points Captured</span>
+                    <span className="text-sm font-black text-slate-400 uppercase pb-2">Verified Pain Points Captured</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {Array.from(new Set(opportunities.map(o => o.solution_type))).map(type => (
-                      <div key={type} className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                      <div key={type} className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-[11px] font-black text-slate-400 uppercase tracking-wider">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
                         {type}: {opportunities.filter(o => o.solution_type === type).length}
                       </div>
@@ -1313,7 +1313,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="bg-gradient-to-br from-blue-600/10 to-sky-500/5 rounded-3xl border border-blue-500/20 p-8 flex flex-col justify-center">
-                  <p className="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2">Internal Status</p>
+                  <p className="text-[11px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2">Internal Status</p>
                   <p className="text-xl font-black text-white leading-tight">Agent 1 successfully mapped clusters.</p>
                 </div>
               </div>
@@ -1362,7 +1362,7 @@ export default function App() {
                          id="btn-trigger-validation"
                          onClick={runValidationAgent}
                          disabled={isSelecting || !opportunities.every(o => o.offerData)}
-                         className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                         className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                            isSelecting
                              ? "bg-slate-800 text-slate-500 cursor-not-allowed"
                              : opportunities.every(o => o.offerData)
@@ -1387,7 +1387,7 @@ export default function App() {
                          <div>
                            <div className="flex items-center gap-2 mb-2">
                              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                             <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Alpha Outcome Locked</p>
+                             <p className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">Alpha Outcome Locked</p>
                            </div>
                            <h3 className="text-3xl font-black text-white italic tracking-tighter">
                              {opportunities.some(o => o.validationInfo?.isSelected) ? "Winning Opportunity Identified" : "No Market Fit Found"}
@@ -1399,20 +1399,20 @@ export default function App() {
                            <div className="flex items-center gap-4 mt-6">
                              <button 
                                onClick={runAgent1}
-                               className="px-4 py-2 bg-slate-950/80 border border-amber-500/30 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500/10 transition-all"
+                               className="px-4 py-2 bg-slate-950/80 border border-amber-500/30 text-amber-500 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500/10 transition-all"
                              >
                                🔄 Revise Batch
                              </button>
                              <button 
                                onClick={() => setOpportunities([])}
-                               className="px-4 py-2 bg-slate-950/80 border border-rose-500/30 text-rose-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-500/10 transition-all"
+                               className="px-4 py-2 bg-slate-950/80 border border-rose-500/30 text-rose-500 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-500/10 transition-all"
                              >
                                ✖ Restart Pipeline
                              </button>
                            </div>
                          </div>
                          <div className="hidden md:flex flex-col items-center gap-2 px-8 py-6 bg-slate-950/50 rounded-2xl border border-slate-800">
-                            <span className="text-[9px] font-black text-slate-600 uppercase">Evaluated</span>
+                            <span className="text-[11px] font-black text-slate-400 uppercase">Evaluated</span>
                             <span className="text-3xl font-black text-white">{opportunities.length}</span>
                          </div>
                        </div>
@@ -1429,7 +1429,7 @@ export default function App() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 opacity-60 grayscale scale-95 origin-top">
                             {opportunities.filter(o => !o.validationInfo?.isSelected).map((opp, idx) => (
                               <div key={idx} className="relative">
-                                <div className="absolute -top-6 left-6 text-[9px] font-black text-rose-500/60 uppercase tracking-widest">REJECTED BY SYSTEM</div>
+                                <div className="absolute -top-6 left-6 text-[11px] font-black text-rose-500/60 uppercase tracking-widest">REJECTED BY SYSTEM</div>
                                 <OpportunityCard opp={opp} index={opportunities.indexOf(opp)} onRetry={handleRetryOffer} />
                               </div>
                             ))}
@@ -1443,7 +1443,7 @@ export default function App() {
                              id="btn-trigger-agent4"
                              onClick={runFunnelAgent}
                              disabled={isGeneratingFunnel}
-                             className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                             className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                                isGeneratingFunnel
                                  ? "bg-slate-800 text-slate-500 animate-pulse"
                                  : "bg-emerald-500 text-slate-950 hover:bg-white shadow-xl shadow-emerald-500/20 scale-110"
@@ -1466,13 +1466,13 @@ export default function App() {
                          <div className="flex justify-center pt-10 gap-4">
                            <button 
                              onClick={runAgent1}
-                             className="h-12 px-8 bg-slate-950/80 border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-amber-500/10 transition-all"
+                             className="h-12 px-8 bg-slate-950/80 border border-amber-500/30 text-amber-500 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-amber-500/10 transition-all"
                            >
                              🔄 Revise Batch
                            </button>
                            <button 
                              onClick={() => setOpportunities([])}
-                             className="h-12 px-8 bg-slate-950/80 border border-slate-800 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all"
+                             className="h-12 px-8 bg-slate-950/80 border border-slate-800 text-slate-500 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all"
                            >
                              ✖ Restart
                            </button>
@@ -1501,7 +1501,7 @@ export default function App() {
                 ) : (
                   <div className="py-20 flex flex-col items-center border-2 border-dashed border-slate-800 rounded-[32px]">
                     <div className="text-4xl mb-4 grayscale opacity-30">🕸️</div>
-                    <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Output node dormant. Complete Step 3 to activate.</p>
+                    <p className="text-[11px] font-black text-slate-700 uppercase tracking-widest">Output node dormant. Complete Step 3 to activate.</p>
                   </div>
                 )}
               </div>
@@ -1523,7 +1523,7 @@ export default function App() {
                     <button
                       onClick={runNarrativeAgent}
                       disabled={isGeneratingNarrative || !funnelData}
-                      className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                      className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                         isGeneratingNarrative
                           ? "bg-slate-800 text-slate-500 animate-pulse"
                           : (funnelData 
@@ -1540,14 +1540,14 @@ export default function App() {
                         "BUILD OUTREACH NARRATIVE"
                       )}
                     </button>
-                    {!funnelData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 4 GTM blueprint to unlock narrative layer.</p>}
+                    {!funnelData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 4 GTM blueprint to unlock narrative layer.</p>}
                  </div>
               ) : (
                 <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700">
                   {/* Core Position */}
                   <div className="bg-slate-950/80 p-8 rounded-3xl border border-slate-800/50 relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[40px] rounded-full"></div>
-                     <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-4">Core Market Positioning</p>
+                     <p className="text-[11px] font-black text-blue-500 uppercase tracking-[0.2em] mb-4">Core Market Positioning</p>
                      <p className="text-3xl font-black text-white italic tracking-tighter leading-tight italic">"{typeof narrativeData.core_message === 'object' ? (narrativeData.core_message?.text || narrativeData.core_message?.message || JSON.stringify(narrativeData.core_message)) : (narrativeData.core_message || '')}"</p>
                   </div>
 
@@ -1555,7 +1555,7 @@ export default function App() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {narrativeData.angles.map((angle, idx) => (
                       <div key={idx} className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
-                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                            <div className={`w-1.5 h-1.5 rounded-full ${angle.type === 'pain' ? 'bg-rose-500' : angle.type === 'outcome' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
                            Angle: {angle.type}
                         </p>
@@ -1569,14 +1569,14 @@ export default function App() {
                      <div className="space-y-6">
                         <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
                            <header className="flex justify-between items-center mb-6">
-                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">LinkedIn / Social Angle</span>
+                              <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">LinkedIn / Social Angle</span>
                               <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-[8px] font-black uppercase rounded">Ready</span>
                            </header>
                             <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{typeof narrativeData.assets?.linkedin_post === 'object' ? JSON.stringify(narrativeData.assets.linkedin_post) : (narrativeData.assets?.linkedin_post || '')}</p>
                         </div>
                         <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
                            <header className="flex justify-between items-center mb-6">
-                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cold DM / Direct Angle</span>
+                              <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Cold DM / Direct Angle</span>
                               <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase rounded">Ready</span>
                            </header>
                             <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed">{typeof narrativeData.assets?.cold_dm === 'object' ? JSON.stringify(narrativeData.assets.cold_dm) : (narrativeData.assets?.cold_dm || '')}</p>
@@ -1584,7 +1584,7 @@ export default function App() {
                      </div>
                      <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 flex flex-col">
                         <header className="flex justify-between items-center mb-6">
-                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Sequence Asset</span>
+                           <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Email Sequence Asset</span>
                            <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[8px] font-black uppercase rounded">Ready</span>
                         </header>
                          <p className="text-[13px] text-slate-400 font-bold whitespace-pre-wrap leading-relaxed flex-1">{typeof narrativeData.assets?.email === 'object' ? JSON.stringify(narrativeData.assets.email) : (narrativeData.assets?.email || '')}</p>
@@ -1610,7 +1610,7 @@ export default function App() {
                   <button
                     onClick={runTrafficAgent}
                     disabled={isGeneratingTraffic || !narrativeData}
-                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                    className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                       isGeneratingTraffic
                         ? "bg-slate-800 text-slate-500 animate-pulse"
                         : narrativeData
@@ -1627,7 +1627,7 @@ export default function App() {
                       "GENERATE PAID TRAFFIC PLAN"
                     )}
                   </button>
-                  {!narrativeData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 5 Narrative to unlock traffic layer.</p>}
+                  {!narrativeData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 5 Narrative to unlock traffic layer.</p>}
                 </div>
               ) : (
                 <div id="traffic-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
@@ -1638,28 +1638,28 @@ export default function App() {
                       <>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="md:col-span-2 bg-gradient-to-br from-violet-600/10 to-purple-500/5 border border-violet-500/20 rounded-3xl p-8">
-                            <p className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-4">Paid Performance Summary</p>
+                            <p className="text-[11px] font-black text-violet-400 uppercase tracking-widest mb-4">Paid Performance Summary</p>
                             <div className="flex flex-wrap gap-8 items-end">
                               <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Daily Budget</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-1">Total Daily Budget</p>
                                 <p className="text-4xl font-black text-white">${pt?.total_daily_budget}<span className="text-lg text-slate-500">/day</span></p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Clicks</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-1">Total Clicks</p>
                                 <p className="text-4xl font-black text-sky-400">{pt?.totals?.total_clicks}</p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Blended CPL</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-1">Blended CPL</p>
                                 <p className="text-4xl font-black text-violet-400">${pt?.totals?.blended_cpl}</p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Total Leads</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-1">Total Leads</p>
                                 <p className="text-4xl font-black text-emerald-400">{pt?.totals?.total_leads}</p>
                               </div>
                             </div>
                           </div>
                           <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 flex flex-col justify-center gap-3">
-                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Formula Verification</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Formula Verification</p>
                             <p className="text-[11px] text-slate-500 font-bold">clicks = budget ÷ cpc</p>
                             <p className="text-[11px] text-slate-500 font-bold">leads = clicks × cvr%</p>
                             <p className="text-[11px] text-slate-500 font-bold">cpl = total_budget ÷ total_leads</p>
@@ -1668,7 +1668,7 @@ export default function App() {
 
                         {/* Channel Cards */}
                         <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Channel Breakdown</p>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6">Channel Breakdown</p>
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {(pt?.channels || []).map((ch, i) => (
                               <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-3xl p-7 space-y-5 hover:border-violet-500/30 transition-all">
@@ -1681,11 +1681,11 @@ export default function App() {
                                     </div>
                                     <div>
                                       <h4 className="text-sm font-black text-white">{ch.name}</h4>
-                                      <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">{ch.allocation_percentage}% of budget</p>
+                                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{ch.allocation_percentage}% of budget</p>
                                     </div>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-[9px] font-black text-slate-600 uppercase">Daily Budget</p>
+                                    <p className="text-[11px] font-black text-slate-400 uppercase">Daily Budget</p>
                                     <p className="text-lg font-black text-white">${ch.daily_budget}</p>
                                   </div>
                                 </div>
@@ -1699,14 +1699,14 @@ export default function App() {
                                     { label: 'Leads', value: ch.expected_leads },
                                   ].map(m => (
                                     <div key={m.label} className="bg-slate-950/80 rounded-xl p-2.5 text-center border border-slate-800/60">
-                                      <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">{m.label}</p>
+                                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{m.label}</p>
                                       <p className="text-sm font-black text-white">{m.value}</p>
                                     </div>
                                   ))}
                                 </div>
 
                                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between">
-                                  <p className="text-[9px] font-black text-emerald-500 uppercase">Expected Leads / Day</p>
+                                  <p className="text-[11px] font-black text-emerald-500 uppercase">Expected Leads / Day</p>
                                   <p className="text-xl font-black text-white">{ch.expected_leads}</p>
                                 </div>
                               </div>
@@ -1736,7 +1736,7 @@ export default function App() {
                   <button
                     onClick={runOutboundAgent}
                     disabled={isGeneratingOutbound || !trafficData}
-                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                    className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                       isGeneratingOutbound
                         ? "bg-slate-800 text-slate-500 animate-pulse"
                         : trafficData
@@ -1753,7 +1753,7 @@ export default function App() {
                       "SIMULATE OUTBOUND OUTREACH"
                     )}
                   </button>
-                  {!trafficData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 6 Paid Traffic to unlock outbound layer.</p>}
+                  {!trafficData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 6 Paid Traffic to unlock outbound layer.</p>}
                 </div>
               ) : (
                 <div id="outbound-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
@@ -1770,7 +1770,7 @@ export default function App() {
                             { label: 'Meetings / Day', value: ob?.meetings_booked_per_day, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
                           ].map((stat, i) => (
                             <div key={i} className={`${stat.bg} border rounded-2xl p-6 text-center`}>
-                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
+                              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">{stat.label}</p>
                               <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
                             </div>
                           ))}
@@ -1778,7 +1778,7 @@ export default function App() {
 
                         {/* Math trace */}
                         <div className="bg-slate-950/80 border border-slate-800 rounded-2xl px-6 py-4 flex flex-wrap gap-6">
-                          <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Derived</p>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Derived</p>
                           <p className="text-[11px] text-slate-500 font-bold">responses/day = {ob?.daily_contacts} × {ob?.response_rate}% = <span className="text-white">{Math.round((ob?.daily_contacts||0) * (ob?.response_rate||0) / 100)}</span></p>
                           <p className="text-[11px] text-slate-500 font-bold">meetings/day = {Math.round((ob?.daily_contacts||0) * (ob?.response_rate||0) / 100)} × {ob?.positive_reply_rate}% = <span className="text-emerald-400">{ob?.meetings_booked_per_day}</span></p>
                         </div>
@@ -1786,34 +1786,34 @@ export default function App() {
                         {/* Channels + Targeting */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">ICP Targeting</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">ICP Targeting</p>
                             <p className="text-sm font-black text-white mb-4">{ob?.targeting?.persona}</p>
                             <div className="space-y-3">
                               <div>
-                                <p className="text-[9px] font-black text-slate-600 uppercase mb-2">Industry</p>
-                                <div className="flex flex-wrap gap-1.5">{(ob?.targeting?.company_criteria?.industry||[]).map((ind,i) => <span key={i} className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] font-black text-slate-400 uppercase">{ind}</span>)}</div>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-2">Industry</p>
+                                <div className="flex flex-wrap gap-1.5">{(ob?.targeting?.company_criteria?.industry||[]).map((ind,i) => <span key={i} className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[11px] font-black text-slate-400 uppercase">{ind}</span>)}</div>
                               </div>
                               <div>
-                                <p className="text-[9px] font-black text-slate-600 uppercase mb-2">Company Size</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-2">Company Size</p>
                                 <p className="text-xs font-black text-slate-300">{ob?.targeting?.company_criteria?.company_size}</p>
                               </div>
                               <div>
-                                <p className="text-[9px] font-black text-slate-600 uppercase mb-2">Trigger Signals</p>
-                                <div className="flex flex-wrap gap-2">{(ob?.targeting?.company_criteria?.signals||[]).map((sig,i) => <span key={i} className="px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded text-[9px] font-black text-amber-400">⚡ {sig}</span>)}</div>
+                                <p className="text-[11px] font-black text-slate-400 uppercase mb-2">Trigger Signals</p>
+                                <div className="flex flex-wrap gap-2">{(ob?.targeting?.company_criteria?.signals||[]).map((sig,i) => <span key={i} className="px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded text-[11px] font-black text-amber-400">⚡ {sig}</span>)}</div>
                               </div>
                             </div>
                           </div>
 
                           <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">Outreach Sequence</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Outreach Sequence</p>
                             <div className="space-y-4 relative border-l border-slate-800/80 ml-3">
                               {(ob?.sequence||[]).map((step, i) => (
                                 <div key={i} className="relative pl-8">
-                                  <div className="absolute left-[-15px] top-0 w-7 h-7 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[9px] font-black text-rose-400">{step.step}</div>
+                                  <div className="absolute left-[-15px] top-0 w-7 h-7 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[11px] font-black text-rose-400">{step.step}</div>
                                   <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
                                     <div className="flex items-center justify-between mb-1">
                                       <span className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded text-[8px] font-black text-rose-400 uppercase">{step.channel}</span>
-                                      <span className="text-[9px] font-black text-slate-600">{step.timing}</span>
+                                      <span className="text-[11px] font-black text-slate-500">{step.timing}</span>
                                     </div>
                                     <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{step.goal}</p>
                                   </div>
@@ -1826,14 +1826,14 @@ export default function App() {
                         {/* Prospects + Messages */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                           <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Simulated Prospects</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Simulated Prospects</p>
                             <div className="space-y-3">
                               {(ob?.prospect_simulation||[]).map((p, i) => (
                                 <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 hover:border-rose-500/20 transition-all flex items-start gap-3">
                                   <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{p.name?.charAt(0)||'?'}</div>
                                   <div>
                                     <p className="text-sm font-black text-white">{p.name}</p>
-                                    <p className="text-[9px] font-black text-rose-400 uppercase">{p.role} · {p.company}</p>
+                                    <p className="text-[11px] font-black text-rose-400 uppercase">{p.role} · {p.company}</p>
                                     <p className="text-[11px] text-slate-500 font-bold mt-1 leading-relaxed">{p.reason_fit}</p>
                                   </div>
                                 </div>
@@ -1841,7 +1841,7 @@ export default function App() {
                             </div>
                           </div>
                           <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Message Variants</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Message Variants</p>
                             <div className="space-y-3">
                               {(ob?.message_variants||[]).map((msg, i) => (
                                 <div key={i} className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60">
@@ -1875,7 +1875,7 @@ export default function App() {
                   <button
                     onClick={runCaptureAgent}
                     disabled={isGeneratingCapture || !outboundData}
-                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                    className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                       isGeneratingCapture
                         ? "bg-slate-800 text-slate-500 animate-pulse"
                         : outboundData
@@ -1892,7 +1892,7 @@ export default function App() {
                       "SIMULATE INBOUND CAPTURE"
                     )}
                   </button>
-                  {!outboundData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 7 Outbound to unlock lead capture layer.</p>}
+                  {!outboundData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 7 Outbound to unlock lead capture layer.</p>}
                 </div>
               ) : (
                 <div id="capture-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
@@ -1905,7 +1905,7 @@ export default function App() {
                       { label: 'Avg Conversion', value: captureData.conversion?.average, color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20' },
                     ].map((stat, i) => (
                       <div key={i} className={`${stat.bg} border rounded-2xl p-6 text-center`}>
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">{stat.label}</p>
                         <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
                       </div>
                     ))}
@@ -1914,7 +1914,7 @@ export default function App() {
                   {/* Traffic Source Breakdown */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Visitor Source Derivation</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Visitor Source Derivation</p>
                       <div className="space-y-4">
                         {[['paid', 'violet', captureData.traffic?.paid_visitors, captureData.conversion?.paid], ['outbound', 'rose', captureData.traffic?.outbound_visitors, captureData.conversion?.outbound], ['organic', 'sky', captureData.traffic?.organic_visitors, captureData.conversion?.organic]].map(([src, color, vis, cvr], i) => {
                           const total = captureData.traffic?.total_visitors || 1;
@@ -1924,8 +1924,8 @@ export default function App() {
                           return (
                             <div key={i}>
                               <div className="flex justify-between mb-1">
-                                <span className="text-[10px] font-black text-slate-400 uppercase">{src}</span>
-                                <span className="text-[10px] font-black text-white">{(vis||0).toLocaleString()} <span className="text-slate-600">visitors</span> → <span className={textMap[color]}>{cvr} CVR</span></span>
+                                <span className="text-[11px] font-black text-slate-400 uppercase">{src}</span>
+                                <span className="text-[11px] font-black text-white">{(vis||0).toLocaleString()} <span className="text-slate-500">visitors</span> → <span className={textMap[color]}>{cvr} CVR</span></span>
                               </div>
                               <div className="w-full bg-slate-800/50 rounded-full h-1.5">
                                 <div className={`${colorMap[color]} h-full rounded-full`} style={{width:`${pct}%`}}></div>
@@ -1937,26 +1937,26 @@ export default function App() {
                     </div>
 
                     <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Lead Source Split</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Lead Source Split</p>
                       <div className="space-y-4">
                         {[['Paid', captureData.leads_summary?.paid,'text-violet-400'], ['Outbound', captureData.leads_summary?.outbound,'text-rose-400'], ['Organic', captureData.leads_summary?.organic,'text-sky-400']].map(([label, count, cls], i) => (
                           <div key={i} className="flex items-center justify-between bg-slate-900/60 border border-slate-800/50 rounded-xl px-4 py-3">
-                            <p className={`text-[10px] font-black uppercase ${cls}`}>{label} Leads</p>
+                            <p className={`text-[11px] font-black uppercase ${cls}`}>{label} Leads</p>
                             <p className="text-lg font-black text-white">{count}</p>
                           </div>
                         ))}
                         <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
-                          <p className="text-[10px] font-black uppercase text-emerald-400">Total</p>
+                          <p className="text-[11px] font-black uppercase text-emerald-400">Total</p>
                           <p className="text-lg font-black text-white">{captureData.leads_summary?.total}</p>
                         </div>
-                        <p className="text-[9px] font-black text-slate-700 uppercase tracking-widest">{captureData.calculation?.formula}</p>
+                        <p className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{captureData.calculation?.formula}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Lead Table with Scoring */}
                   <div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5">Captured Lead Objects</p>
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Captured Lead Objects</p>
                     <div className="space-y-3">
                       {(captureData.leads || []).map((lead, i) => {
                         const intentColor = lead.intent_level === 'hot' ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : lead.intent_level === 'warm' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-slate-400 bg-slate-800 border-slate-700';
@@ -1968,15 +1968,15 @@ export default function App() {
                               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{lead.name?.charAt(0)||'?'}</div>
                               <div className="flex-1 min-w-[140px]">
                                 <p className="text-sm font-black text-white leading-tight">{lead.name}</p>
-                                <p className="text-[9px] font-black text-slate-500 uppercase">{lead.role} · {lead.company}</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase">{lead.role} · {lead.company}</p>
                               </div>
-                              <p className="text-[10px] font-black text-slate-600 hidden lg:block">{lead.email}</p>
+                              <p className="text-[11px] font-black text-slate-500 hidden lg:block">{lead.email}</p>
                               <div className="flex items-center gap-2 ml-auto flex-wrap justify-end">
                                 <span className={`px-2 py-0.5 rounded border text-[8px] font-black uppercase ${srcColor}`}>{lead.source}</span>
                                 <span className={`px-2 py-0.5 rounded border text-[8px] font-black uppercase ${intentColor}`}>{lead.intent_level}</span>
-                                <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[9px] font-black text-slate-400 uppercase">ICP: {lead.ICP_match}</span>
+                                <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[11px] font-black text-slate-400 uppercase">ICP: {lead.ICP_match}</span>
                                 <div className="flex flex-col items-center bg-slate-950/80 border border-slate-800 rounded-lg px-3 py-1">
-                                  <span className="text-[7px] font-black text-slate-600 uppercase">Score</span>
+                                  <span className="text-[7px] font-black text-slate-400 uppercase">Score</span>
                                   <span className={`text-base font-black ${scoreColor}`}>{lead.lead_score}</span>
                                 </div>
                               </div>
@@ -2006,7 +2006,7 @@ export default function App() {
                   <button
                     onClick={runQualificationAgent}
                     disabled={isGeneratingQualification || !captureData}
-                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                    className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                       isGeneratingQualification
                         ? 'bg-slate-800 text-slate-500 animate-pulse'
                         : captureData
@@ -2023,14 +2023,14 @@ export default function App() {
                       'RUN AI QUALIFICATION'
                     )}
                   </button>
-                  {!captureData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 8 Lead Capture to unlock qualification layer.</p>}
+                  {!captureData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 8 Lead Capture to unlock qualification layer.</p>}
                 </div>
               ) : (
                 <div id="qualification-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
 
                   {/* Summary Distribution */}
                   <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-3xl p-8">
-                    <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-6">BANT Qualification Summary</p>
+                    <p className="text-[11px] font-black text-amber-400 uppercase tracking-widest mb-6">BANT Qualification Summary</p>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       {[
                         { label: 'Total', value: qualificationData.summary?.total_leads, color: 'text-white', bg: 'bg-slate-800/80 border-slate-700' },
@@ -2040,7 +2040,7 @@ export default function App() {
                         { label: '❄ COLD', value: qualificationData.summary?.cold, color: 'text-slate-400', bg: 'bg-slate-800 border-slate-700' },
                       ].map((s, i) => (
                         <div key={i} className={`${s.bg} border rounded-2xl p-5 text-center`}>
-                          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{s.label}</p>
                           <p className={`text-4xl font-black ${s.color}`}>{s.value}</p>
                         </div>
                       ))}
@@ -2077,19 +2077,19 @@ export default function App() {
                             </div>
                             <div className="flex-1 min-w-[150px]">
                               <p className="text-base font-black text-white leading-tight">{lead.name}</p>
-                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{lead.company}</p>
+                              <p className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{lead.company}</p>
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase ${statusColor}`}>{lead.final_status}</span>
-                              <span className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase flex items-center gap-1 ${routeColor}`}>{routeIcon} {lead.routing}</span>
+                              <span className={`px-3 py-1 rounded-xl border text-[11px] font-black uppercase ${statusColor}`}>{lead.final_status}</span>
+                              <span className={`px-3 py-1 rounded-xl border text-[11px] font-black uppercase flex items-center gap-1 ${routeColor}`}>{routeIcon} {lead.routing}</span>
                             </div>
                           </div>
 
                           {/* BANT Score Bar */}
                           <div className="mb-6">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">BANT Score</span>
-                              <span className="text-2xl font-black text-white">{total}<span className="text-slate-600 text-sm">/100</span></span>
+                              <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">BANT Score</span>
+                              <span className="text-2xl font-black text-white">{total}<span className="text-slate-500 text-sm">/100</span></span>
                             </div>
                             <div className="w-full bg-slate-800 rounded-full h-2">
                               <div className={`${scoreBarColor} h-full rounded-full transition-all duration-1000`} style={{width: `${totalPct}%`}}></div>
@@ -2101,7 +2101,7 @@ export default function App() {
                                 const dimColor = cls === 'positive' ? 'text-emerald-400' : cls === 'neutral' ? 'text-amber-400' : 'text-slate-500';
                                 return (
                                   <div key={dim} className="bg-slate-950/80 border border-slate-800/60 rounded-xl p-2 text-center">
-                                    <p className="text-[8px] font-black text-slate-600 uppercase mb-1">{dim}</p>
+                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1">{dim}</p>
                                     <p className={`text-base font-black ${dimColor}`}>{score}</p>
                                     <p className={`text-[7px] font-black uppercase ${dimColor}`}>{cls}</p>
                                   </div>
@@ -2112,7 +2112,7 @@ export default function App() {
 
                           {/* Call Script */}
                           <div className="bg-slate-950/80 border border-slate-800/50 rounded-2xl p-5 mb-4">
-                            <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-2">📞 Simulated Call Script</p>
+                            <p className="text-[11px] font-black text-amber-400 uppercase tracking-widest mb-2">📞 Simulated Call Script</p>
                             <p className="text-[12px] text-slate-300 font-bold leading-relaxed italic">"{lead.call_script}"</p>
                           </div>
 
@@ -2128,7 +2128,7 @@ export default function App() {
                                 <div key={dim} className={`bg-slate-900/40 border ${borderColor} rounded-xl p-4`}>
                                   <div className="flex items-center gap-2 mb-2">
                                     <span className={`text-xs font-black ${labelColor}`}>{icon}</span>
-                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{dim}</span>
+                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{dim}</span>
                                   </div>
                                   <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{resp}</p>
                                 </div>
@@ -2160,7 +2160,7 @@ export default function App() {
                   <button
                     onClick={runRoutingAgent}
                     disabled={isGeneratingRouting || !qualificationData}
-                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                    className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                       isGeneratingRouting
                         ? 'bg-slate-800 text-slate-500 animate-pulse'
                         : qualificationData
@@ -2175,7 +2175,7 @@ export default function App() {
                       </>
                     ) : 'EXECUTE SALES ROUTING'}
                   </button>
-                  {!qualificationData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 9 to unlock routing engine.</p>}
+                  {!qualificationData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 9 to unlock routing engine.</p>}
                 </div>
               ) : (
                 <div id="routing-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
@@ -2183,7 +2183,7 @@ export default function App() {
                   {/* Pipeline Board */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 rounded-3xl p-8">
-                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-6">Pipeline Distribution</p>
+                      <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-6">Pipeline Distribution</p>
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { label: 'Checkout', key: 'checkout', icon: '💳', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' },
@@ -2194,7 +2194,7 @@ export default function App() {
                           <div key={i} className={`${bucket.bg} border rounded-2xl p-4 flex items-center gap-3`}>
                             <span className="text-2xl">{bucket.icon}</span>
                             <div>
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{bucket.label}</p>
+                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{bucket.label}</p>
                               <p className={`text-3xl font-black ${bucket.color}`}>{routingData.pipeline_summary?.[bucket.key] || 0}</p>
                             </div>
                           </div>
@@ -2204,8 +2204,8 @@ export default function App() {
 
                     <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-5">
                       <div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Avg Intent Score</p>
-                        <p className="text-5xl font-black text-white">{routingData.pipeline_summary?.total_intent_score_avg || '–'}<span className="text-slate-600 text-xl">/100</span></p>
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Avg Intent Score</p>
+                        <p className="text-5xl font-black text-white">{routingData.pipeline_summary?.total_intent_score_avg || '–'}<span className="text-slate-500 text-xl">/100</span></p>
                         {(() => {
                           const avg = routingData.pipeline_summary?.total_intent_score_avg || 0;
                           const pct = Math.min(avg, 100);
@@ -2214,17 +2214,17 @@ export default function App() {
                         })()}
                       </div>
                       <div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Active Flags</p>
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Active Flags</p>
                         <div className="flex flex-wrap gap-2">
                           {(routingData.pipeline_summary?.flags_triggered || []).length === 0
-                            ? <span className="text-[10px] font-black text-slate-700 uppercase">None</span>
+                            ? <span className="text-[11px] font-black text-slate-700 uppercase">None</span>
                             : (routingData.pipeline_summary?.flags_triggered || []).map((flag, i) => (
                               <span key={i} className="px-2 py-1 bg-amber-500/10 border border-amber-500/30 rounded text-[8px] font-black text-amber-400 uppercase">{flag}</span>
                             ))}
                         </div>
                       </div>
                       <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between">
-                        <span className="text-[9px] font-black text-slate-500 uppercase">Total Processed</span>
+                        <span className="text-[11px] font-black text-slate-400 uppercase">Total Processed</span>
                         <span className="text-xl font-black text-white">{routingData.pipeline_summary?.total || 0}</span>
                       </div>
                     </div>
@@ -2232,9 +2232,9 @@ export default function App() {
 
                   {/* Formula Bar */}
                   <div className="bg-slate-950/60 border border-slate-800/50 rounded-2xl px-6 py-4 flex flex-wrap gap-6 items-center">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Formula</p>
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Formula</p>
                     <p className="text-[11px] font-black text-slate-500">intent = <span className="text-white">(bant × 0.5)</span> + <span className="text-sky-400">(behaviour × 0.3)</span> + <span className="text-violet-400">(transcript × 0.2)</span></p>
-                    <p className="text-[9px] font-black text-slate-700 uppercase">≥75→Checkout · ≥60→Sales Call · ≥35→Nurture · &lt;35→Disqualify</p>
+                    <p className="text-[11px] font-black text-slate-700 uppercase">≥75→Checkout · ≥60→Sales Call · ≥35→Nurture · &lt;35→Disqualify</p>
                   </div>
 
                   {/* Routed Lead Cards */}
@@ -2255,11 +2255,11 @@ export default function App() {
                             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{lead.name?.charAt(0)||'?'}</div>
                             <div className="flex-1 min-w-[150px]">
                               <p className="text-base font-black text-white">{lead.name}</p>
-                              <p className="text-[9px] font-black text-slate-500 uppercase">{lead.company}</p>
+                              <p className="text-[11px] font-black text-slate-400 uppercase">{lead.company}</p>
                             </div>
                             <div className="flex items-center gap-2 flex-wrap ml-auto">
-                              <span className={`px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase flex items-center gap-1.5 ${cfg.bg} ${cfg.color}`}>{cfg.icon} {lead.final_decision?.replace('_', ' ')}</span>
-                              <span className="px-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-xl text-[9px] font-black text-slate-400 uppercase">{lead.crm_stage}</span>
+                              <span className={`px-3 py-1.5 rounded-xl border text-[11px] font-black uppercase flex items-center gap-1.5 ${cfg.bg} ${cfg.color}`}>{cfg.icon} {lead.final_decision?.replace('_', ' ')}</span>
+                              <span className="px-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-xl text-[11px] font-black text-slate-400 uppercase">{lead.crm_stage}</span>
                             </div>
                           </div>
 
@@ -2267,8 +2267,8 @@ export default function App() {
                             {[['BANT Score', lead.qualification_score, qualPct],['Intent Score', Math.round(lead.intent_score||0), intentPct]].map(([lbl,val,pct],j)=>(
                               <div key={j}>
                                 <div className="flex justify-between mb-1">
-                                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{lbl}</span>
-                                  <span className="text-sm font-black text-white">{val}<span className="text-slate-600">/100</span></span>
+                                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{lbl}</span>
+                                  <span className="text-sm font-black text-white">{val}<span className="text-slate-500">/100</span></span>
                                 </div>
                                 <div className="w-full bg-slate-800 rounded-full h-1.5">
                                   <div className={`${cfg.bar} h-full rounded-full ${j===1?'opacity-70':''}`} style={{width:`${pct}%`}}></div>
@@ -2280,31 +2280,31 @@ export default function App() {
                           <div className="flex flex-wrap gap-2 mb-5">
                             {[['Qual',lead.qualification_score],['Behaviour',lead.behaviour_score],['Transcript',lead.transcript_intent],['Intent',Math.round(lead.intent_score||0)]].map(([lbl,val],j)=>(
                               <div key={j} className="bg-slate-950/80 border border-slate-800/60 rounded-xl px-3 py-2 text-center">
-                                <p className="text-[7px] font-black text-slate-600 uppercase mb-0.5">{lbl}</p>
+                                <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5">{lbl}</p>
                                 <p className="text-sm font-black text-white">{val}</p>
                               </div>
                             ))}
                           </div>
 
                           <div className="bg-slate-950/60 border border-slate-800/50 rounded-2xl p-5 space-y-4">
-                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Routing Reasoning</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Routing Reasoning</p>
                             <div className="grid grid-cols-2 gap-3">
                               {['budget','authority','need','timeline'].map(dim => (
                                 <div key={dim}>
-                                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-0.5">{dim}</p>
+                                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{dim}</p>
                                   <p className="text-[11px] text-slate-400 font-bold leading-snug">{lead.reasoning?.[dim] || '–'}</p>
                                 </div>
                               ))}
                             </div>
                             {lead.reasoning?.behaviour_signals && (
                               <div className="pt-3 border-t border-slate-800/60">
-                                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Behaviour Signals</p>
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Behaviour Signals</p>
                                 <p className="text-[11px] text-slate-400 font-bold">{lead.reasoning.behaviour_signals}</p>
                               </div>
                             )}
                             {lead.reasoning?.transcript_summary && (
                               <div className="pt-3 border-t border-slate-800/60">
-                                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Transcript Signal</p>
+                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Transcript Signal</p>
                                 <p className="text-[11px] text-slate-300 font-bold italic">"{lead.reasoning.transcript_summary}"</p>
                               </div>
                             )}
@@ -2322,7 +2322,7 @@ export default function App() {
                           {lead.calendly_link && (lead.final_decision === 'SALES_CALL' || lead.final_decision === 'CHECKOUT') && (
                             <div className="mt-5 pt-4 border-t border-slate-800/50">
                               <a href={lead.calendly_link} target="_blank" rel="noopener noreferrer"
-                                 className={`block w-full px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors text-center ${
+                                 className={`block w-full px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-colors text-center ${
                                    lead.final_decision === 'CHECKOUT'
                                      ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30'
                                      : 'bg-sky-500/20 border border-sky-500/40 text-sky-400 hover:bg-sky-500/30'
@@ -2356,7 +2356,7 @@ export default function App() {
                   <button
                     onClick={runAttributionAgent}
                     disabled={isGeneratingAttribution || !routingData}
-                    className={`h-16 px-12 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
+                    className={`h-16 px-12 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center gap-4 ${
                       isGeneratingAttribution
                         ? 'bg-slate-800 text-slate-500 animate-pulse'
                         : routingData
@@ -2371,7 +2371,7 @@ export default function App() {
                       </>
                     ) : 'RUN TRACKING & ATTRIBUTION'}
                   </button>
-                  {!routingData && <p className="mt-4 text-[9px] font-black text-slate-700 uppercase tracking-widest">Complete Step 10 Sales Routing to unlock attribution engine.</p>}
+                  {!routingData && <p className="mt-4 text-[11px] font-black text-slate-700 uppercase tracking-widest">Complete Step 10 Sales Routing to unlock attribution engine.</p>}
                 </div>
               ) : (
                 <div id="attribution-output" className="space-y-10 animate-in fade-in zoom-in-95 duration-700">
@@ -2385,7 +2385,7 @@ export default function App() {
                       attributionData.tracking_validation?.status === 'TRACKING_DEGRADED' ? 'bg-amber-500/10 border-amber-500/30' :
                       'bg-rose-500/10 border-rose-500/30'
                     }`}>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Tracking Status</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Tracking Status</p>
                       <div className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full animate-pulse ${
                           attributionData.tracking_validation?.status === 'TRACKING_HEALTHY' ? 'bg-emerald-400' :
@@ -2407,7 +2407,7 @@ export default function App() {
 
                     {/* Leads by Source */}
                     <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Leads by Source</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Leads by Source</p>
                       <div className="space-y-3">
                         {[['Paid', attributionData.dashboard?.leads_by_source?.paid, 'text-violet-400','bg-violet-500'],
                           ['Outbound', attributionData.dashboard?.leads_by_source?.outbound, 'text-rose-400','bg-rose-500'],
@@ -2418,8 +2418,8 @@ export default function App() {
                           return (
                             <div key={i}>
                               <div className="flex justify-between mb-1">
-                                <span className={`text-[10px] font-black uppercase ${cls}`}>{src}</span>
-                                <span className="text-[10px] font-black text-white">{count||0}</span>
+                                <span className={`text-[11px] font-black uppercase ${cls}`}>{src}</span>
+                                <span className="text-[11px] font-black text-white">{count||0}</span>
                               </div>
                               <div className="w-full bg-slate-800 rounded-full h-1.5">
                                 <div className={`${bar} h-full rounded-full`} style={{width:`${pct}%`}}></div>
@@ -2432,7 +2432,7 @@ export default function App() {
 
                     {/* Top/Worst Channel */}
                     <div className="bg-slate-950/80 border border-slate-800 rounded-3xl p-8 space-y-4">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Channel Intelligence</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Channel Intelligence</p>
                       <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                         <p className="text-[8px] font-black text-emerald-500 uppercase mb-1">🏆 Top Performer</p>
                         <p className="text-sm font-black text-white">{attributionData.dashboard?.top_performing_channel || '–'}</p>
@@ -2442,7 +2442,7 @@ export default function App() {
                         <p className="text-sm font-black text-white">{attributionData.dashboard?.worst_performing_channel || '–'}</p>
                       </div>
                       <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between">
-                        <span className="text-[9px] font-black text-slate-500 uppercase">Total Spend</span>
+                        <span className="text-[11px] font-black text-slate-400 uppercase">Total Spend</span>
                         <span className="text-base font-black text-white">${attributionData.dashboard?.total_spend || 0}/day</span>
                       </div>
                     </div>
@@ -2450,7 +2450,7 @@ export default function App() {
 
                   {/* Funnel Waterfall */}
                   <div className="bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-3xl p-8">
-                    <p className="text-[9px] font-black text-cyan-400 uppercase tracking-widest mb-6">Full-Funnel Conversion Waterfall</p>
+                    <p className="text-[11px] font-black text-cyan-400 uppercase tracking-widest mb-6">Full-Funnel Conversion Waterfall</p>
                     <div className="flex flex-wrap items-end gap-4">
                       {[
                         { label: 'Visitors', value: attributionData.funnel?.total_visitors, rate: null, color: 'bg-cyan-500', text: 'text-cyan-400' },
@@ -2463,7 +2463,7 @@ export default function App() {
                         return (
                           <div key={i} className="flex-1 min-w-[80px] flex flex-col items-center gap-2">
                             {stage.rate !== null && stage.rate !== undefined && (
-                              <span className="text-[9px] font-black text-slate-500 uppercase">{stage.rate}% ↓</span>
+                              <span className="text-[11px] font-black text-slate-400 uppercase">{stage.rate}% ↓</span>
                             )}
                             <div className="w-full flex flex-col items-center">
                               <p className={`text-xl font-black ${stage.text} mb-2`}>{(stage.value||0).toLocaleString()}</p>
@@ -2471,26 +2471,26 @@ export default function App() {
                                 <div className={`${stage.color} w-full h-full rounded-t-xl opacity-60`}></div>
                               </div>
                             </div>
-                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{stage.label}</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{stage.label}</p>
                           </div>
                         );
                       })}
                     </div>
                     <div className="mt-4 flex items-center gap-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase">Overall Conversion Rate:</span>
+                      <span className="text-[11px] font-black text-slate-400 uppercase">Overall Conversion Rate:</span>
                       <span className="text-sm font-black text-emerald-400">{attributionData.funnel?.overall_conversion}%</span>
                     </div>
                   </div>
 
                   {/* Channel Performance Table */}
                   <div>
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Channel Performance Metrics</p>
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Channel Performance Metrics</p>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
                           <tr className="border-b border-slate-800">
                             {['Channel','Spend/Day','Clicks','Leads','Bookings','Sales','CPL','CVR','Cost/Booking','Cost/Sale'].map(h => (
-                              <th key={h} className="pb-3 text-left text-[8px] font-black text-slate-600 uppercase tracking-widest pr-4 whitespace-nowrap">{h}</th>
+                              <th key={h} className="pb-3 text-left text-[8px] font-black text-slate-400 uppercase tracking-widest pr-4 whitespace-nowrap">{h}</th>
                             ))}
                           </tr>
                         </thead>
@@ -2516,7 +2516,7 @@ export default function App() {
 
                   {/* Lead Attribution Cards */}
                   <div>
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-5">Lead Attribution Records</p>
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5">Lead Attribution Records</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {(attributionData.attribution_report || []).map((lead, i) => {
                         const confColor = lead.attribution_confidence === 'HIGH' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
@@ -2532,17 +2532,17 @@ export default function App() {
                               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-700 flex items-center justify-center font-black text-white text-sm shrink-0">{lead.name?.charAt(0)||'?'}</div>
                               <div className="flex-1">
                                 <p className="text-sm font-black text-white">{lead.name}</p>
-                                <p className="text-[9px] font-black text-slate-500 uppercase">{lead.company}</p>
+                                <p className="text-[11px] font-black text-slate-400 uppercase">{lead.company}</p>
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`px-2 py-0.5 rounded border text-[8px] font-black uppercase ${confColor}`}>{lead.attribution_confidence}</span>
-                                <span className={`text-[9px] font-black uppercase ${decisionColor}`}>{lead.final_decision?.replace('_',' ')}</span>
+                                <span className={`text-[11px] font-black uppercase ${decisionColor}`}>{lead.final_decision?.replace('_',' ')}</span>
                               </div>
                             </div>
 
                             {/* UTM Row */}
                             <div className="bg-slate-950/60 border border-slate-800/50 rounded-xl px-4 py-3">
-                              <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-2">UTM Parameters</p>
+                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">UTM Parameters</p>
                               <div className="flex flex-wrap gap-1.5">
                                 {[['src',lead.utm?.utm_source],['med',lead.utm?.utm_medium],['cmp',lead.utm?.utm_campaign],['cnt',lead.utm?.utm_content],['trm',lead.utm?.utm_term]].filter(([,v])=>v&&v!=='').map(([k,v],j)=>(
                                   <span key={j} className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded text-[8px] font-black text-cyan-400 font-mono">{k}={v}</span>
@@ -2554,13 +2554,13 @@ export default function App() {
                             <div>
                               <div className="flex items-center gap-4 mb-2">
                                 <div className="flex-1">
-                                  <p className="text-[7px] font-black text-slate-600 uppercase">First Touch</p>
-                                  <p className="text-[10px] font-black text-violet-400">{lead.first_touch?.source} · {lead.first_touch?.campaign}</p>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase">First Touch</p>
+                                  <p className="text-[11px] font-black text-violet-400">{lead.first_touch?.source} · {lead.first_touch?.campaign}</p>
                                 </div>
                                 <div className="text-slate-700">→</div>
                                 <div className="flex-1 text-right">
-                                  <p className="text-[7px] font-black text-slate-600 uppercase">Last Touch</p>
-                                  <p className="text-[10px] font-black text-emerald-400">{lead.last_touch?.source} · {lead.last_touch?.campaign}</p>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase">Last Touch</p>
+                                  <p className="text-[11px] font-black text-emerald-400">{lead.last_touch?.source} · {lead.last_touch?.campaign}</p>
                                 </div>
                               </div>
                               {lead.touchpoints?.length > 0 && (
@@ -2574,7 +2574,7 @@ export default function App() {
 
                             {/* Conversion + Flags */}
                             <div className="flex items-center justify-between flex-wrap gap-2">
-                              <span className="text-[9px] font-black text-slate-600 uppercase">Conversion: <span className="text-white">{lead.conversion_event || '–'}</span></span>
+                              <span className="text-[11px] font-black text-slate-400 uppercase">Conversion: <span className="text-white">{lead.conversion_event || '–'}</span></span>
                               {lead.flags?.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
                                   {lead.flags.map((f,j)=>(
@@ -2592,7 +2592,7 @@ export default function App() {
                   {/* Validation Issues */}
                   {attributionData.tracking_validation?.issues?.length > 0 && (
                     <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-4">Tracking Issues Detected</p>
+                      <p className="text-[11px] font-black text-rose-400 uppercase tracking-widest mb-4">Tracking Issues Detected</p>
                       <ul className="space-y-2">
                         {attributionData.tracking_validation.issues.map((issue, i) => (
                           <li key={i} className="flex items-start gap-2">
@@ -2623,43 +2623,43 @@ export default function App() {
                 <div className="space-y-8 mt-8">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="bg-slate-950/50 border border-emerald-500/20 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-2">ROI</p>
+                      <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-2">ROI</p>
                       <p className="text-3xl font-black text-emerald-400">{performanceData.pipeline_metrics?.roi_percentage || 0}%</p>
                     </div>
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Spend</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Spend</p>
                       <p className="text-3xl font-black text-white">${performanceData.pipeline_metrics?.total_spend || 0}</p>
                     </div>
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Est. Revenue</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Est. Revenue</p>
                       <p className="text-3xl font-black text-white">${performanceData.pipeline_metrics?.estimated_revenue || 0}</p>
                     </div>
                   </div>
                   {performanceData.scale_list?.length > 0 && (
                     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-3">Scale These Channels</p>
+                      <p className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-3">Scale These Channels</p>
                       {performanceData.scale_list.map((s, i) => (
                         <div key={i} className="flex justify-between items-center py-2 border-b border-slate-800/50 last:border-0">
                           <span className="text-xs font-black text-white">{s.channel}</span>
-                          <span className="text-[10px] font-bold text-emerald-400">${s.new_budget}/day — {s.reason}</span>
+                          <span className="text-[11px] font-bold text-emerald-400">${s.new_budget}/day — {s.reason}</span>
                         </div>
                       ))}
                     </div>
                   )}
                   {performanceData.kill_list?.length > 0 && (
                     <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-3">Kill These Channels</p>
+                      <p className="text-[11px] font-black text-rose-400 uppercase tracking-widest mb-3">Kill These Channels</p>
                       {performanceData.kill_list.map((k, i) => (
                         <div key={i} className="flex justify-between items-center py-2 border-b border-slate-800/50 last:border-0">
                           <span className="text-xs font-black text-white">{k.channel}</span>
-                          <span className="text-[10px] font-bold text-rose-400">Save ${k.savings} — {k.reason}</span>
+                          <span className="text-[11px] font-bold text-rose-400">Save ${k.savings} — {k.reason}</span>
                         </div>
                       ))}
                     </div>
                   )}
                   {performanceData.weekly_summary && (
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Weekly Summary</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Weekly Summary</p>
                       <p className="text-xs text-slate-300 font-bold leading-relaxed">{performanceData.weekly_summary}</p>
                     </div>
                   )}
@@ -2682,47 +2682,47 @@ export default function App() {
                 <div className="space-y-8 mt-8">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className={`bg-slate-950/50 border rounded-2xl p-6 ${hygieneData.data_quality_score >= 80 ? 'border-emerald-500/30' : hygieneData.data_quality_score >= 50 ? 'border-amber-500/30' : 'border-rose-500/30'}`}>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Quality Score</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Quality Score</p>
                       <p className={`text-3xl font-black ${hygieneData.data_quality_score >= 80 ? 'text-emerald-400' : hygieneData.data_quality_score >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>{hygieneData.data_quality_score}/100</p>
                     </div>
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Audited</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Audited</p>
                       <p className="text-3xl font-black text-white">{hygieneData.total_contacts_audited || 0}</p>
                     </div>
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Clean</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Clean</p>
                       <p className="text-3xl font-black text-emerald-400">{hygieneData.summary?.clean_records || 0}</p>
                     </div>
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Issues</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Issues</p>
                       <p className="text-3xl font-black text-rose-400">{hygieneData.summary?.issues_found || 0}</p>
                     </div>
                   </div>
                   {hygieneData.duplicates_found?.length > 0 && (
                     <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest mb-3">Duplicates Found</p>
+                      <p className="text-[11px] font-black text-amber-400 uppercase tracking-widest mb-3">Duplicates Found</p>
                       {hygieneData.duplicates_found.map((d, i) => (
                         <div key={i} className="py-2 border-b border-slate-800/50 last:border-0">
                           <span className="text-xs font-black text-white">{d.name}</span>
-                          <span className="text-[10px] text-slate-500 ml-2">{d.email} — {d.occurrences}x — Action: {d.action}</span>
+                          <span className="text-[11px] text-slate-500 ml-2">{d.email} — {d.occurrences}x — Action: {d.action}</span>
                         </div>
                       ))}
                     </div>
                   )}
                   {hygieneData.pipeline_mismatches?.length > 0 && (
                     <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-3">Pipeline Mismatches</p>
+                      <p className="text-[11px] font-black text-rose-400 uppercase tracking-widest mb-3">Pipeline Mismatches</p>
                       {hygieneData.pipeline_mismatches.map((m, i) => (
                         <div key={i} className="py-2 border-b border-slate-800/50 last:border-0">
                           <span className="text-xs font-black text-white">{m.name}</span>
-                          <span className="text-[10px] text-rose-400 ml-2">{m.issue}</span>
+                          <span className="text-[11px] text-rose-400 ml-2">{m.issue}</span>
                         </div>
                       ))}
                     </div>
                   )}
                   {hygieneData.recommendations?.length > 0 && (
                     <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
-                      <p className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-3">Recommendations</p>
+                      <p className="text-[11px] font-black text-violet-400 uppercase tracking-widest mb-3">Recommendations</p>
                       <ul className="space-y-2">
                         {hygieneData.recommendations.map((r, i) => (
                           <li key={i} className="flex items-start gap-2">
@@ -2742,7 +2742,7 @@ export default function App() {
                <div className="bg-slate-900/40 p-10 rounded-[40px] border border-slate-800 backdrop-blur-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-600 to-transparent"></div>
                 <div className="relative">
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2 italic">Intelligence Feedback Loop</p>
+                  <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2 italic">Intelligence Feedback Loop</p>
                   <h4 className="text-2xl font-black text-white mb-2 tracking-tight">Bias the Global Knowledge Base</h4>
                   <p className="text-sm text-slate-500 mb-8 leading-relaxed max-w-2xl font-medium">
                     Your feedback is processed by Agent 1 to refine future discovery parameters. All selected and rejected states are used as training signals.
@@ -2759,13 +2759,13 @@ export default function App() {
                       id="btn-pass-feedback"
                       onClick={handlePassFeedback}
                       disabled={!feedback.trim() || feedbackStatus === "sending"}
-                      className={`h-24 px-10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shrink-0 flex items-center justify-center gap-3 ${
+                      className={`h-24 px-10 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all shrink-0 flex items-center justify-center gap-3 ${
                         feedbackStatus === "sent"
                           ? "bg-emerald-600 text-white"
                           : feedbackStatus === "error"
                           ? "bg-rose-600 text-white"
                           : feedbackStatus === "sending" || !feedback.trim()
-                          ? "bg-slate-800 text-slate-600 cursor-not-allowed"
+                          ? "bg-slate-800 text-slate-500 cursor-not-allowed"
                           : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20"
                       }`}
                     >
@@ -2776,7 +2776,7 @@ export default function App() {
                 </div>
               </div>
               <div className="text-center mt-12 mb-8">
-                <p className="text-[9px] font-black text-slate-800 uppercase tracking-[0.5em]">LeadOS · Autonomous Revenue Pipeline · 2026</p>
+                <p className="text-[11px] font-black text-slate-800 uppercase tracking-[0.5em]">LeadOS · Autonomous Revenue Pipeline · 2026</p>
               </div>
             </footer>
           </div>
@@ -2798,7 +2798,7 @@ export default function App() {
               {["System Online", "Decision Node Ready", "LLM Synchronized"].map((label) => (
                 <div key={label} className="px-5 py-2.5 bg-slate-900/50 border border-slate-800 rounded-xl flex items-center gap-2.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{label}</span>
+                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
                 </div>
               ))}
             </div>
