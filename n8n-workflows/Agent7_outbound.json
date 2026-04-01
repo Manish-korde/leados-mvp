@@ -103,6 +103,30 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://api.sendgrid.com/v3/mail/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const o = $json.outbound_plan?.outbound_outreach || $json.outbound_plan || {}; const variants = o.message_variants || []; const prospects = o.prospect_simulation || []; const firstMsg = variants[0]?.message || 'Check out our solution'; const firstProspect = prospects[0] || {}; return { personalizations: [{ to: [{ email: 'demo@leados-test.com', name: firstProspect.name || 'Prospect' }], subject: 'Quick question about ' + (firstProspect.company || 'your business') }], from: { email: 'outreach@leados-demo.com', name: 'LeadOS Outreach' }, content: [{ type: 'text/html', value: '<p>' + firstMsg.replace(/\\n/g, '<br>') + '</p><br><p style=\"color:#999;font-size:11px\">Sent via LeadOS Autonomous Pipeline</p>' }], categories: ['leados-outbound', 'agent-7'] }; })() }}",
+        "options": {}
+      },
+      "id": "sendgrid-outbound",
+      "name": "SendGrid Outbound Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 150],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SENDGRID_CREDENTIAL_ID",
+          "name": "SendGrid API"
+        }
+      }
+    },
+    {
+      "parameters": {
         "respondWith": "json",
         "responseBody": "={{ $('Extract JSON').first().json.outbound_plan }}",
         "options": {}
@@ -118,7 +142,8 @@
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
     "Prepare Prompt": { "main": [[{ "node": "Outbound Engine (Groq)", "type": "main", "index": 0 }]] },
     "Outbound Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
-    "Extract JSON": { "main": [[{ "node": "HubSpot Log Outreach", "type": "main", "index": 0 }]] },
+    "Extract JSON": { "main": [[{ "node": "SendGrid Outbound Email", "type": "main", "index": 0 }]] },
+    "SendGrid Outbound Email": { "main": [[{ "node": "HubSpot Log Outreach", "type": "main", "index": 0 }]] },
     "HubSpot Log Outreach": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "active": true,

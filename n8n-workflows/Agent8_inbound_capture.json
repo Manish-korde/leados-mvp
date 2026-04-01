@@ -80,6 +80,23 @@
     {
       "parameters": {
         "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const d = $json.capture_data || {}; const leads = d.leads || []; const summary = d.leads_summary || {}; const topLeads = leads.sort((a,b) => (b.lead_score||0) - (a.lead_score||0)).slice(0,5); const leadsText = topLeads.map(l => '• *' + l.name + '* (' + l.role + ', ' + l.company + ') — Score: ' + l.lead_score + ' | Intent: ' + l.intent_level).join('\\n'); return { text: '🔔 *NEW LEADS CAPTURED* — ' + (summary.total || leads.length) + ' total', blocks: [ { type: 'header', text: { type: 'plain_text', text: '🧲 LeadOS: ' + (summary.total || leads.length) + ' New Leads Captured' } }, { type: 'section', text: { type: 'mrkdwn', text: '*High Intent:* ' + (summary.high_intent || 0) + ' | *Paid:* ' + (summary.paid || 0) + ' | *Outbound:* ' + (summary.outbound || 0) + ' | *Organic:* ' + (summary.organic || 0) } }, { type: 'divider' }, { type: 'section', text: { type: 'mrkdwn', text: '*Top Leads by Score:*\\n' + leadsText } }, { type: 'context', elements: [{ type: 'mrkdwn', text: '⚡ Powered by LeadOS Agent 8 — Inbound Capture Engine' }] } ] }; })() }}",
+        "options": {}
+      },
+      "id": "slack-lead-alert",
+      "name": "Slack Lead Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 150],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
         "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/create",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
@@ -138,7 +155,8 @@
     "Webhook": { "main": [[{ "node": "Prepare Prompt", "type": "main", "index": 0 }]] },
     "Prepare Prompt": { "main": [[{ "node": "Inbound Capture Engine (Groq)", "type": "main", "index": 0 }]] },
     "Inbound Capture Engine (Groq)": { "main": [[{ "node": "Extract JSON", "type": "main", "index": 0 }]] },
-    "Extract JSON": { "main": [[{ "node": "HubSpot Sync Contacts", "type": "main", "index": 0 }]] },
+    "Extract JSON": { "main": [[{ "node": "Slack Lead Alert", "type": "main", "index": 0 }]] },
+    "Slack Lead Alert": { "main": [[{ "node": "HubSpot Sync Contacts", "type": "main", "index": 0 }]] },
     "HubSpot Sync Contacts": { "main": [[{ "node": "Merge CRM Status", "type": "main", "index": 0 }]] },
     "Merge CRM Status": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
