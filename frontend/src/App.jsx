@@ -478,6 +478,9 @@ const CHANNEL_THEMES = {
     ctaText: 'Learn More',
     label: 'Sponsored',
     platform: 'LinkedIn',
+    svgColors: ['#0A66C2', '#004182', '#002855'],
+    badgeText: 'Free Report',
+    badgeIcon: '📊',
   },
   google: {
     bg: 'from-white to-slate-50',
@@ -489,6 +492,9 @@ const CHANNEL_THEMES = {
     label: 'Ad',
     platform: 'Google Search',
     darkText: true,
+    svgColors: ['#1a73e8', '#34a853', '#ea4335'],
+    badgeText: 'Top Rated',
+    badgeIcon: '⭐',
   },
   meta: {
     bg: 'from-[#1877F2] to-[#0d5bbf]',
@@ -499,6 +505,9 @@ const CHANNEL_THEMES = {
     ctaText: 'Sign Up',
     label: 'Sponsored',
     platform: 'Meta',
+    svgColors: ['#1877F2', '#42b72a', '#f7b928'],
+    badgeText: 'Trending',
+    badgeIcon: '🔥',
   },
   default: {
     bg: 'from-violet-700 to-purple-900',
@@ -509,10 +518,120 @@ const CHANNEL_THEMES = {
     ctaText: 'Get Started',
     label: 'Promoted',
     platform: 'Display',
+    svgColors: ['#7c3aed', '#5b21b6', '#4c1d95'],
+    badgeText: 'Featured',
+    badgeIcon: '✨',
   },
 };
 
-function AdMockup({ channel, offerData, narrativeData }) {
+// ─── SVG Ad Image Generator ──────────────────────────────────────────────────
+function AdImage({ theme, channelKey, headline, offerData }) {
+  const solution = offerData?.offer || headline || 'Your Solution';
+  const shortSolution = solution.length > 40 ? solution.slice(0, 40) + '...' : solution;
+  const c = theme.svgColors || ['#6366f1', '#4f46e5', '#4338ca'];
+
+  if (channelKey.includes('linkedin')) {
+    return (
+      <svg viewBox="0 0 400 200" className="w-full rounded-none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="liBg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={c[0]} />
+            <stop offset="100%" stopColor={c[2]} />
+          </linearGradient>
+        </defs>
+        <rect width="400" height="200" fill="url(#liBg)" />
+        {/* Network nodes */}
+        <circle cx="60" cy="50" r="6" fill="rgba(255,255,255,0.15)" />
+        <circle cx="140" cy="30" r="4" fill="rgba(255,255,255,0.1)" />
+        <circle cx="100" cy="80" r="5" fill="rgba(255,255,255,0.12)" />
+        <circle cx="320" cy="60" r="8" fill="rgba(255,255,255,0.1)" />
+        <circle cx="350" cy="140" r="5" fill="rgba(255,255,255,0.08)" />
+        <circle cx="280" cy="170" r="6" fill="rgba(255,255,255,0.1)" />
+        <line x1="60" y1="50" x2="140" y2="30" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        <line x1="140" y1="30" x2="100" y2="80" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        <line x1="100" y1="80" x2="60" y2="50" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        <line x1="320" y1="60" x2="350" y2="140" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        <line x1="350" y1="140" x2="280" y2="170" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        {/* Graph bars */}
+        <rect x="30" y="130" width="22" height="50" rx="3" fill="rgba(255,255,255,0.12)" />
+        <rect x="58" y="110" width="22" height="70" rx="3" fill="rgba(255,255,255,0.15)" />
+        <rect x="86" y="95" width="22" height="85" rx="3" fill="rgba(255,255,255,0.2)" />
+        <rect x="114" y="120" width="22" height="60" rx="3" fill="rgba(255,255,255,0.18)" />
+        <rect x="142" y="80" width="22" height="100" rx="3" fill="rgba(112,181,249,0.35)" />
+        {/* Badge */}
+        <rect x="235" y="25" width="140" height="32" rx="16" fill="rgba(255,255,255,0.15)" />
+        <text x="305" y="46" textAnchor="middle" fill="white" fontSize="12" fontWeight="700" fontFamily="system-ui">📊 Free Report</text>
+        {/* Main text */}
+        <text x="200" y="115" textAnchor="middle" fill="white" fontSize="16" fontWeight="800" fontFamily="system-ui">{shortSolution}</text>
+        <text x="200" y="140" textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize="11" fontFamily="system-ui">Powered by AI-driven insights</text>
+        {/* Arrow up icon */}
+        <polygon points="365,90 375,110 355,110" fill="rgba(112,181,249,0.5)" />
+        <rect x="363" y="110" width="4" height="15" rx="1" fill="rgba(112,181,249,0.5)" />
+      </svg>
+    );
+  }
+
+  if (channelKey.includes('meta') || channelKey.includes('facebook')) {
+    return (
+      <svg viewBox="0 0 400 200" className="w-full rounded-none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="metaBg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1877F2" />
+            <stop offset="50%" stopColor="#6C5CE7" />
+            <stop offset="100%" stopColor="#e84393" />
+          </linearGradient>
+          <linearGradient id="metaShine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.15)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+        </defs>
+        <rect width="400" height="200" fill="url(#metaBg)" />
+        <rect width="400" height="100" fill="url(#metaShine)" />
+        {/* Decorative circles */}
+        <circle cx="340" cy="40" r="60" fill="rgba(255,255,255,0.06)" />
+        <circle cx="360" cy="50" r="40" fill="rgba(255,255,255,0.04)" />
+        <circle cx="50" cy="160" r="50" fill="rgba(255,255,255,0.05)" />
+        <circle cx="30" cy="170" r="30" fill="rgba(255,255,255,0.03)" />
+        {/* Engagement overlay */}
+        <rect x="20" y="20" width="110" height="28" rx="14" fill="rgba(0,0,0,0.3)" />
+        <text x="75" y="39" textAnchor="middle" fill="white" fontSize="11" fontWeight="600" fontFamily="system-ui">🔥 Trending Now</text>
+        {/* Social proof */}
+        <rect x="270" y="155" width="115" height="30" rx="15" fill="rgba(0,0,0,0.35)" />
+        <text x="327" y="175" textAnchor="middle" fill="white" fontSize="10" fontWeight="600" fontFamily="system-ui">👍 2.4K · 💬 189</text>
+        {/* Main text */}
+        <text x="200" y="95" textAnchor="middle" fill="white" fontSize="17" fontWeight="900" fontFamily="system-ui">{shortSolution}</text>
+        <text x="200" y="118" textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="11" fontFamily="system-ui">Join thousands of businesses growing faster</text>
+        {/* CTA pill */}
+        <rect x="145" y="135" width="110" height="30" rx="15" fill="white" />
+        <text x="200" y="155" textAnchor="middle" fill="#1877F2" fontSize="11" fontWeight="800" fontFamily="system-ui">Sign Up Free</text>
+      </svg>
+    );
+  }
+
+  // Default / other channels
+  return (
+    <svg viewBox="0 0 400 200" className="w-full rounded-none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="defBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={c[0]} />
+          <stop offset="100%" stopColor={c[2]} />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="200" fill="url(#defBg)" />
+      <circle cx="350" cy="40" r="50" fill="rgba(255,255,255,0.06)" />
+      <circle cx="50" cy="170" r="40" fill="rgba(255,255,255,0.05)" />
+      <rect x="20" y="20" width="100" height="26" rx="13" fill="rgba(255,255,255,0.15)" />
+      <text x="70" y="38" textAnchor="middle" fill="white" fontSize="10" fontWeight="700" fontFamily="system-ui">{theme.badgeIcon} {theme.badgeText}</text>
+      <text x="200" y="100" textAnchor="middle" fill="white" fontSize="16" fontWeight="800" fontFamily="system-ui">{shortSolution}</text>
+      <text x="200" y="125" textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize="11" fontFamily="system-ui">Start your free trial today</text>
+      <rect x="145" y="145" width="110" height="30" rx="15" fill="rgba(255,255,255,0.2)" />
+      <text x="200" y="165" textAnchor="middle" fill="white" fontSize="11" fontWeight="700" fontFamily="system-ui">{theme.ctaText}</text>
+    </svg>
+  );
+}
+
+// ─── Ad Mockup Component ─────────────────────────────────────────────────────
+function AdMockup({ channel, channelIndex = 0, offerData, narrativeData }) {
   if (!offerData && !narrativeData) return null;
 
   const channelKey = (channel?.name || '').toLowerCase();
@@ -527,29 +646,64 @@ function AdMockup({ channel, offerData, narrativeData }) {
     return s.length > len ? s.slice(0, len) + '...' : s;
   };
 
-  const headline = truncate(
-    narrativeData?.core_message || narrativeData?.positioning || offerData?.offer || 'Transform Your Business Today',
-    65
-  );
-  const subheadline = truncate(
-    narrativeData?.angles?.[0]?.message || narrativeData?.angles?.[0]?.angle || offerData?.promise || '',
-    90
-  );
+  // ── Channel-specific copy (each channel gets DIFFERENT text) ──
+  const angles = narrativeData?.angles || [];
+  const safeAngle = (idx) => angles[Math.min(idx, angles.length - 1)] || {};
+
+  let headline, subheadline;
+  if (channelKey.includes('linkedin')) {
+    headline = truncate(safeAngle(0).message || narrativeData?.core_message || offerData?.promise || 'Transform Your Business Today', 65);
+    subheadline = truncate(offerData?.promise || safeAngle(0).angle || '', 90);
+  } else if (channelKey.includes('google')) {
+    headline = truncate(offerData?.offer || narrativeData?.positioning || 'Transform Your Business Today', 65);
+    subheadline = truncate(narrativeData?.positioning || offerData?.guarantee || '', 90);
+  } else if (channelKey.includes('meta') || channelKey.includes('facebook')) {
+    headline = truncate(narrativeData?.core_message || safeAngle(1).message || offerData?.offer || 'Transform Your Business Today', 65);
+    subheadline = truncate(safeAngle(2).angle || safeAngle(1).angle || offerData?.promise || '', 90);
+  } else {
+    headline = truncate(safeAngle(channelIndex).message || narrativeData?.core_message || offerData?.offer || 'Transform Your Business Today', 65);
+    subheadline = truncate(safeAngle(channelIndex).angle || offerData?.promise || '', 90);
+  }
   const pricing = offerData?.pricing || '';
+
+  // ── Engagement metrics (seeded from channel data for consistency) ──
+  const baseEng = Math.round((channel.expected_clicks || 100) * 12);
+  const engagement = {
+    likes: (baseEng + (channelIndex + 1) * 137) % 3000 + 200,
+    comments: Math.round(((baseEng + channelIndex * 53) % 300) + 20),
+    shares: Math.round(((baseEng + channelIndex * 89) % 500) + 50),
+  };
+  const fmtNum = (n) => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
 
   // Google Search Ad format
   if (channelKey.includes('google')) {
+    const solutionSlug = (offerData?.offer || 'solution').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 20);
     return (
       <div className="mt-5">
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Ad Preview</p>
-        <div className="rounded-2xl overflow-hidden border border-slate-700/50 bg-white p-4 space-y-2">
+        <div className="rounded-2xl overflow-hidden border border-slate-700/50 bg-white p-4 space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-300">Ad</span>
-            <span className="text-[10px] text-emerald-700">yourbrand.com</span>
+            <span className="text-[10px] text-emerald-700">yourbrand.com/{solutionSlug}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-amber-500 text-[11px]">★★★★★</span>
+            <span className="text-[10px] text-slate-500">(4.8) · {fmtNum(engagement.likes)} reviews</span>
           </div>
           <p className="text-[15px] font-bold text-[#1a0dab] leading-tight hover:underline cursor-pointer">{headline}</p>
           <p className="text-[11px] text-slate-600 leading-relaxed">{subheadline}</p>
-          {pricing && <p className="text-[10px] font-bold text-slate-500">{pricing}</p>}
+          {pricing && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-slate-700">{pricing}</span>
+              <span className="text-[10px] text-emerald-600 font-bold">· Free Trial Available</span>
+            </div>
+          )}
+          <div className="flex items-center gap-4 pt-1.5 border-t border-slate-100">
+            <span className="text-[9px] text-[#1a73e8] font-bold hover:underline cursor-pointer">Pricing</span>
+            <span className="text-[9px] text-[#1a73e8] font-bold hover:underline cursor-pointer">Features</span>
+            <span className="text-[9px] text-[#1a73e8] font-bold hover:underline cursor-pointer">Case Studies</span>
+            <span className="text-[9px] text-[#1a73e8] font-bold hover:underline cursor-pointer">Free Demo</span>
+          </div>
           <div className="flex items-center gap-3 pt-1">
             <span className="text-[9px] text-slate-400">Est. CPC: ${channel.cpc}</span>
             <span className="text-[9px] text-slate-400">CTR: {channel.ctr}%</span>
@@ -566,27 +720,23 @@ function AdMockup({ channel, offerData, narrativeData }) {
       <div className={`rounded-2xl overflow-hidden border ${theme.border}`}>
         {/* Ad header */}
         <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-950/80">
-          <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs">{theme.icon}</div>
+          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm">{theme.icon}</div>
           <div className="flex-1">
-            <p className="text-[10px] font-bold text-slate-200">Your Brand</p>
+            <p className="text-[11px] font-bold text-slate-200">Your Brand</p>
             <p className="text-[9px] text-slate-500">{theme.label} · {theme.platform}</p>
           </div>
-          <span className="text-[8px] font-black text-slate-600 uppercase">...</span>
+          <span className="text-[10px] text-slate-500 cursor-pointer">•••</span>
         </div>
+        {/* Ad image */}
+        <AdImage theme={theme} channelKey={channelKey} headline={headline} offerData={offerData} />
         {/* Ad body */}
-        <div className={`bg-gradient-to-br ${theme.bg} px-5 py-6 space-y-3`}>
-          <p className={`text-[15px] font-black leading-tight ${theme.darkText ? 'text-slate-900' : 'text-white'}`}>
-            {headline}
-          </p>
+        <div className="bg-slate-950/60 px-4 py-3 space-y-2">
+          <p className="text-[13px] font-bold text-slate-100 leading-snug">{headline}</p>
           {subheadline && (
-            <p className={`text-[11px] leading-relaxed ${theme.darkText ? 'text-slate-600' : 'text-white/70'}`}>
-              {subheadline}
-            </p>
+            <p className="text-[11px] text-slate-400 leading-relaxed">{subheadline}</p>
           )}
           {pricing && (
-            <p className={`text-[11px] font-black ${theme.darkText ? 'text-emerald-700' : 'text-emerald-300'}`}>
-              {pricing}
-            </p>
+            <p className="text-[10px] font-bold text-emerald-400">{pricing}</p>
           )}
           <div className="pt-1">
             <span className={`inline-block px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider ${theme.accent} ${theme.accentText} shadow-lg`}>
@@ -594,11 +744,213 @@ function AdMockup({ channel, offerData, narrativeData }) {
             </span>
           </div>
         </div>
-        {/* Ad footer */}
-        <div className="bg-slate-950/80 px-4 py-2 flex items-center justify-between">
-          <span className="text-[9px] text-slate-500">Est. CPC: ${channel.cpc}</span>
-          <span className="text-[9px] text-slate-500">CTR: {channel.ctr}%</span>
+        {/* Ad footer - engagement + metrics */}
+        <div className="bg-slate-950/80 px-4 py-2.5 space-y-1.5">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] text-slate-400">👍 {fmtNum(engagement.likes)}</span>
+            <span className="text-[10px] text-slate-400">💬 {engagement.comments}</span>
+            <span className="text-[10px] text-slate-400">🔄 {engagement.shares}</span>
+          </div>
+          <div className="flex items-center justify-between border-t border-slate-800 pt-1.5">
+            <span className="text-[9px] text-slate-500">Est. CPC: ${channel.cpc}</span>
+            <span className="text-[9px] text-slate-500">CTR: {channel.ctr}%</span>
+          </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Workflow Timeline ────────────────────────────────────────────────────────
+const TIMELINE_AGENTS = [
+  { num: '01', title: 'Market Intelligence', desc: 'Scans Reddit for business pain points, extracts opportunities using Groq LLM', icon: '🔍', input: 'Reddit r/startups, r/saas, r/marketing...', outputLabel: 'Opportunities' },
+  { num: '02', title: 'Offer Strategy', desc: 'Generates B2B offers with ICP, pricing, promise, guarantee. Validates with retry loop', icon: '💡', input: 'Market opportunities from Agent 1', outputLabel: 'Structured offers' },
+  { num: '03', title: 'Selection Engine', desc: 'Evaluates feasibility & profitability. Picks the winner for downstream execution', icon: '🎯', input: 'All generated offers', outputLabel: 'Validated winner' },
+  { num: '04', title: 'Funnel Architect', desc: 'Designs acquisition funnel — landing page, lead magnet, 7-day execution plan', icon: '🏗', input: 'Winning offer + ICP', outputLabel: 'Funnel blueprint' },
+  { num: '05', title: 'Messaging & Narrative', desc: 'Generates core positioning, messaging angles, LinkedIn posts, email sequences', icon: '✍', input: 'Offer + funnel strategy', outputLabel: 'Content assets' },
+  { num: '06', title: 'Paid Traffic Layer', desc: 'Simulates multi-channel paid acquisition — Google, LinkedIn, Meta with causal math', icon: '📊', input: 'ICP + funnel + narrative', outputLabel: 'Channel budgets' },
+  { num: '07', title: 'Outbound Outreach', desc: 'Simulates LinkedIn + cold email engine with prospect personas and meeting targets', icon: '📧', input: 'ICP + messaging angles', outputLabel: 'Prospect pipeline' },
+  { num: '08', title: 'Inbound Capture', desc: 'Converts traffic into scored Lead Objects using ICP*0.4 + intent*0.3 + pain*0.2 + budget*0.1', icon: '🧲', input: 'Traffic + outbound data', outputLabel: 'Scored leads' },
+  { num: '09', title: 'AI Qualification', desc: 'Simulates BANT qualification calls — Budget, Authority, Need, Timeline scoring', icon: '🤖', input: 'Captured leads', outputLabel: 'BANT reports' },
+  { num: '10', title: 'Sales Routing', desc: 'Deterministic routing: CHECKOUT / SALES_CALL / NURTURE / DISQUALIFIED + CRM sync', icon: '🔀', input: 'Qualified leads', outputLabel: 'Routed decisions' },
+  { num: '11', title: 'Attribution Engine', desc: 'Maps revenue to sources via UTM. Full funnel waterfall + channel ROI metrics', icon: '📈', input: 'All pipeline data', outputLabel: 'Attribution report' },
+  { num: '12', title: 'Performance Dashboard', desc: 'Aggregates all metrics across the pipeline into optimization recommendations', icon: '⚡', input: 'Full pipeline state', outputLabel: 'Performance report' },
+  { num: '13', title: 'CRM Hygiene', desc: 'Auto-cleans, deduplicates, and maintains HubSpot CRM data integrity', icon: '🧹', input: 'CRM records', outputLabel: 'Hygiene report' },
+];
+
+function WorkflowTimeline({ opportunities, funnelData, narrativeData, trafficData, outboundData, captureData, qualificationData, routingData, attributionData, performanceData, hygieneData, pipelineStartTime, isLoading, isSelecting, isGeneratingFunnel, isGeneratingNarrative, isGeneratingTraffic, isGeneratingOutbound, isGeneratingCapture, isGeneratingQualification, isGeneratingRouting, isGeneratingAttribution, isGeneratingPerformance, isGeneratingHygiene }) {
+  const elapsed = pipelineStartTime ? Math.floor((Date.now() - pipelineStartTime) / 1000) : 0;
+  const fmtTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
+  // Determine status and summary for each agent
+  const getAgentStatus = (idx) => {
+    const hasOffers = opportunities.some(o => o.offerData);
+    const hasValidation = opportunities.some(o => o.validationInfo);
+    const states = [
+      { data: opportunities.length > 0, loading: isLoading },
+      { data: hasOffers, loading: isLoading && opportunities.length > 0 },
+      { data: hasValidation, loading: isSelecting },
+      { data: !!funnelData, loading: isGeneratingFunnel },
+      { data: !!narrativeData, loading: isGeneratingNarrative },
+      { data: !!trafficData, loading: isGeneratingTraffic },
+      { data: !!outboundData, loading: isGeneratingOutbound },
+      { data: !!captureData, loading: isGeneratingCapture },
+      { data: !!qualificationData, loading: isGeneratingQualification },
+      { data: !!routingData, loading: isGeneratingRouting },
+      { data: !!attributionData, loading: isGeneratingAttribution },
+      { data: !!performanceData, loading: isGeneratingPerformance },
+      { data: !!hygieneData, loading: isGeneratingHygiene },
+    ];
+    const s = states[idx];
+    if (s.loading) return 'running';
+    if (s.data) return 'complete';
+    return 'idle';
+  };
+
+  const getAgentSummary = (idx) => {
+    const hasOffers = opportunities.some(o => o.offerData);
+    const hasValidation = opportunities.some(o => o.validationInfo);
+    const winner = opportunities.find(o => o.validationInfo?.isSelected);
+    switch (idx) {
+      case 0: return opportunities.length > 0 ? opportunities.map(o => `${o.solution} (${o.solution_type})`).join(' · ') : null;
+      case 1: return hasOffers ? opportunities.filter(o => o.offerData).map(o => `${o.solution}: ${o.offerData?.pricing || 'N/A'}`).join(' · ') : null;
+      case 2: return hasValidation && winner ? `Winner: ${winner.solution} — ${winner.validationInfo?.final_decision || 'Selected'}` : null;
+      case 3: return funnelData ? `Headline: "${(funnelData.landing_page?.headline || funnelData.headline || '').slice(0, 50)}"` : null;
+      case 4: return narrativeData ? `Core: "${(narrativeData.core_message || narrativeData.positioning || '').slice(0, 50)}" · ${(narrativeData.angles || []).length} angles` : null;
+      case 5: {
+        const pt = trafficData?.paid_traffic || trafficData;
+        return pt ? `${(pt.channels || []).length} channels · $${pt.total_daily_budget || '?'}/day · ${pt.totals?.total_leads || '?'} leads` : null;
+      }
+      case 6: {
+        const ob = outboundData?.outbound || outboundData;
+        return ob ? `${ob.total_prospects || ob.prospects?.length || '?'} prospects · ${ob.projected_meetings || '?'} meetings/mo` : null;
+      }
+      case 7: {
+        const cap = captureData?.leads || captureData?.captured_leads;
+        return cap ? `${Array.isArray(cap) ? cap.length : '?'} leads captured` : null;
+      }
+      case 8: {
+        const qual = qualificationData?.qualified_leads || qualificationData?.leads;
+        return qual ? `${Array.isArray(qual) ? qual.length : '?'} leads qualified via BANT` : null;
+      }
+      case 9: {
+        const rd = routingData?.pipeline_summary || routingData;
+        return rd ? `Checkout: ${rd.checkout || '?'} · Sales: ${rd.sales_call || '?'} · Nurture: ${rd.nurture || '?'}` : null;
+      }
+      case 10: return attributionData ? 'Full funnel waterfall + channel ROI mapped' : null;
+      case 11: return performanceData ? 'Optimization report generated' : null;
+      case 12: return hygieneData ? 'CRM records cleaned & deduplicated' : null;
+      default: return null;
+    }
+  };
+
+  const completedCount = Array.from({ length: 13 }, (_, i) => getAgentStatus(i)).filter(s => s === 'complete').length;
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Stats bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { value: '13', label: 'AI Agents', icon: '🤖' },
+          { value: `T+${fmtTime(elapsed)}`, label: 'Elapsed', icon: '⏱' },
+          { value: String(opportunities.length), label: 'Opportunities', icon: '💎' },
+          { value: `${completedCount}/13`, label: 'Completed', icon: '✅' },
+        ].map((stat, i) => (
+          <div key={i} className="bg-slate-900/60 border border-slate-700/30 rounded-2xl p-5 text-center backdrop-blur-sm">
+            <p className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">{stat.value}</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{stat.icon} {stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Timeline */}
+      <div className="relative">
+        {/* Vertical line */}
+        <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500/50 via-blue-500/30 to-transparent" />
+
+        {TIMELINE_AGENTS.map((agent, idx) => {
+          const status = getAgentStatus(idx);
+          const summary = getAgentSummary(idx);
+          const offset = idx * 12; // staggered seconds for display
+          return (
+            <div
+              key={idx}
+              className={`relative pl-16 pb-8 transition-all duration-700 ${
+                status === 'idle' ? 'opacity-30' : 'opacity-100'
+              }`}
+              style={{ animationDelay: `${idx * 80}ms` }}
+            >
+              {/* Timeline dot */}
+              <div className={`absolute left-4 top-1 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[8px] font-black ${
+                status === 'complete' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' :
+                status === 'running' ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 animate-pulse' :
+                'bg-slate-800 border-slate-600 text-slate-600'
+              }`}>
+                {status === 'complete' ? '✓' : status === 'running' ? '◉' : '○'}
+              </div>
+
+              {/* Time label */}
+              <div className="absolute left-0 top-0 -translate-x-full pr-3 hidden md:block">
+              </div>
+
+              {/* Card */}
+              <div className={`rounded-2xl border p-5 transition-all duration-500 ${
+                status === 'complete' ? 'bg-slate-900/60 border-emerald-500/20' :
+                status === 'running' ? 'bg-slate-900/80 border-cyan-500/40 shadow-lg shadow-cyan-500/10' :
+                'bg-slate-900/30 border-slate-700/20 border-dashed'
+              }`}>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{agent.icon}</span>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Agent {agent.num}</p>
+                      <p className="text-sm font-black text-slate-100">{agent.title}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+                      status === 'complete' ? 'bg-emerald-500/10 text-emerald-400' :
+                      status === 'running' ? 'bg-cyan-500/10 text-cyan-400' :
+                      'bg-slate-800 text-slate-600'
+                    }`}>
+                      {status === 'complete' ? '✓ Complete' : status === 'running' ? '⏳ Running...' : 'Pending'}
+                    </span>
+                    {pipelineStartTime && status !== 'idle' && (
+                      <span className="text-[9px] font-mono text-slate-500">T+{fmtTime(offset)}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-[11px] text-slate-400 leading-relaxed mb-3">{agent.desc}</p>
+
+                {/* I/O */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-500">INPUT: {agent.input}</span>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-500">OUTPUT: {agent.outputLabel}</span>
+                </div>
+
+                {/* Running animation */}
+                {status === 'running' && (
+                  <div className="mt-2">
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+                    </div>
+                    <p className="text-[10px] text-cyan-400 mt-1.5 animate-pulse">Processing with Groq Llama 3.1...</p>
+                  </div>
+                )}
+
+                {/* Summary when complete */}
+                {status === 'complete' && summary && (
+                  <div className="mt-2 bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-3 py-2">
+                    <p className="text-[10px] text-emerald-400/80 leading-relaxed">{summary}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -665,33 +1017,52 @@ export default function App() {
   const [hygieneData, setHygieneData] = useState(null);
   const [isGeneratingHygiene, setIsGeneratingHygiene] = useState(false);
   const [activeStep, setActiveStep] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [pipelineStartTime, setPipelineStartTime] = useState(null);
 
   // Track which agent section is currently visible
   useEffect(() => {
-    const sections = document.querySelectorAll('section[id^="step-"]');
-    if (sections.length === 0) return;
+    if (activeTab !== 'dashboard') return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Find the topmost visible section
-        let topEntry = null;
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            if (!topEntry || entry.boundingClientRect.top < topEntry.boundingClientRect.top) {
-              topEntry = entry;
+    // Wait for DOM to render after tab switch
+    const raf = requestAnimationFrame(() => {
+      setTimeout(() => {
+        const sections = document.querySelectorAll('section[id^="step-"]');
+        if (sections.length === 0) return;
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            // Collect all currently visible sections
+            const visible = [];
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                visible.push(entry);
+              }
+            });
+            if (visible.length > 0) {
+              // Pick the one closest to the top of viewport
+              visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+              setActiveStep(visible[0].target.id);
             }
-          }
-        });
-        if (topEntry) {
-          setActiveStep(topEntry.target.id);
-        }
-      },
-      { threshold: 0.15, rootMargin: '-80px 0px -50% 0px' }
-    );
+          },
+          { threshold: 0.01, rootMargin: '-60px 0px -40% 0px' }
+        );
 
-    sections.forEach(s => observer.observe(s));
-    return () => observer.disconnect();
-  }, [opportunities.length]);
+        sections.forEach(s => observer.observe(s));
+
+        // Store cleanup ref
+        window.__leadosObserver = observer;
+      }, 100);
+    });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (window.__leadosObserver) {
+        window.__leadosObserver.disconnect();
+        window.__leadosObserver = null;
+      }
+    };
+  }, [opportunities.length, activeTab]);
 
   const runPerformanceAgent = async () => {
     setIsGeneratingPerformance(true);
@@ -1249,6 +1620,7 @@ export default function App() {
   const runAgent1 = async () => {
     setIsLoading(true);
     setError(null);
+    setPipelineStartTime(Date.now());
     setOpportunities([]);
     setFunnelData(null);
     setNarrativeData(null);
@@ -1391,7 +1763,26 @@ export default function App() {
       {/* ── Floating Navigation Bar ── */}
       {opportunities.length > 0 && (
         <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl px-2 py-1.5 flex items-center gap-1 shadow-2xl shadow-black/50">
-          {[
+          {/* Tab toggles */}
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all ${
+              activeTab === 'dashboard' ? 'text-cyan-300 bg-cyan-500/20' : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <span>📊</span><span className="hidden sm:inline">Dashboard</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('timeline')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all ${
+              activeTab === 'timeline' ? 'text-cyan-300 bg-cyan-500/20' : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <span>⏱</span><span className="hidden sm:inline">Timeline</span>
+          </button>
+          <div className="w-px h-5 bg-slate-700/50 mx-0.5" />
+          {/* Agent number buttons - only in dashboard tab */}
+          {activeTab === 'dashboard' && [
             ['step-1','01','Market Intel'],
             ['step-2','02','Offers'],
             ['step-3','03','Validation'],
@@ -1512,8 +1903,36 @@ export default function App() {
         )}
 
         {opportunities.length > 0 ? (
+          activeTab === 'timeline' ? (
+            <WorkflowTimeline
+              opportunities={opportunities}
+              funnelData={funnelData}
+              narrativeData={narrativeData}
+              trafficData={trafficData}
+              outboundData={outboundData}
+              captureData={captureData}
+              qualificationData={qualificationData}
+              routingData={routingData}
+              attributionData={attributionData}
+              performanceData={performanceData}
+              hygieneData={hygieneData}
+              pipelineStartTime={pipelineStartTime}
+              isLoading={isLoading}
+              isSelecting={isSelecting}
+              isGeneratingFunnel={isGeneratingFunnel}
+              isGeneratingNarrative={isGeneratingNarrative}
+              isGeneratingTraffic={isGeneratingTraffic}
+              isGeneratingOutbound={isGeneratingOutbound}
+              isGeneratingCapture={isGeneratingCapture}
+              isGeneratingQualification={isGeneratingQualification}
+              isGeneratingRouting={isGeneratingRouting}
+              isGeneratingAttribution={isGeneratingAttribution}
+              isGeneratingPerformance={isGeneratingPerformance}
+              isGeneratingHygiene={isGeneratingHygiene}
+            />
+          ) : (
           <div className="space-y-4 animate-in fade-in duration-1000">
-            
+
             {/* ── Step 1: Signals ── */}
             <section id="step-1" className="scroll-mt-20 bg-slate-900/40 border border-slate-700/30 rounded-[40px] p-10 backdrop-blur-sm">
               <StepHeader 
@@ -1939,6 +2358,7 @@ export default function App() {
                                 {/* Simulated Ad Preview */}
                                 <AdMockup
                                   channel={ch}
+                                  channelIndex={i}
                                   offerData={opportunities.find(o => o.validationInfo?.isSelected)?.offerData}
                                   narrativeData={narrativeData}
                                 />
@@ -3013,6 +3433,7 @@ export default function App() {
               </div>
             </footer>
           </div>
+          )
         ) : (
           /* Idle State */
           <div className="py-32 flex flex-col items-center text-center">
