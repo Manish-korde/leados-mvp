@@ -80,7 +80,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+        "url": "https://hooks.slack.com/services/REPLACE_WITH_YOUR_WEBHOOK",
         "authentication": "none",
         "sendBody": true,
         "specifyBody": "json",

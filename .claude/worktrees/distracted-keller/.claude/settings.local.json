@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(pip install:*)",
+      "Bash(python -c \":*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -H \"User-Agent: LeadOS/1.0\" \"https://www.reddit.com/r/startups.json\")",
+      "Bash(curl -s -H \"User-Agent: LeadOS/1.0\" \"https://www.reddit.com/r/startups.json\")",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Bash(python -c \"import json; json.load\\(open\\(''$f''\\)\\); print\\(''VALID''\\)\")",
+      "Bash(done)",
+      "Bash(python -c \"import json; json.load\\(open\\(''C:/Users/manis/OneDrive/Desktop/leados-mvp/n8n-workflows/Agent10_sales_routing.json'', encoding=''utf-8''\\)\\); print\\(''VALID''\\)\")",
+      "Bash(python -c \"import json; json.load\\(open\\(''$f''\\)\\); print\\(''VALID JSON''\\)\")",
+      "Bash(python -c \"import json; json.load\\(open\\(''n8n-workflows/Agent10_sales_routing.json'', encoding=''utf-8''\\)\\); print\\(''VALID JSON''\\)\")"
+    ]
+  }
+}
