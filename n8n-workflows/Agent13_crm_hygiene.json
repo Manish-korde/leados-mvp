@@ -21,7 +21,7 @@
             {
               "id": "prompt-input",
               "name": "prompt_input",
-              "value": "={{ \"All Leads (Agent 8): \" + JSON.stringify($json.body.capture_data) + \"\\n\\nQualification Data (Agent 9): \" + JSON.stringify($json.body.qualification_data) + \"\\n\\nRouting Data (Agent 10): \" + JSON.stringify($json.body.routing_data) + \"\\n\\nAttribution Data (Agent 11): \" + JSON.stringify($json.body.attribution_data) }}",
+              "value": "={{ (() => { const cap = (typeof $json.body.capture_data === 'string' ? JSON.parse($json.body.capture_data) : $json.body.capture_data) || {}; const qual = (typeof $json.body.qualification_data === 'string' ? JSON.parse($json.body.qualification_data) : $json.body.qualification_data) || {}; const rout = (typeof $json.body.routing_data === 'string' ? JSON.parse($json.body.routing_data) : $json.body.routing_data) || {}; const leads = (cap.leads || []).map(l => ({ lead_id: l.lead_id, name: l.name, company: l.company, email: l.email, role: l.role, lead_score: l.lead_score, intent_level: l.intent_level, source: l.source })); const qualLeads = (qual.qualified_leads || []).map(l => ({ lead_id: l.lead_id, name: l.name, final_status: l.final_status, bant_total: l.bant_score?.total })); const routLeads = (rout.routed_leads || []).map(l => ({ lead_id: l.lead_id, name: l.name, final_decision: l.final_decision, intent_score: l.intent_score })); return 'Leads (' + leads.length + '): ' + JSON.stringify(leads) + '\\n\\nQualification: ' + JSON.stringify(qualLeads) + '\\n\\nRouting: ' + JSON.stringify(routLeads); })() }}",
               "type": "string"
             }
           ]
