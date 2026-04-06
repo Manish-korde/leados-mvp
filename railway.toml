@@ -3,11 +3,8 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.n8n"
 
 [deploy]
-startCommand = "n8n start"
+startCommand = "/bin/sh /home/node/n8n-start.sh"
 healthcheckPath = "/healthz"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
-
-[[services]]
-name = "n8n"
